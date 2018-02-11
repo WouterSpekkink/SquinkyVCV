@@ -1,0 +1,10 @@
+**/build/
+**/Debug/
+**/Release/
+**/.vs/
+*.opensdf
+*.sdf
+*.ipch
+Squinky.suo
+*.dll
+*.user
