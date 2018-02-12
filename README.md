@@ -7,8 +7,7 @@ Please use our GitHub issues page to report problems, request features, etc. If 
 
 We are not currently accepting pull requests.
 ## Installing binaries
-*Coming Soon!*
-Download the current release from out [releases page](./releases).
+Download the current release from our [releases page](https://github.com/squinkylabs/SquinkyVCV/releases).
 Follow the standard instructions for installing third-party plugins in rack: [here](https://vcvrack.com/manual/Installing.html)
 ## Building source
 As with all third-party modules for VCV, you must:
