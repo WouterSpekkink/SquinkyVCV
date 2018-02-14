@@ -1,5 +1,5 @@
 SLUG = squinkylabs-plug1
-VERSION = 0.5.0
+VERSION = 0.5.1
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS += -I./dsp/generators -I./dsp/utils -I./dsp/filters
