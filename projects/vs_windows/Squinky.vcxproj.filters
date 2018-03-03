@@ -46,6 +46,12 @@
     <Filter Include="Source Files\dsp\utils">
       <UniqueIdentifier>{20dd77d1-e20f-4a4f-8086-472afb19d4e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\test">
+      <UniqueIdentifier>{d358068d-664e-470d-93b2-2bb5db2b41e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\composites">
+      <UniqueIdentifier>{6f955dd1-2a2c-4506-bfc2-4bb55734eb72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -81,6 +87,12 @@
     <ClCompile Include="..\..\test\testAudioMath.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\perfTest.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testFrequencyShifter.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
@@ -112,6 +124,24 @@
     </ClInclude>
     <ClInclude Include="..\..\dsp\filters\HilbertFilterDesigner.h">
       <Filter>Header Files\dsp\filters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\test\MeasureTime.h">
+      <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\FrequencyShifter.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\TestComposite.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\WidgetComposite.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\test\TimeStatsCollector.h">
+      <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\test\SqTime.h">
+      <Filter>Header Files\test</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
