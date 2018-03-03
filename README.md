@@ -39,4 +39,9 @@ As with all third-party modules for VCV, you must:
 ## VCV Rack version 0.6.0
 The next version of VCV Rack is coming soon. Version 0.5.x plugins will not work with version 0.6.0.
 
-We are almost done porting our work to 0.6.0. That work is currently on a branch called v0.6.0dev. If you already have a build of VCV Rack 0.6.0 then you may build our plugin by running `git checkout v0.6.0dev` before running `make`.
+We have ported our code to VCV 0.6.0. Our "master" branch is now 0.6.0dev compatible. Pulugins built from master will run in VCV Rack 0.6.0dev, and will not run in any 0.5.x versions of VCV Rack.
+
+Please report any issues running in VCV Rack 0.6.0dev on our GitHub issues page.
+
+Like most plugin developers, we will update our releases and post in the Plugin Manager once 0.6 ships.
+
