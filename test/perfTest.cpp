@@ -10,8 +10,12 @@
 #include "BiquadState.h"
 #include "FrequencyShifter.h"
 #include "TestComposite.h"
+#include "VocalAnimator.h"
+#include "VocalFilter.h"
 
 using Shifter = FrequencyShifter<TestComposite>;
+using Animator = VocalAnimator<TestComposite>;
+using VocFilter = VocalFilter<TestComposite>;
 
 #include "MeasureTime.h"
 
@@ -72,8 +76,7 @@ static void testHilbert()
 
 }
 
-
-void testShifter()
+static void testShifter()
 {
     Shifter fs;
 
@@ -87,13 +90,48 @@ void testShifter()
         fs.step();
         return fs.outputs[Shifter::SIN_OUTPUT].value;
         }, 1);
+}
 
+static void testAnimator()
+{
+    Animator an;
+
+    an.setSampleRate(44100);
+    an.init();
+
+    an.inputs[Shifter::AUDIO_INPUT].value = 0;
+
+    MeasureTime<float>::run("animator", [&an]() {
+        an.inputs[Shifter::AUDIO_INPUT].value = TestBuffers<float>::get();
+        an.step();
+        return an.outputs[Shifter::SIN_OUTPUT].value;
+        }, 1);
+}
+
+
+static void testVocalFilter()
+{
+    VocFilter an;
+
+    an.setSampleRate(44100);
+    an.init();
+
+    an.inputs[Shifter::AUDIO_INPUT].value = 0;
+
+    MeasureTime<float>::run("vocal filter", [&an]() {
+        an.inputs[Shifter::AUDIO_INPUT].value = TestBuffers<float>::get();
+        an.step();
+        return an.outputs[Shifter::SIN_OUTPUT].value;
+        }, 1);
 }
 
 void perfTest()
 {
+    testVocalFilter();
+    testShifter();
+    testAnimator();
+
     test1();
     testHilbert<float>();
     testHilbert<double>();
-    testShifter();
 }

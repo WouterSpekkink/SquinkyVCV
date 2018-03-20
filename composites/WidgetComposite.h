@@ -10,12 +10,13 @@ public:
     WidgetComposite(Module * parent) : 
         inputs(parent->inputs),
         outputs(parent->outputs),
-        params(parent->params)
+        params(parent->params),
+        lights(parent->lights)
     {
     }
 protected:
     std::vector<Input>& inputs;
     std::vector<Output>& outputs;
     std::vector<Param>& params;
-
+    std::vector<Light>& lights;
 };
