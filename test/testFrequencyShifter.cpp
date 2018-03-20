@@ -24,6 +24,7 @@ static void test1()
     fs.init();
 
     fs.inputs[Shifter::AUDIO_INPUT].value = 0;
+    fs.outputs[Shifter::SIN_OUTPUT].value = 0;
 
     // with no input, should have no output
     for (int i = 0; i < 50; ++i) {

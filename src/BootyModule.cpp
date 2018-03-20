@@ -2,44 +2,12 @@
 #include "Squinky.hpp"
 #include "FrequencyShifter.h"
 #include "WidgetComposite.h"
-#if 0
-#include "SinOscillator.h"
-#include "BiquadParams.h"
-#include "BiquadFilter.h"
-#include "BiquadState.h"
-#include "HilbertFilterDesigner.h"
-#endif
 
 /**
  * Implementation class for BootyWidget
  */
 struct BootyModule : Module
 {
-    enum ParamIds
-    {
-        PITCH_PARAM,      // the big pitch knob
-        NUM_PARAMS
-    };
-
-    enum InputIds
-    {
-        AUDIO_INPUT,
-        CV_INPUT,
-        NUM_INPUTS
-    };
-
-    enum OutputIds
-    {
-        SIN_OUTPUT,
-        COS_OUTPUT,
-        NUM_OUTPUTS
-    };
-
-    enum LightIds
-    {
-        NUM_LIGHTS
-    };
-
     BootyModule();
 
     /**
@@ -52,63 +20,33 @@ struct BootyModule : Module
 
     FrequencyShifter<WidgetComposite> shifter;
 private:
-  typedef float T;
-#if 1
-  //  WidgetComposite wc;
-  //  FrequencyShifter<WidgetComposite> shifter;
-#else
-  
-    SinOscillatorParams<T> oscParams;
-    SinOscillatorState<T> oscState;
-    BiquadParams<T, 3> hilbertFilterParamsSin;
-    BiquadParams<T, 3> hilbertFilterParamsCos;
-    BiquadState<T, 3> hilbertFilterStateSin;
-    BiquadState<T, 3> hilbertFilterStateCos;
-
-    LookupTableParams<T> exponential;
-
-    float reciprocolSampleRate;
-#endif
+    typedef float T;
 public:
    // float freqRange = 5;
-    ChoiceButton *rangeChoice;
+    ChoiceButton * rangeChoice;
 };
 
 extern float values[];
 extern const char* ranges[];
 
-BootyModule::BootyModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS),
-    shifter(this)
+
+BootyModule::BootyModule() : Module(shifter.NUM_PARAMS, shifter.NUM_INPUTS, shifter.NUM_OUTPUTS, shifter.NUM_LIGHTS),
+shifter(this)
 {
     // TODO: can we assume onSampleRateChange() gets called first, so this is unnecessary?
     onSampleRateChange();
-
     shifter.init();
-#if 0
-    // Force lazy load of lookup table with this extra call
-    
-    SinOscillator<T, true>::setFrequency(oscParams, .01);
-   
-    // Make 128 entry table to do exp x={-5..5} y={2..2000}
-    std::function<double(double)> expFunc = AudioMath::makeFunc_Exp(-5, 5, 2, 2000);
-    LookupTable<T>::init(exponential, 128, -5, 5, expFunc);
-#endif
 }
 
 void BootyModule::onSampleRateChange()
 {
     T rate = engineGetSampleRate();
-    #if 0
-    reciprocolSampleRate = 1 / rate;
-    HilbertFilterDesigner<T>::design(rate, hilbertFilterParamsSin, hilbertFilterParamsCos);
-    #endif
     shifter.setSampleRate(rate);
 }
 
 json_t *BootyModule::toJson()
 {
     json_t *rootJ = json_object();
-  //  int rg = freqRange;
     const int rg = shifter.freqRange;
     json_object_set_new(rootJ, "range", json_integer(rg));
     return rootJ;
@@ -116,7 +54,6 @@ json_t *BootyModule::toJson()
 
 void BootyModule::fromJson(json_t *rootJ)
 {
-
     json_t *driverJ = json_object_get(rootJ, "range");
     if (driverJ) {
         const int rg = json_number_value(driverJ);
@@ -137,46 +74,6 @@ void BootyModule::step()
 {
     shifter.step();
 }
-#if 0
-void BootyModule::step()
-{
-    // add the knob and the CV
-    T freqHz;
-    T cvTotal = params[PITCH_PARAM].value + inputs[CV_INPUT].value;
-    if (cvTotal > 5) {
-        cvTotal = 5;
-    }
-    if (cvTotal < -5) {
-        cvTotal = -5;
-    }
-    if (freqRange > .2) {
-        cvTotal *= freqRange;
-        cvTotal *= 1. / 5.;
-        freqHz = cvTotal;
-    } else {
-        freqHz = LookupTable<T>::lookup(exponential, cvTotal);
-    }
-
-    SinOscillator<float, true>::setFrequency(oscParams, freqHz * reciprocolSampleRate);
-
-    // Generate the quadrature sin oscillators.
-    T x, y;
-    SinOscillator<T, true>::runQuadrature(x, y, oscState, oscParams);
-
-    // Filter the input through th quadrature filter
-    const T input = inputs[AUDIO_INPUT].value;
-    const T hilbertSin = BiquadFilter<T>::run(input, hilbertFilterStateSin, hilbertFilterParamsSin);
-    const T hilbertCos = BiquadFilter<T>::run(input, hilbertFilterStateCos, hilbertFilterParamsCos);
-
-    // Cross modulate the two sections.
-    x *= hilbertSin;
-    y *= hilbertCos;
-
-    // And combine for final SSB output.
-    outputs[SIN_OUTPUT].value = x + y;
-    outputs[COS_OUTPUT].value = x - y;
-}
-#endif
 
 /***********************************************************************************
  *
@@ -221,7 +118,6 @@ struct RangeItem : MenuItem
 
 struct RangeChoice : ChoiceButton
 {
-
     RangeChoice(float * out, const Vec& pos, float width) : output(out)
     {
         assert(*output == 5);
@@ -250,7 +146,6 @@ struct RangeChoice : ChoiceButton
 // module widget
 ////////////////////
 
-
 struct BootyWidget : ModuleWidget
 {
     BootyWidget(BootyModule *);
@@ -263,8 +158,6 @@ struct BootyWidget : ModuleWidget
  */
 BootyWidget::BootyWidget(BootyModule *module) : ModuleWidget(module)
 {
-    // BootyModule *module = new BootyModule();
- //	setModule(module);
     box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
     {
@@ -282,8 +175,8 @@ BootyWidget::BootyWidget(BootyModule *module) : ModuleWidget(module)
     static int row2 = 186;
 
     // Inputs on Row 0
-    addInput(Port::create<PJ301MPort>(Vec(leftInputX, row0), Port::INPUT, module, BootyModule::AUDIO_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(rightInputX, row0), Port::INPUT, module, BootyModule::CV_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(leftInputX, row0), Port::INPUT, module, module->shifter.AUDIO_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(rightInputX, row0), Port::INPUT, module, module->shifter.CV_INPUT));
 
     // shift Range on row 2
     const float margin = 16;
@@ -296,7 +189,7 @@ BootyWidget::BootyWidget(BootyModule *module) : ModuleWidget(module)
     addChild(module->rangeChoice);
 
     // knob on row 1
-    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(18, row1), module, BootyModule::PITCH_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(18, row1), module, module->shifter.PITCH_PARAM, -5.0, 5.0, 0.0));
 
     const float row3 = 317.5;
 
@@ -304,8 +197,9 @@ BootyWidget::BootyWidget(BootyModule *module) : ModuleWidget(module)
     const float leftOutputX = 9.5;
     const float rightOutputX = 55.5;
 
-    addOutput(Port::create<PJ301MPort>(Vec(leftOutputX, row3), Port::OUTPUT, module, BootyModule::SIN_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(rightOutputX, row3), Port::OUTPUT, module, BootyModule::COS_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(leftOutputX, row3), Port::OUTPUT, module, module->shifter.SIN_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(rightOutputX, row3), Port::OUTPUT, module, module->shifter.COS_OUTPUT));
+
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));

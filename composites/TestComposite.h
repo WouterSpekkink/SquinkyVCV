@@ -11,9 +11,10 @@ class TestComposite
 {
 public:
     TestComposite() :
-        inputs(8),
-        outputs(8),
-        params(8)
+        inputs(20),
+        outputs(20),
+        params(20),
+        lights(20)
     {
        
     }
@@ -60,5 +61,5 @@ public:
     std::vector<Input> inputs;
     std::vector<Output> outputs;
     std::vector<Param> params;
-
+    std::vector<Light> lights;
 };

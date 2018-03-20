@@ -7,6 +7,7 @@
 #include <string>
 
 extern void testBiquad();
+extern void testTestSignal();
 extern void testSaw();
 extern void testLookupTable();
 extern void testSinOscillator();
@@ -14,6 +15,8 @@ extern void testHilbert();
 extern void testAudioMath();
 extern void perfTest();
 extern void testFrequencyShifter();
+extern void testStateVariable();
+extern void testVocalAnimator();
 
 int main(int argc, char ** argv)
 {
@@ -29,14 +32,17 @@ int main(int argc, char ** argv)
     assert(sizeof(size_t) == 8);
 
     testAudioMath();
+    testTestSignal();
     testBiquad();
     testSaw();
     testLookupTable();
     testSinOscillator();
     testHilbert();
+    testStateVariable();
 
     // after testing all the components, test composites.
     testFrequencyShifter();
+    testVocalAnimator();
 
     if (runPerf) {
         perfTest();

@@ -93,6 +93,18 @@
     <ClCompile Include="..\..\test\testFrequencyShifter.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\testStateVariable.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testTestSignal.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testVocalAnimator.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\filters\FormantTables2.cpp">
+      <Filter>Source Files\dsp\filters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
@@ -141,6 +153,27 @@
       <Filter>Header Files\test</Filter>
     </ClInclude>
     <ClInclude Include="..\..\test\SqTime.h">
+      <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\filters\StateVariableFilter.h">
+      <Filter>Header Files\dsp\filters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\test\TestSignal.h">
+      <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\generators\MultiModOsc.h">
+      <Filter>Header Files\dsp\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\VocalAnimator.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\VocalFilter.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\filters\FormantTables2.h">
+      <Filter>Header Files\dsp\filters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\test\asserts.h">
       <Filter>Header Files\test</Filter>
     </ClInclude>
   </ItemGroup>
