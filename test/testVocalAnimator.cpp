@@ -1,6 +1,7 @@
 #include "asserts.h"
 
 
+#include "ExtremeTester.h"
 #include "VocalAnimator.h"
 #include "TestComposite.h"
 #include "VocalFilter.h"
@@ -56,7 +57,7 @@ static void test2()
     anim.init();
     for (int i = 0; i < 4; ++i) {
         float freq = anim.normalizedFilterFreq[i] * 44100;
-        assertEq(freq, anim.nominalFilterCenterHz[i]);
+        assertEQ(freq, anim.nominalFilterCenterHz[i]);
     }
 }
 
@@ -87,8 +88,7 @@ static void test3()
         //printf("i=%d, freq=%f, nominal=%f\n", i, freq, anim.nominalFilterCenterHz[i]);
         if (i == 3) {
             assertClose(freq, anim.nominalFilterCenterHz[i], .01);
-        }
-        else
+        } else
             assert(freq > anim.nominalFilterCenterHz[i]);
     }
 
@@ -123,9 +123,9 @@ static void testScalers()
     // CV, no knob
     assertClose(1, anim.scale0_1(5, 0, 1), .001);              // full cv, untrimmed
     assertClose(0, anim.scale0_1(-5, 0, 1), .001);              // full cv, untrimmed
-    assertClose(.25, anim.scale0_1((-5.0f * .5f), 0, 1), .001);              // 3/4 cv, untrimmed
+    assertClose(.25, anim.scale0_1((-5.0f * .5f), 0, 1), .001);       // 3/4 cv, untrimmed
 
-    assertClose(.75, anim.scale0_1(5, 0, .5f), .001);              // full cv, half trim
+    assertClose(.75, anim.scale0_1(5, 0, .5f), .001);           // full cv, half trim
     assertClose(0, anim.scale0_1(5, 0, -1), .001);              // full cv, full neg trim
 
 }
@@ -151,12 +151,12 @@ static void x()
     anim.step();
 
     dump("init", anim);
-    
+
     // TODO: assert here
     anim.params[anim.FILTER_FC_PARAM].value = 5;
     anim.step();
     dump("fc 5", anim);
-   
+
     anim.params[anim.FILTER_FC_PARAM].value = -5;
     anim.step();
     dump("fc -5", anim);
@@ -197,7 +197,7 @@ static void x()
 
 #if 0
     // TODO: would be nice to be able to inject an LFO voltage
-    anim.params[anim.FILTER_FC_PARAM].value = 0;  
+    anim.params[anim.FILTER_FC_PARAM].value = 0;
     anim.params[anim.FILTER_MOD_DEPTH_PARAM].value = 5;
     for (int i = 0; i < 40000; ++i) {
         anim.step();
@@ -286,10 +286,64 @@ static void testVocalFilter()
     }
 }
 
+static void testInputExtremes()
+{
+    VocalAnimator<TestComposite> va;
+    va.setSampleRate(44100);
+    va.init();
 
-void testVocalAnimator()
+    using fp = std::pair<float, float>;
+    std::vector< std::pair<float, float> > paramLimits;
+
+    paramLimits.resize(va.NUM_PARAMS);
+    paramLimits[va.LFO_RATE_PARAM] = fp(-5.0f, 5.0f);
+  //  paramLimits[va.LFO_SPREAD_PARAM] = fp(-5.0f, 5.0f);
+    paramLimits[va.FILTER_FC_PARAM] = fp(-5.0f, 5.0f);
+    paramLimits[va.FILTER_Q_PARAM] = fp(-5.0f, 5.0f);
+    paramLimits[va.FILTER_MOD_DEPTH_PARAM] = fp(-5.0f, 5.0f);
+
+
+    paramLimits[va.LFO_RATE_TRIM_PARAM] = fp(-1.0f, 1.0f);
+    paramLimits[va.FILTER_Q_TRIM_PARAM] = fp(-1.0f, 1.0f);
+    paramLimits[va.FILTER_FC_TRIM_PARAM] = fp(-1.0f, 1.0f);
+    paramLimits[va.FILTER_MOD_DEPTH_TRIM_PARAM] = fp(-1.0f, 1.0f);
+
+    paramLimits[va.BASS_EXP_PARAM] = fp(0.f, 1.0f);
+    paramLimits[va.TRACK_EXP_PARAM] = fp(0.f, 2.0f);
+    paramLimits[va.LFO_MIX_PARAM] = fp(0.f, 1.0f);
+
+    // TODO: why is output going so high?
+    ExtremeTester< VocalAnimator<TestComposite>>::test(va, paramLimits, false);
+}
+
+
+static void testVocalExtremes()
 {
 
+    VocalFilter<TestComposite> va;
+    va.setSampleRate(44100);
+    va.init();
+
+    using fp = std::pair<float, float>;
+    std::vector< std::pair<float, float> > paramLimits;
+
+    paramLimits.resize(va.NUM_PARAMS);
+
+   // FILTER_Q_PARAM,
+    paramLimits[va.FILTER_Q_PARAM] = fp(-5.0f, 5.0f);
+    paramLimits[va.FILTER_Q_TRIM_PARAM] = fp(-1.0f, 1.0f);
+    paramLimits[va.FILTER_FC_PARAM] = fp(-5.0f, 5.0f);
+
+    paramLimits[va.FILTER_FC_TRIM_PARAM] = fp(-1.0f, 1.0f);
+    paramLimits[va.FILTER_VOWEL_PARAM] = fp(-5.f, 5.0f);
+    paramLimits[va.FILTER_VOWEL_TRIM_PARAM] = fp(-1.f, 1.0f);
+    paramLimits[va.FILTER_MODEL_SELECT_PARAM] = fp(0.f, 3.0f);
+
+    ExtremeTester< VocalFilter<TestComposite>>::test(va, paramLimits, true);
+
+}
+void testVocalAnimator()
+{
     test0();
     test1();
     test2();
@@ -297,7 +351,10 @@ void testVocalAnimator()
     testScalers();
     testFormantTables();
     testFormantTables2();
+
     testVocalFilter();
+    testVocalExtremes();
+    testInputExtremes();
    // x();
 
 }
