@@ -3,6 +3,7 @@
 
 #include "FrequencyShifter.h"
 #include "TestComposite.h"
+#include "ExtremeTester.h"
 
 using Shifter = FrequencyShifter<TestComposite>;
 
@@ -41,9 +42,26 @@ static void test1()
     }
 }
 
+static void testExtreme()
+{
+
+    using fp = std::pair<float, float>;
+    std::vector< std::pair<float, float> > paramLimits;
+   Shifter va;
+    va.setSampleRate(44100);
+    va.init();
+
+    paramLimits.resize(va.NUM_PARAMS);
+    paramLimits[va.PITCH_PARAM] = fp(-5.f, 5.f);
+
+    ExtremeTester<Shifter>::test(va, paramLimits, true);
+
+
+}
 
 void testFrequencyShifter()
 {
     test0();
     test1();
+    testExtreme();
 }
