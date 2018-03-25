@@ -8,6 +8,10 @@ VERSION = 0.6.0
 FLAGS += -I./dsp/generators -I./dsp/utils -I./dsp/filters
 FLAGS += -I./dsp/third-party/falco
 FLAGS += -I./composites
+FLAGS += -I./midi/controller
+FLAGS += -I./midi/view
+FLAGS += -I./midi/model
+
 CFLAGS +=
 CXXFLAGS +=
 
@@ -23,6 +27,7 @@ LDFLAGS +=
 # Add .cpp and .c files to the build
 SOURCES += $(wildcard src/*.cpp)
 SOURCES += $(wildcard dsp/**/*.cpp)
+SOURCES += $(wildcard midi/**/*.cpp)
 SOURCES += $(wildcard dsp/third-party/falco/*.cpp)
 
 # Add files to the ZIP package when running `make dist`

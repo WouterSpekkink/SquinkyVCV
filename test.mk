@@ -1,6 +1,7 @@
 # makefile fragment to make test.exe, the unit test program.
 TEST_SOURCES = $(wildcard test/*.cpp)
 TEST_SOURCES += $(wildcard dsp/**/*.cpp)
+TEST_SOURCES += $(wildcard midi/**/*.cpp)
 TEST_SOURCES += $(wildcard dsp/third-party/falco/*.cpp)
 
 ## This is a list of full paths to the .o files we want to build

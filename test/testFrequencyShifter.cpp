@@ -55,13 +55,13 @@ static void testExtreme()
     paramLimits[va.PITCH_PARAM] = fp(-5.f, 5.f);
 
     ExtremeTester<Shifter>::test(va, paramLimits, true);
-
-
 }
 
-void testFrequencyShifter()
+void testFrequencyShifter(bool doSlow)
 {
     test0();
     test1();
-    testExtreme();
+    if (doSlow) {
+        testExtreme();
+    }
 }

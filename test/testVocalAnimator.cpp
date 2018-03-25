@@ -342,7 +342,7 @@ static void testVocalExtremes()
     ExtremeTester< VocalFilter<TestComposite>>::test(va, paramLimits, true);
 
 }
-void testVocalAnimator()
+void testVocalAnimator(bool doSlow)
 {
     test0();
     test1();
@@ -353,8 +353,10 @@ void testVocalAnimator()
     testFormantTables2();
 
     testVocalFilter();
-    testVocalExtremes();
-    testInputExtremes();
+    if (doSlow) {
+        testVocalExtremes();
+        testInputExtremes();
+    }
    // x();
 
 }

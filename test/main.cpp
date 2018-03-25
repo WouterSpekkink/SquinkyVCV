@@ -14,9 +14,12 @@ extern void testSinOscillator();
 extern void testHilbert();
 extern void testAudioMath();
 extern void perfTest();
-extern void testFrequencyShifter();
+extern void testFrequencyShifter(bool doSlow);
 extern void testStateVariable();
-extern void testVocalAnimator();
+extern void testVocalAnimator(bool doSlow);
+extern void testMidiDataModel();
+extern void testReplaceCommand();
+extern void testUndoRedo();
 
 int main(int argc, char ** argv)
 {
@@ -27,9 +30,20 @@ int main(int argc, char ** argv)
             runPerf = true;
         }
     }
+
+    bool doSlow = true;
+
+#if defined(_MSC_VER)
+    doSlow = false;
+#endif
+
     // While this code may work in 32 bit applications, it's not tested for that.
     // Want to be sure we are testing the case we care about.
     assert(sizeof(size_t) == 8);
+
+    testMidiDataModel();
+    testReplaceCommand();
+    testUndoRedo();
 
     testAudioMath();
     testTestSignal();
@@ -41,8 +55,8 @@ int main(int argc, char ** argv)
     testStateVariable();
 
     // after testing all the components, test composites.
-    testFrequencyShifter();
-    testVocalAnimator();
+    testFrequencyShifter(doSlow);
+    testVocalAnimator(doSlow);
 
     if (runPerf) {
         perfTest();

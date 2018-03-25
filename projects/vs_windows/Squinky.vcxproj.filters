@@ -52,6 +52,30 @@
     <Filter Include="Header Files\composites">
       <UniqueIdentifier>{6f955dd1-2a2c-4506-bfc2-4bb55734eb72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\midi">
+      <UniqueIdentifier>{6d052a9f-418d-4cc7-95b3-1359c8a5b4a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\midi\model">
+      <UniqueIdentifier>{048e8f9c-8ce6-4719-9a33-9b9d59977d2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\midi\controller">
+      <UniqueIdentifier>{a5d5ef5b-6fcc-43cc-8f2c-9ad028209dda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\midi\view">
+      <UniqueIdentifier>{6ce67d0a-22fd-4ff3-8eec-bc3cbb868ba5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\midi">
+      <UniqueIdentifier>{0c8566e5-e437-4f90-af39-f207c4f5787a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\midi\model">
+      <UniqueIdentifier>{995e6881-c7c8-4fac-a090-0920487e20ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\midi\view">
+      <UniqueIdentifier>{f52a74e0-6062-48a7-bf94-2ee0627bcceb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\midi\controller">
+      <UniqueIdentifier>{6ca7741e-f531-4738-b2c6-70977e66b292}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -104,6 +128,27 @@
     </ClCompile>
     <ClCompile Include="..\..\dsp\filters\FormantTables2.cpp">
       <Filter>Source Files\dsp\filters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testMidiDataModel.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testReplaceCommand.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testUndoRedo.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\midi\model\MidiSong.cpp">
+      <Filter>Source Files\midi\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\midi\model\MidiTrack.cpp">
+      <Filter>Source Files\midi\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\midi\controller\ReplaceDataCommand.cpp">
+      <Filter>Source Files\midi\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\midi\controller\UndoRedoStack.cpp">
+      <Filter>Source Files\midi\controller</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +223,24 @@
     </ClInclude>
     <ClInclude Include="..\..\test\ExtremeTester.h">
       <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\model\MidiEvent.h">
+      <Filter>Header Files\midi\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\model\MidiSong.h">
+      <Filter>Header Files\midi\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\model\MidiTrack.h">
+      <Filter>Header Files\midi\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\controller\ReplaceDataCommand.h">
+      <Filter>Header Files\midi\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\controller\SqCommand.h">
+      <Filter>Header Files\midi\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\controller\UndoRedoStack.h">
+      <Filter>Header Files\midi\controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
