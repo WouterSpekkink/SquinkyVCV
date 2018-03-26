@@ -60,3 +60,4 @@ private:
 };
 
 using MidiTrackPtr = std::shared_ptr<MidiTrack>;
+using MidiTrackConstPtr = std::shared_ptr<const MidiTrack>;

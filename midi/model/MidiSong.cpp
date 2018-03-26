@@ -17,6 +17,16 @@ void MidiSong::createTrack(int index)
 MidiTrackPtr MidiSong::getTrack(int index)
 {
     assert(index < (int) tracks.size());
+    assert(index >= 0);
+    assert(tracks[index]);
+    return tracks[index];
+}
+
+
+MidiTrackConstPtr MidiSong::getTrack(int index) const
+{
+    assert(index < (int) tracks.size());
+    assert(index >= 0);
     assert(tracks[index]);
     return tracks[index];
 }

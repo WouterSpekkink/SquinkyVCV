@@ -28,6 +28,7 @@
     <ClCompile Include="..\..\midi\controller\UndoRedoStack.cpp" />
     <ClCompile Include="..\..\midi\model\MidiSong.cpp" />
     <ClCompile Include="..\..\midi\model\MidiTrack.cpp" />
+    <ClCompile Include="..\..\midi\view\MidiViewport.cpp" />
     <ClCompile Include="..\..\test\main.cpp" />
     <ClCompile Include="..\..\test\perfTest.cpp" />
     <ClCompile Include="..\..\test\testAudioMath.cpp" />
