@@ -21,6 +21,7 @@ extern void testMidiDataModel();
 extern void testReplaceCommand();
 extern void testUndoRedo();
 extern void testMidiViewport();
+extern void testFilteredIterator();
 
 int main(int argc, char ** argv)
 {
@@ -42,6 +43,7 @@ int main(int argc, char ** argv)
     // Want to be sure we are testing the case we care about.
     assert(sizeof(size_t) == 8);
 
+    testFilteredIterator();
     testMidiDataModel();
     testReplaceCommand();
     testUndoRedo();

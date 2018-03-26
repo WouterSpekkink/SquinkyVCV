@@ -76,6 +76,9 @@
     <Filter Include="Header Files\midi\controller">
       <UniqueIdentifier>{6ca7741e-f531-4738-b2c6-70977e66b292}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{7c412489-bb41-4492-8a8d-8bb608d1e6ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -155,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="..\..\midi\view\MidiViewport.cpp">
       <Filter>Source Files\midi\view</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testFilteredIterator.cpp">
+      <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="..\..\midi\view\MidiViewport.h">
       <Filter>Header Files\midi\view</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\util\FilteredIterator.h">
+      <Filter>Header Files\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
