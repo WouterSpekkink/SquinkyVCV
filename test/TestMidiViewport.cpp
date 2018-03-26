@@ -82,10 +82,9 @@ static void testEventFilter()
 
 }
 
-void xx();
 void testMidiViewport()
 {
-    xx();
+ 
     assertEvCount(0);
     testReleaseSong();
     testEventAccess();
@@ -93,6 +92,10 @@ void testMidiViewport()
     printf("TODO: event filter\n");
     assertEvCount(0);
 }
+
+#if 0
+void xx();
+
 
 //first try, can iterator over array
 
@@ -104,6 +107,8 @@ public:
     {
     }
 };
+
+
 
 using viter = std::vector<C>::iterator;
 #if 0
@@ -215,3 +220,4 @@ void xx()
 
    assertEQ(std::distance(oo, gg), 1);
 }
+#endif

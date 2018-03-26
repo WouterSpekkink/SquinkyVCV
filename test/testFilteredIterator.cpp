@@ -44,6 +44,7 @@ void test1()
     ++it_beg;
     assert(it_beg == it_end);
 }
+
 class C
 {
 public:
@@ -53,40 +54,19 @@ public:
     }
 };
 
-
-void testx()
+static void test2()
 {
-#if 0
-    std::vector<C> v = {5, 12, 56};
+    using iterator = std::vector<C>::iterator;
+    using iter_f = filtered_iterator<C, std::vector<C>::iterator>;
+    std::vector<C> x = {10, 20, 30};
 
-    using iter_t = filtered_iterator<C, std::vector<C>::iterator>;
-    iter_t::filter_func is_even = [](const C& a) {
-        return !(a.pp % 2);
-    };
-    iter_t it_beg(v.begin(), is_even);
+    iterator i = x.begin();
+    iter_f f(x.begin(), x.end(), [](const C&) { return true; });
 
-    iter_t it_end(v.end(), is_even);
+    assertEQ(f->pp, i->pp);
+    assertEQ((++f)->pp, (++i)->pp);
+    assertEQ((f++)->pp, (i++)->pp);
 
-    assert(it_beg != it_end);
-    assertEQ(std::distance(it_beg, it_end), 3);
-
-    assert((*it_beg).pp == 5);
-
-    assert(it_beg->pp == 5);
-    
-    int count = 0;
-    for (; it_beg != it_end; ++it_beg) {
-        printf("one more %d\n", it_beg->pp);
-        ++count;
-    }
-    assertEQ(count, 3);
-
-#endif
-#if 0
-    // assertEQ(std::distance(it_beg, it_end), 3);
-    ++it_beg;
-    assert(*it_beg == 12);
-#endif
 }
 
 
@@ -95,4 +75,5 @@ void testFilteredIterator()
 {
     test0();
     test1();
+    test2();
 }

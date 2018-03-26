@@ -153,13 +153,13 @@
     <ClCompile Include="..\..\midi\controller\UndoRedoStack.cpp">
       <Filter>Source Files\midi\controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestMidiViewport.cpp">
-      <Filter>Source Files\test</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\midi\view\MidiViewport.cpp">
       <Filter>Source Files\midi\view</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\testFilteredIterator.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testMidiViewport.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>

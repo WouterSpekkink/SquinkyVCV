@@ -38,7 +38,7 @@
     <ClCompile Include="..\..\test\testHilbert.cpp" />
     <ClCompile Include="..\..\test\testLookupTable.cpp" />
     <ClCompile Include="..\..\test\testMidiDataModel.cpp" />
-    <ClCompile Include="..\..\test\TestMidiViewport.cpp" />
+    <ClCompile Include="..\..\test\testMidiViewport.cpp" />
     <ClCompile Include="..\..\test\testReplaceCommand.cpp" />
     <ClCompile Include="..\..\test\testSaw.cpp" />
     <ClCompile Include="..\..\test\testSinOscillator.cpp" />

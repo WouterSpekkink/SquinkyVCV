@@ -18,8 +18,8 @@ public:
 
     using filter_func = std::function<bool(const T&)>;
     filtered_iterator(UnderlyingIterator ibegin,
-                      UnderlyingIterator iend,
-                      filter_func f)
+        UnderlyingIterator iend,
+        filter_func f)
         : _it(ibegin), _end(iend), _filter_func(f)
     {
         searchIfNeeded();
@@ -40,12 +40,21 @@ public:
         return *this;
     }
 
-    void searchIfNeeded() {
+    filtered_iterator operator ++ (int)
+    {
+        filtered_iterator returnValue = *this;
+        _it++;
+        searchIfNeeded();
+        return returnValue;
+    }
+
+    void searchIfNeeded()
+    {
         for (bool done = false; !done; ) {
             if (_it == _end) {
                 done = true;
             } else if (_filter_func(*_it)) {
-                done = true; 
+                done = true;
             } else {
                 ++_it;
             }
