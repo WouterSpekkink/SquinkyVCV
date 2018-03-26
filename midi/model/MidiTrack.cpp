@@ -2,12 +2,16 @@
 #include <algorithm>
 #include "MidiTrack.h"
 
+#ifdef _DEBUG
+int MidiEvent::_count = 0;
+#endif
+
 int MidiTrack::size() const
 {
     return (int) events.size();
 }
 
-#ifdef _MAP
+
 bool MidiTrack::isValid() const
 {
     int32_t startTime = 0;
@@ -63,38 +67,7 @@ std::vector<MidiEvent> MidiTrack::_testGetVector() const
     return ret;
 }
 
-#else
- 
-bool MidiTrack::isValid() const
+MidiTrack::iterator_pair MidiTrack::timeRange(MidiEvent::time_t start, MidiEvent::time_t end) const
 {
-    uint32_t startTime = 0;
-    for (const_iterator it = begin(); it != end(); ++it) {
-        if (!it->isValid()) {
-            return false;
-        }
-        if (it->startTime < startTime) {
-            return false;
-        }
-        startTime = it->startTime;
-    }
-    return true;
+    return iterator_pair(events.lower_bound(start), events.upper_bound(end));
 }
-void MidiTrack::insertEvent(MidiEvent& evIn)
-{
-    // look for an event after where we want to insert
-    std::vector<MidiEvent>::iterator afterEvent = std::find_if(events.begin(), events.end(), [&evIn](MidiEvent& ev) {
-        return ev.startTime > evIn.startTime;
-        });
-
-    if (afterEvent == events.end()) {
-        events.push_back(evIn);
-    } else {
-        events.insert(afterEvent, evIn);     // this should insert it before
-    }
-}
-
-MidiEvent& MidiTrack::at(int index)
-{
-    return events[index];
-}
-#endif

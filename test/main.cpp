@@ -20,6 +20,7 @@ extern void testVocalAnimator(bool doSlow);
 extern void testMidiDataModel();
 extern void testReplaceCommand();
 extern void testUndoRedo();
+extern void testMidiViewport();
 
 int main(int argc, char ** argv)
 {
@@ -44,6 +45,7 @@ int main(int argc, char ** argv)
     testMidiDataModel();
     testReplaceCommand();
     testUndoRedo();
+    testMidiViewport();
 
     testAudioMath();
     testTestSignal();

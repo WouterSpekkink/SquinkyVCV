@@ -7,7 +7,7 @@
 
 #include "MidiEvent.h"
 
-#define _MAP
+
 class MidiTrack
 {
 public:
@@ -22,16 +22,21 @@ public:
      * Obviously this is rather slow (O(n)), so don't use it for editing.
      */
     std::vector<MidiEvent> _testGetVector() const;
-  
+
 
     //
-#ifdef _MAP
+
     using container = std::multimap<uint32_t, MidiEvent>;
-#else
-    using container = std::vector<MidiEvent>;
-#endif
-    using iterator =container::iterator;
+
+    using iterator = container::iterator;
     using const_iterator = container::const_iterator;
+    using iterator_pair = std::pair<const_iterator, const_iterator>;
+
+    /**
+     * Returns pair of iterators for all events  start <= t <= end
+     */
+    iterator_pair timeRange(MidiEvent::time_t start, MidiEvent::time_t end) const;
+
     iterator begin()
     {
         return events.begin();
@@ -48,13 +53,10 @@ public:
     {
         return events.end();
     }
-   
+
 
 private:
     container events;
-
-
-
 };
 
 using MidiTrackPtr = std::shared_ptr<MidiTrack>;

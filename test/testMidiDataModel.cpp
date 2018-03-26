@@ -1,6 +1,9 @@
 
 #include <assert.h>
 #include "MidiTrack.h"
+#include "asserts.h"
+
+
 
 static void testCanInsert()
 {
@@ -54,7 +57,6 @@ static void testDelete()
     assert(mt.size() == 0);
 }
 
-
 static void testDelete2()
 {
     MidiTrack mt;
@@ -74,13 +76,14 @@ static void testDelete2()
     assert(mv[0].pitch == 33);
 }
 
-
-
 static void testDelete3()
 {
     MidiTrack mt;
     MidiEvent ev;
 
+#ifdef _DEBUG
+    assert(MidiEvent::_count > 0);
+#endif
     ev.pitch = 44;
     ev.startTime = 11;
     mt.insertEvent(ev);
@@ -96,12 +99,54 @@ static void testDelete3()
     assert(mv[0].pitch == 33);
 }
 
+static void testTimeRange0()
+{
+    MidiTrack mt;
+    MidiEvent ev;
+    ev.startTime = 100;
+
+    mt.insertEvent(ev);
+    
+    MidiTrack::iterator_pair its = mt.timeRange(99, 101);
+    assert(its.first != its.second);
+    auto count = std::distance(its.first, its.second);
+    assertEQ(count, 1);
+
+    its = mt.timeRange(101, 1000);
+    assert(its.first == its.second);
+    count = std::distance(its.first, its.second);
+    assertEQ(count, 0);
+}
+
+static void testTimeRange1()
+{
+    MidiTrack mt;
+    MidiEvent ev;
+
+    ev.startTime = 100;
+    mt.insertEvent(ev);
+    ev.startTime = 110;
+    mt.insertEvent(ev);
+    ev.startTime = 120;
+    mt.insertEvent(ev);
+    ev.startTime = 130;
+    mt.insertEvent(ev);
+
+    MidiTrack::iterator_pair its = mt.timeRange(110, 120);
+    assert(its.first != its.second);
+    auto count = std::distance(its.first, its.second);
+    assertEQ(count, 2);
+}
 
 void testMidiDataModel()
 {
+    assertEvCount(0);
     testCanInsert();
     testInsertSorted();
     testDelete();
     testDelete2();
     testDelete3();
+    testTimeRange0();
+    testTimeRange1();
+    assertEvCount(0);
 }

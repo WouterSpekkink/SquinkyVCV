@@ -150,6 +150,9 @@
     <ClCompile Include="..\..\midi\controller\UndoRedoStack.cpp">
       <Filter>Source Files\midi\controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\TestMidiViewport.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
@@ -241,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="..\..\midi\controller\UndoRedoStack.h">
       <Filter>Header Files\midi\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\midi\view\MidiViewport.h">
+      <Filter>Header Files\midi\view</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

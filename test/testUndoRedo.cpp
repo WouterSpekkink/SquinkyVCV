@@ -8,11 +8,11 @@
 class Cmd : public SqCommand
 {
 public:
-    virtual void execute()
+    virtual void execute() override
     {
         ++executeCount;
     }
-    virtual void undo()
+    virtual void undo() override
     {
         ++undoCount;
     }
