@@ -1,10 +1,13 @@
 #pragma once
 
 #include <iterator>
+#include <functional>
+
 template <typename T, typename UnderlyingIterator>
 class filtered_iterator
 {
 public:
+    // std::function<double(double)>
     typedef typename UnderlyingIterator::value_type value_type;
     typedef typename UnderlyingIterator::difference_type difference_type;
     typedef typename UnderlyingIterator::reference reference;
@@ -13,17 +16,40 @@ public:
     // we are not bidirectional, even if the underlying iterator is
     typedef std::forward_iterator_tag iterator_category;
 
-    filtered_iterator(UnderlyingIterator i) : _it(i)
+    using filter_func = std::function<bool(const T&)>;
+    filtered_iterator(UnderlyingIterator ibegin,
+                      UnderlyingIterator iend,
+                      filter_func f)
+        : _it(ibegin), _end(iend), _filter_func(f)
     {
+        searchIfNeeded();
     }
     bool operator != (const filtered_iterator& z) const
     {
         return z._it != this->_it;
     }
+    bool operator == (const filtered_iterator& z) const
+    {
+        return z._it == this->_it;
+    }
+
     filtered_iterator& operator ++ ()
     {
         _it++;
+        searchIfNeeded();
         return *this;
+    }
+
+    void searchIfNeeded() {
+        for (bool done = false; !done; ) {
+            if (_it == _end) {
+                done = true;
+            } else if (_filter_func(*_it)) {
+                done = true; 
+            } else {
+                ++_it;
+            }
+        }
     }
 
     value_type operator * () const
@@ -36,75 +62,6 @@ public:
     }
 private:
     UnderlyingIterator _it;
+    UnderlyingIterator _end;
+    filter_func _filter_func;
 };
-
-//now try map
-#if 0
-using miter = std::map<int, C>::iterator;
-class iter2
-{
-public:
-    typedef miter::difference_type difference_type;
-    typedef miter::value_type value_type;
-    typedef miter::reference reference;
-    typedef miter::pointer * pointer;
-    typedef miter::iterator_category iterator_category;
-
-    iter2(miter v) : _orig(v)
-    {
-    }
-    bool operator != (const iter2& z) const
-    {
-        return z._orig != _orig;
-    }
-    iter2& operator ++ ()
-    {
-        _orig++;
-        return *this;
-    }
-    iter2 operator ++ (int)
-    {
-        ++_orig;
-    }
-    iter2 operator -- ();
-
-    value_type operator * () const
-    {
-        return *_orig;
-    }
-    const value_type * operator ->() const
-    {
-        return &*_orig;
-    }
-
-
-private:
-    miter _orig;
-};
-#endif
-
-#if 0
-void xx()
-{
-    std::vector<C> foo = {5, 12, 56};
-    const iter1 ii(foo.begin());
-    const iter1 jj(foo.end());
-
-    C x = *ii;
-    int ww = ii->pp;
-
-    assertEQ(std::distance(ii, jj), 3);
-
-    std::map<int, C> baz;
-
-    baz.insert(std::pair<int, C>(5, C(10)));
-    const iter2 oo(baz.begin());
-    const iter2 gg(baz.end());
-
-    assertEQ(std::distance(oo, gg), 1);
-
-    printf("ok\n");
-}
-#endif
-
-

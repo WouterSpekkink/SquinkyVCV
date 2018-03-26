@@ -214,6 +214,4 @@ void xx()
    const iter2 gg(baz.end());
 
    assertEQ(std::distance(oo, gg), 1);
-
-   printf("ok\n");
 }

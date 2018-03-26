@@ -7,35 +7,43 @@
 
 void test0()
 {
-    std::vector<int> v = {5, 12, 56};
-    filtered_iterator<int, std::vector<int>::iterator> it_beg(v.begin());
-    filtered_iterator<int, std::vector<int>::iterator> it_end(v.end());
+    std::vector<int> v = {6, 11, 56};
+    using iter_t = filtered_iterator<int, std::vector<int>::iterator>;
 
-    assert(it_beg != it_end);
-    assert(*it_beg == 5);
+    iter_t::filter_func is_even = [](int a) {
+        return !(a % 2);
+    };
 
-    assert(*(v.begin()) == 5);
+    iter_t  it_beg(v.begin(), v.end(), is_even);
+    iter_t  it_end(v.end(), v.end(), is_even);
 
-  // assertEQ(std::distance(it_beg, it_end), 3);
-   ++it_beg;
-   assert(*it_beg == 12);
+    assertEQ(std::distance(it_beg, it_end), 2);
 
-
-
-#if 0
-    std::map<int, C> baz;
-
-    baz.insert(std::pair<int, C>(5, C(10)));
-    const iter2 oo(baz.begin());
-    const iter2 gg(baz.end());
-
-    assertEQ(std::distance(oo, gg), 1);
-
-    printf("ok\n");
-#endif
-
+    assertEQ(*it_beg, 6);
+    ++it_beg;
+    assertEQ(*it_beg, 56);
+    ++it_beg;
+    assert(it_beg == it_end);
 }
 
+void test1()
+{
+    std::vector<int> v = {11, 56};
+    using iter_t = filtered_iterator<int, std::vector<int>::iterator>;
+
+    iter_t::filter_func is_even = [](int a) {
+        return !(a % 2);
+    };
+
+    iter_t  it_beg(v.begin(), v.end(), is_even);
+    iter_t  it_end(v.end(), v.end(), is_even);
+
+   // assertEQ(std::distance(it_beg, it_end), 1);
+
+    assertEQ(*it_beg, 56);
+    ++it_beg;
+    assert(it_beg == it_end);
+}
 class C
 {
 public:
@@ -46,12 +54,18 @@ public:
 };
 
 
-void test1()
+void testx()
 {
+#if 0
     std::vector<C> v = {5, 12, 56};
-    filtered_iterator<C, std::vector<C>::iterator> it_beg(v.begin());
 
-    filtered_iterator<C, std::vector<C>::iterator> it_end(v.end());
+    using iter_t = filtered_iterator<C, std::vector<C>::iterator>;
+    iter_t::filter_func is_even = [](const C& a) {
+        return !(a.pp % 2);
+    };
+    iter_t it_beg(v.begin(), is_even);
+
+    iter_t it_end(v.end(), is_even);
 
     assert(it_beg != it_end);
     assertEQ(std::distance(it_beg, it_end), 3);
@@ -67,7 +81,7 @@ void test1()
     }
     assertEQ(count, 3);
 
-   
+#endif
 #if 0
     // assertEQ(std::distance(it_beg, it_end), 3);
     ++it_beg;
