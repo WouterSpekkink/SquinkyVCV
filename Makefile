@@ -11,6 +11,7 @@ FLAGS += -I./composites
 FLAGS += -I./midi/controller
 FLAGS += -I./midi/view
 FLAGS += -I./midi/model
+FLAGS += -I./util
 
 CFLAGS +=
 CXXFLAGS +=
@@ -36,8 +37,6 @@ DISTRIBUTABLES += $(wildcard LICENSE*) res
 
 # If RACK_DIR is not defined when calling the Makefile, default to two levels above
 RACK_DIR ?= ../..
-
-
 
 # Include the VCV Rack plugin Makefile framework
 include $(RACK_DIR)/plugin.mk
