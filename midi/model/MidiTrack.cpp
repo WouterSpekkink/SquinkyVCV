@@ -32,14 +32,6 @@ void MidiTrack::insertEvent(const MidiEvent& evIn)
     events.insert( std::pair<uint32_t, MidiEvent>(evIn.startTime, evIn));
 }
 
-#if 0 // simple minded one
-void MidiTrack::deleteEvent(const MidiEvent& evIn)
-{
-    auto insertPoint = events.lower_bound(evIn.startTime);
-  //  events.insert(insertPoint, std::pair<uint32_t, MidiEvent>(evIn.startTime, evIn));
-    events.erase(insertPoint);      // will never work in the real world
-}
-#endif
 
 void MidiTrack::deleteEvent(const MidiEvent& evIn)
 {

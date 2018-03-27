@@ -7,7 +7,7 @@ template <typename T, typename UnderlyingIterator>
 class filtered_iterator
 {
 public:
-    // std::function<double(double)>
+
     typedef typename UnderlyingIterator::value_type value_type;
     typedef typename UnderlyingIterator::difference_type difference_type;
     typedef typename UnderlyingIterator::reference reference;
@@ -16,7 +16,7 @@ public:
     // we are not bidirectional, even if the underlying iterator is
     typedef std::forward_iterator_tag iterator_category;
 
-    using filter_func = std::function<bool(const T&)>;
+    using filter_func = std::function<bool(UnderlyingIterator)>;
     filtered_iterator(UnderlyingIterator ibegin,
         UnderlyingIterator iend,
         filter_func f)
@@ -53,7 +53,7 @@ public:
         for (bool done = false; !done; ) {
             if (_it == _end) {
                 done = true;
-            } else if (_filter_func(*_it)) {
+            } else if (_filter_func(_it)) {
                 done = true;
             } else {
                 ++_it;
