@@ -181,9 +181,6 @@ static void testAttenuverters()
 }
 #endif
 
-
-
-
 void perfTest()
 {
 #if 0
