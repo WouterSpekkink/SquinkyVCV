@@ -29,7 +29,6 @@ static void test2()
     assert(AudioMath::closeTo(f(.25), 1, d));
     assert(AudioMath::closeTo(f(.75), -1, d));
     assert(AudioMath::closeTo(f(.125), 1.0 / sqrt(2), d));
-
 }
 
 static void test3()
