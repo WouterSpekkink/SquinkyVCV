@@ -3,8 +3,9 @@
 #include <iostream>
 
 #include "asserts.h"
-#include "LookupTable.h"
 #include "AudioMath.h"
+#include "LookupTable.h"
+#include "LookupTableFactory.h"
 
 using namespace std;
 
@@ -35,7 +36,6 @@ static void test1()
     };
 
     LookupTable<T>::init(p, tableSize, 0, 1, f);
-
     assert(LookupTable<T>::lookup(p, 0) == 100);
     assert(LookupTable<T>::lookup(p, 1) == 100);
     assert(LookupTable<T>::lookup(p, T(.342)) == 100);
@@ -133,13 +133,13 @@ static void testDiscrete1()
 
     T y[] = {0, 10};
     LookupTable<T>::initDiscrete(lookup, 2, y);
-    
+
     assertEQ(LookupTable<T>::lookup(lookup, 0), 0);
     assertEQ(LookupTable<T>::lookup(lookup, .5), 5);
     assertEQ(LookupTable<T>::lookup(lookup, 1), 10);
 
-   assertEQ(LookupTable<T>::lookup(lookup, T(.1)), 1);
-   assertClose(LookupTable<T>::lookup(lookup, T(.01)), T(.1), .00001);
+    assertEQ(LookupTable<T>::lookup(lookup, T(.1)), 1);
+    assertClose(LookupTable<T>::lookup(lookup, T(.01)), T(.1), .00001);
 }
 
 template<typename T>
@@ -147,7 +147,7 @@ static void testDiscrete2()
 {
     LookupTableParams<T> lookup;
 
-    T y[] = {100, 100.5, 2000, -10 };
+    T y[] = {100, 100.5, 2000, -10};
     LookupTable<T>::initDiscrete(lookup, 4, y);
 
     assertEQ(LookupTable<T>::lookup(lookup, 0), 100);
@@ -155,7 +155,94 @@ static void testDiscrete2()
     assertEQ(LookupTable<T>::lookup(lookup, 2), 2000);
     assertEQ(LookupTable<T>::lookup(lookup, 3), -10);
 
-    assertEQ(LookupTable<T>::lookup(lookup, 2.5), 1000-5);
+    assertEQ(LookupTable<T>::lookup(lookup, 2.5), 1000 - 5);
+}
+
+template<typename T>
+static void testExpSimpleLookup()
+{
+    LookupTableParams<T> lookup;
+    LookupTableFactory<T>::makeExp2(lookup);
+
+    const double xMin = LookupTableFactory<T>::expXMin();
+    const double xMax = LookupTableFactory<T>::expXMax();
+    assert(5 > xMin);
+    assert(11 < xMax);
+    assertClose(LookupTable<T>::lookup(lookup, 5), std::pow(2, 5), .01);
+    assertClose(LookupTable<T>::lookup(lookup, 11), std::pow(2, 11), 2);        // TODO: tighten
+}
+
+
+
+// test that extreme inputs is clamped
+template<typename T>
+static void testExpRange()
+{
+    LookupTableParams<T> lookup;
+    LookupTable<T>::makeExp2(lookup);
+    auto k1 = LookupTable<T>::lookup(lookup, -1);
+    auto k2 = LookupTable<T>::lookup(lookup, 11);
+
+    assertClose(LookupTable<T>::lookup(lookup, -1), LookupTable<T>::lookup(lookup, 0), .01);
+    assertClose(LookupTable<T>::lookup(lookup, 11), LookupTable<T>::lookup(lookup, 10), .01);
+    assertClose(LookupTable<T>::lookup(lookup, -100), LookupTable<T>::lookup(lookup, 0), .01);
+    assertClose(LookupTable<T>::lookup(lookup, 1100), LookupTable<T>::lookup(lookup, 10), .01);
+}
+
+
+template<typename T>
+static void testExpTolerance(T centsTolerance)
+{
+    const T xMin = (T) LookupTableFactory<T>::expXMin();
+    const T xMax = (T) LookupTableFactory<T>::expXMax();
+
+    LookupTableParams<T> table;
+    LookupTableFactory<T>::makeExp2(table);
+    for (T x = xMin; x <= xMax; x += T(.0001)) {
+        T y = LookupTable<T>::lookup(table, x);            // and back
+        double accurate = std::pow(2.0, x);
+        double errorCents = std::abs(1200.0 * std::log2(y / accurate));
+        assertClose(errorCents, 0, centsTolerance);
+    }
+}
+
+template <typename T>
+static void testBipolarSimpleLookup()
+{
+    LookupTableParams<T> lookup;
+    LookupTableFactory<T>::makeBipolarAudioTaper(lookup);
+
+    assertClose(LookupTable<T>::lookup(lookup, 0), 0, .01);
+    assertClose(LookupTable<T>::lookup(lookup, 1), 1, .01);
+    assertClose(LookupTable<T>::lookup(lookup, -1), -1, .01);
+}
+
+
+template <typename T>
+static void testBipolarTolerance()
+{
+    LookupTableParams<T> lookup;
+    LookupTableFactory<T>::makeBipolarAudioTaper(lookup);
+    const double toleratedError = 1 - AudioMath::gainFromDb(-.1);// let's go for one db.
+    assert(toleratedError > 0);
+
+    auto refFuncPos = AudioMath::makeFunc_AudioTaper(LookupTableFactory<T>::audioTaperKnee());
+    auto refFuncNeg = [refFuncPos](double x) {
+        assert(x <= 0);
+        return -refFuncPos(-x);
+    };
+
+    for (double x = -1; x < 1; x += .001) {
+
+        const T test = LookupTable<T>::lookup(lookup, (T) x);
+        T ref = 1234;
+        if (x < 0) {
+            ref = (T) refFuncNeg(x);
+        } else {
+            ref = (T) refFuncPos(x);
+        }
+        assertClose(test, ref, toleratedError);
+    }
 }
 
 template<typename T>
@@ -168,6 +255,12 @@ static void test()
     test4<T>();
     testDiscrete1<T>();
     testDiscrete2<T>();
+    testExpSimpleLookup<T>();
+    testExpTolerance<T>(100);   // 1 semitone
+    testExpTolerance<T>(10);
+    testExpTolerance<T>(1);
+    testBipolarSimpleLookup<T>();
+    testBipolarTolerance<T>();
 }
 
 void testLookupTable()

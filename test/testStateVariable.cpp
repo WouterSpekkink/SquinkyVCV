@@ -37,7 +37,7 @@ static void testLowpass()
     StateVariableFilterState<T> state;
     params.setMode(StateVariableFilterParams<T>::Mode::LowPass);
     params.setFreq(fc);                     // TODO: make an even fraction
-    params.setQ(q); 
+    params.setQ(q);
 
     double g = TestSignal<T>::measureGain(fc / 4, [&state, &params](T input) {
         return StateVariableFilter<T>::run(input, state, params);
@@ -76,7 +76,7 @@ static void testBandpass()
     params.setFreq(fc);                     // TODO: make an even fraction
     params.setQ(q);
 
-    double g0 = TestSignal<float>::measureGain(fc , [&state, &params](float input) {
+    double g0 = TestSignal<float>::measureGain(fc, [&state, &params](float input) {
         return StateVariableFilter<float>::run(input, state, params);
         });
     g0 = AudioMath::db(g0);
@@ -93,9 +93,20 @@ static void testBandpass()
 
         assertClose(g, AudioMath::db(q), .5);
     }
-   
+}
 
+template <typename T>
+static void testSetBandwidth()
+{
+    StateVariableFilterParams<T> params;
+    params.setNormalizedBandwidth(T(.1));
+    assertEQ(params.getNormalizedBandwidth(), T(.1));
 
+    params.setNormalizedBandwidth(T(.5));
+    assertEQ(params.getNormalizedBandwidth(), T(.5));
+
+    params.setQ(10);
+    assertEQ(params.getNormalizedBandwidth(), T(.1))
 }
 
 template <typename T>
@@ -103,6 +114,7 @@ static void test()
 {
     test1<T>();
     testLowpass<T>();
+    testSetBandwidth<T>();
 }
 
 void testStateVariable()

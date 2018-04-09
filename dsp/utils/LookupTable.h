@@ -1,8 +1,11 @@
 #pragma once
 
+#include <cmath>
 #include <memory>
 #include <emmintrin.h>
 #include <functional>
+
+#include "AudioMath.h"
 
 template <typename T> class LookupTableParams;
 /* Lookup table with evenly spaced lookup "bins"
@@ -42,7 +45,10 @@ public:
      * this lookup table only works with uniform x value.
      */
     static void initDiscrete(LookupTableParams<T>& params, int numEntries, const T * yEntries);
-    
+
+
+
+
 private:
     static int cvtt(T *);
 
@@ -63,6 +69,10 @@ private:
 template<typename T>
 inline T LookupTable<T>::lookup(const LookupTableParams<T>& params, T input)
 {
+    assert(input >= params.xMin && input <= params.xMax);   // won't happen in the field,
+                                                            // as assertions are disabled for release.
+    input = std::min(input, params.xMax);
+    input = std::max(input, params.xMin);
     assert(params.isValid());
     assert(input >= params.xMin && input <= params.xMax);
 
@@ -79,14 +89,13 @@ inline T LookupTable<T>::lookup(const LookupTableParams<T>& params, T input)
     // Perhaps the calculation of a and b could be done so this can't happen?
     if (input_float < 0) {
         input_float = 0;
-    }
-    else if (input_float > 1) {
+    } else if (input_float > 1) {
         input_float = 1;
     }
-    
+
     assert(input_float >= 0 && input_float <= 1);
     assert(input_int >= 0 && input_int <= params.numBins_i);
-  
+
     T * entry = params.entries + (2 * input_int);
     T x = entry[0];
     x += input_float * entry[1];
@@ -106,8 +115,11 @@ inline void LookupTable<T>::init(LookupTableParams<T>& params,
     params.b = -params.a * x0In;
 
     if (x0In == 0) assert(params.b == 0);
-    assert((params.a * x0In + params.b) == 0);
-    assert((params.a * x1In + params.b) == bins);
+
+    {
+        assert(AudioMath::closeTo((params.a * x0In + params.b), 0, .0001));
+        assert(AudioMath::closeTo((params.a * x1In + params.b), bins, .0001));
+    }
 
     for (int i = 0; i <= bins; ++i) {
         double x0 = (i - params.b) / params.a;
@@ -119,13 +131,6 @@ inline void LookupTable<T>::init(LookupTableParams<T>& params,
         T * entry = params.entries + (2 * i);
         entry[0] = (T) y0;
         entry[1] = (T) slope;
-#if 0
-        {
-            char buf[512];
-            sprintf(buf, "fill index[%d], x=%f value=%f slope=%f\n", i, x0, params.values[i], slope);
-            DebugUtil::trace(buf);
-        }
-#endif
     }
     params.xMin = x0In;
     params.xMax = x1In;
@@ -178,6 +183,9 @@ inline int LookupTable<float>::cvtt(float* input)
     return _mm_cvttss_si32(x);
 }
 
+/***************************************************************************/
+extern int  _numLookupParams;
+
 template <typename T>
 class LookupTableParams
 {
@@ -191,6 +199,7 @@ public:
 
     LookupTableParams()
     {
+        ++_numLookupParams;
     }
     LookupTableParams(const LookupTableParams&) = delete;
     LookupTableParams& operator=(const LookupTableParams&) = delete;
@@ -198,8 +207,9 @@ public:
     ~LookupTableParams()
     {
         free(entries);
+        --_numLookupParams;
     }
-    
+
     bool isValid() const
     {
         return ((entries != 0) &&

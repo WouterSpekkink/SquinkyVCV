@@ -43,6 +43,15 @@ public:
     static std::function<double(double)> makeFunc_Exp(double xMin, double xMax, double yMin, double yMax);
 
     /**
+     * Returns a function for an "audio taper" attenuator gain.
+     * function is pure exponential for x > .25, linear for x < .25
+     * At input 1, output is 1
+     * At input .25, output is the gain corresponding to adAtten
+     * At input 0, the output is zero.
+     */
+    static std::function<double(double)> makeFunc_AudioTaper(double dbAtten);
+
+    /**
      * ScaleFun is a function the combines CV, knob, and trim into a voltage.
      * Typically a ScaleFun is like an "attenuverter"
      */
@@ -59,7 +68,7 @@ public:
      * and CV range is -5..5.
      */
     template <typename T>
-    static ScaleFun<T> makeScaler(T y0, T y1)
+    static ScaleFun<T> makeLinearScaler(T y0, T y1)
     {
         const T x0 = -5;
         const T x1 = 5;
@@ -72,4 +81,9 @@ public:
             return a * x + b;
         };
     }
+
+
+    static ScaleFun<float> makeBipolarAudioScaler(float y0, float y1);
+   
+
 };

@@ -17,6 +17,7 @@ extern void perfTest();
 extern void testFrequencyShifter();
 extern void testStateVariable();
 extern void testVocalAnimator();
+extern void testObjectCache();
 
 int main(int argc, char ** argv)
 {
@@ -27,15 +28,25 @@ int main(int argc, char ** argv)
             runPerf = true;
         }
     }
+#ifdef _PERF
+    runPerf = true;
+#ifndef NDEBUG
+#error asserts should be off for perf test
+#endif
+
+#endif
     // While this code may work in 32 bit applications, it's not tested for that.
     // Want to be sure we are testing the case we care about.
     assert(sizeof(size_t) == 8);
 
     testAudioMath();
+    testLookupTable();
+    testObjectCache();
+
     testTestSignal();
     testBiquad();
     testSaw();
-    testLookupTable();
+    
     testSinOscillator();
     testHilbert();
     testStateVariable();

@@ -3,12 +3,13 @@
 #include <cmath>
 #include <limits>
 
-#include "HilbertFilterDesigner.h"
 #include "AudioMath.h"
 #include "BiquadParams.h"
 #include "BiquadFilter.h"
 #include "BiquadState.h"
 #include "FrequencyShifter.h"
+#include "HilbertFilterDesigner.h"
+#include "LookupTableFactory.h"
 #include "TestComposite.h"
 #include "VocalAnimator.h"
 #include "VocalFilter.h"
@@ -19,6 +20,10 @@ using VocFilter = VocalFilter<TestComposite>;
 
 #include "MeasureTime.h"
 
+// There are many tests that are disabled with #if 0.
+// In most cases they still work, but don't need to be run regularly
+
+#if 0
 static void test1()
 {
     double d = .1;
@@ -27,7 +32,7 @@ static void test1()
 
     MeasureTime<float>::run("test1 null", [&d, scale]() {
         return TestBuffers<float>::get();
-     }, 1);
+        }, 1);
 
     MeasureTime<float>::run("test1 sin", []() {
         float x = std::sin(TestBuffers<float>::get());
@@ -46,7 +51,7 @@ static void test1()
         }, 1);
 
     MeasureTime<float>::run("mult", []() {
-        float x = TestBuffers<float>::get(); 
+        float x = TestBuffers<float>::get();
         float y = TestBuffers<float>::get();
         return x * y;
         }, 1);
@@ -56,9 +61,8 @@ static void test1()
         float y = TestBuffers<float>::get();
         return x / y;
         }, 1);
-
-
 }
+#endif
 
 template <typename T>
 static void testHilbert()
@@ -73,8 +77,22 @@ static void testHilbert()
         T d = BiquadFilter<T>::run(TestBuffers<T>::get(), state, paramsSin);
         return d;
         }, 1);
-
 }
+
+#if 0
+static void testExpRange()
+{
+    using T = float;
+    LookupTableParams<T> table;
+    LookupTableFactory<T>::makeExp2(table);
+
+    MeasureTime<T>::run("exp lookup", [&table]() {
+
+        T d = LookupTable<T>::lookup(table, TestBuffers<T>::get());
+        return d;
+        }, 1);
+}
+#endif
 
 static void testShifter()
 {
@@ -125,13 +143,59 @@ static void testVocalFilter()
         }, 1);
 }
 
+#if 0
+static void testAttenuverters()
+{
+    auto scaler = AudioMath::makeLinearScaler<float>(-2, 2);
+    MeasureTime<float>::run("linear scaler", [&scaler]() {
+        float cv = TestBuffers<float>::get();
+        float knob = TestBuffers<float>::get();
+        float trim = TestBuffers<float>::get();
+        return scaler(cv, knob, trim);
+        }, 1);
+
+    LookupTableParams<float> lookup;
+    LookupTableFactory<float>::makeBipolarAudioTaper(lookup);
+    MeasureTime<float>::run("bipolar lookup", [&lookup]() {
+        float x = TestBuffers<float>::get();
+        return LookupTable<float>::lookup(lookup, x);
+        }, 1);
+
+
+   // auto refFuncPos = AudioMath::makeFunc_AudioTaper(LookupTableFactory<T>::audioTaperKnee());
+
+    {
+
+        auto bipolarScaler = [&lookup, &scaler](float cv, float knob, float trim) {
+            float scaledTrim = LookupTable<float>::lookup(lookup, cv);
+            return scaler(cv, knob, scaledTrim);
+        };
+
+        MeasureTime<float>::run("bipolar scaler", [&bipolarScaler]() {
+            float cv = TestBuffers<float>::get();
+            float knob = TestBuffers<float>::get();
+            float trim = TestBuffers<float>::get();
+            return bipolarScaler(cv, knob, trim);
+            }, 1);
+    }
+}
+#endif
+
+
+
+
 void perfTest()
 {
+#if 0
+    testAttenuverters();
+    testExpRange();
+#endif
     testVocalFilter();
-    testShifter();
     testAnimator();
-
+    testShifter();
+#if 0
     test1();
     testHilbert<float>();
     testHilbert<double>();
+#endif
 }
