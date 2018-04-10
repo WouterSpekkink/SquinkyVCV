@@ -3,7 +3,7 @@ This project is a frequency shifter module for VCV Rack. Over time project is ex
 
 You can find us on Facebook [here](https://www.facebook.com/SquinkyLabs)
 ## Manuals
-Here is the user’s manual for the [frequency shifter](./docs/booty-shifter.md).
+Here is the user’s manual for the our modules: [instruction manual](./docs/booty-shifter.md).
 ## Contributing
 Please use our GitHub issues page to report problems, request features, etc. If you don’t already have a GitHub account you will need to create one, as you must be logged in to post to GitHub.
 
@@ -32,13 +32,5 @@ plugins/
 
 There are "secret" modules, extra code and other things scattered around this repo. Pointers to some of it can be found [in the docs folder](./docs/README.md).
 
-## VCV Rack version 0.6.0
-The next version of VCV Rack is coming soon. Version 0.5.x plugins will not work with version 0.6.0.
-
-We have ported our code to VCV 0.6.0. Our "master" branch is now 0.6.0 compatible. Plugins built from master will run in VCV Rack 0.6.0dev, and will not run in any 0.5.x versions of VCV Rack.
-
-Please report any issues running in VCV Rack 0.6.0 on our GitHub issues page.
-
-Like most plugin developers, we will update our releases and post in the Plugin Manager once 0.6 ships.
 
 
