@@ -2,6 +2,10 @@
 [Growler](#growler)
 
 [Booty Shifter](#shifter)
+
+[Attenuverters](#atten)
+
+[CV ranges](#cv)
 # Growler
 ![vocal animator image](./growler.jpg) 
 
@@ -79,6 +83,12 @@ The down shift frequency fold-over, while true to the original, does cause probl
 
 ## About Attenuverters <a name="atten"></a>
 
-They scale and/or invert the control voltage inputs next to them. All the way up and the full CV comes through. As they are turned down less CV comes through. Straight up none passes. As they are turned down further the CV comes back, but inverted.
+The small knobs next to the bigger knobs are "attenuverters".  They scale and/or invert the control voltage inputs next to them. When they are turned all the way up and the full CV comes through. As they are turned down less CV comes through. Straight up none passes. As they are turned down further the CV comes back, but inverted.
+
+## Control voltage ranges <a name="cv"></a>
+
+Our modules usually expect a control voltage range of -5 to +5. The associated offset knobs will also add -5 to +5. After attenuverters are applied to CV, and the knob is added, then the total is usually clipped to the -5 to +5 range.
+
+
 
 
