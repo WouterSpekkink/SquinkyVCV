@@ -127,7 +127,7 @@ public:
     // We need a bunch of scalers to convert knob, CV, trim into the voltage 
     // range each parameter needs.
     AudioMath::ScaleFun<T> scale0_1;
-    AudioMath::ScaleFun<T> scale0_2;
+    AudioMath::ScaleFun<T> scalem2_2;
     AudioMath::ScaleFun<T> scaleQ;
     AudioMath::ScaleFun<T> scalen5_5;
 };
@@ -145,7 +145,7 @@ inline void VocalAnimator<TBase>::init()
         normalizedFilterFreq[i] = nominalFilterCenterHz[i] * reciprocalSampleRate;
     }
     scale0_1 = AudioMath::makeBipolarAudioScaler(0, 1); // full CV range -> 0..1
-    scale0_2 = AudioMath::makeBipolarAudioScaler(0, 2); // full CV range -> 0..2
+    scalem2_2 = AudioMath::makeBipolarAudioScaler(-2, 2); // full CV range -> -2..2
     scaleQ = AudioMath::makeBipolarAudioScaler(.71f, 21);
     scalen5_5 = AudioMath::makeBipolarAudioScaler(-5, 5);
 
@@ -297,16 +297,13 @@ inline void VocalAnimator<TBase>::step()
         assert(mmParam < 2.5);
     }
 
-    const float lfoSpread = 1;
+    const T spread = T(1.0);
     modulatorParams.setRateAndSpread(
-        scale0_2(
+        scalem2_2(
         TBase::inputs[LFO_RATE_CV_INPUT].value,
         TBase::params[LFO_RATE_PARAM].value,
         TBase::params[LFO_RATE_TRIM_PARAM].value),
-        scale0_2(
-        0,
-        lfoSpread,
-        0),
+        spread,
         matrixMode,
         reciprocalSampleRate);
 }
