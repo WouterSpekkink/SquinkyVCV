@@ -3,9 +3,9 @@
 using namespace rack;
 extern Plugin *plugin;
 extern Model *modelBootyModule;
+extern Model *modelVocalModule;
 
 #ifdef _EXP
-extern Model *modelVocalModule;
 extern Model *modelVocalFilterModule;
 #endif
 

@@ -38,10 +38,9 @@ The smaller knobs next to the main knobs are **attenuverters**, which scale cont
 
 There are three LFO outputs next to the blinking LFOs. These may be used to modulate other modules, or as semi-random voltage sources.
 
-**Bass boost** switch. When it’s on there should be more bass. This is done by switching some or all of the filters from bandpass to lowpass.
+**Bass boost** switch. When it’s in the up position (on) there should be more bass. This is done by switching some or all of the filters from bandpass to lowpass.
 
-
-LFO **Matrix** switch. This is the unlabeled switch up in the LFO section. When it’s up the LFOs are closely correlated. In the middle we try to make them a little bit more independent. When it’s down they will often go in different directions.
+LFO **Matrix** switch. This is the unlabeled switch in the LFO section. When it’s down (default position) the LFOs are closely correlated. In the middle we try to make them a little bit more independent. When it’s in the up position the LFOs will often go in different directions.
 
 # Booty Shifter frequency shifter <a name="shifter"></a>
 **Booty Shifter** is a frequency shifter inspired by the Moog/Bode frequency shifter module.
@@ -50,7 +49,7 @@ LFO **Matrix** switch. This is the unlabeled switch up in the LFO section. When 
 
 The name "Booty Shifter" is a nod to the classic analog module, as well as to a black cat named Booty.
 
-Booty Shifter  will take an audio input and shift the frequencies up or down. This is not like a pitch shift where harmonics will remain in tune, it is an absolute frequency shift in Hz, so in general **harmonics will go way out of tune.**
+Booty Shifter  will take an audio input and shift the frequencies up or down. This is not like a pitch shift where harmonics will remain in tune; it is an absolute frequency shift in Hz, so in general **harmonics will go way out of tune.**
 ## Getting good sounds from Booty Shifter
 Feed in music and shift the frequency a good amount.
 
@@ -58,7 +57,7 @@ Feed in **speech or radio** and shift it.
 
 Feed the CV from a **sequencer** to sequence the mayhem.
 
-Shift **drums** up or down a little bit to re-tune them without the usual pitch shifting artifacts.
+Shift **drums** up or down a little bit to re-tune them without the usual pitch-shifting artifacts.
 
 Small shifts in conjunction with delays can make a chorus-like effect to thicken music.
 ## Inputs and outputs
@@ -76,20 +75,19 @@ Shift **AMT** is added to the control voltage, with a range or -5..5.
 ## Oddities and limitations
 If you shift the frequency up too far, it will alias. There is no anti-aliasing, so if the highest input frequency + shift amount > sample_rate / 2, you will get aliasing. The Bode original of course did not alias.
 
-If you shift the input down a lot, frequencies will go below zero and wrap around. Taken far enough this will completely **reverse the spectrum** of the input. This was a prized feature of the Bode original.
+If you shift the input down a lot, frequencies will go **below zero and wrap around**. Taken far enough this will completely **reverse the spectrum** of the input. This was a prized feature of the Bode original.
 
 As you shift the input down, you may start to generate a lot of subsonic energy. A **High Pass filter** may clean this up.
 
-The down shift frequency fold-over, while true to the original, does cause problems when trying to pitch drum tracks down a lot. Carefully high pass filtering the input before it is down-shifted can control this.
+The down shift **frequency fold-over**, while true to the original, does cause problems when trying to pitch drum tracks down a lot. High pass filtering the input before it is down-shifted can control this.
 
 ## About Attenuverters <a name="atten"></a>
 
-The small knobs next to the bigger knobs are **attenuverters**.  They scale and/or invert the control voltage inputs next to them. When they are turned all the way up and the full CV comes through. As they are turned down less CV comes through. Straight up none passes. As they are turned down further the CV comes back, but inverted.
+The small knobs next to the bigger knobs are **attenuverters**.  They scale and/or invert the control voltage inputs next to them. When they are turned all the way up the full CV comes through. As they are turned down less CV comes through. Straight up none passes. As they are turned down further the CV comes back, but inverted.
 
 ## Control voltage ranges <a name="cv"></a>
 
-Our modules usually expect a control voltage range of **-5 to +5**. The associated offset knobs will also add -5 to +5. After attenuverters are applied to CV, and the knob is added, then the total is usually clipped to the -5 to +5 range.
-
+Our modules usually expect a control voltage range of **-5 to +5**. The associated offset knobs will also add -5 to +5. After attenuverters are applied to CV the knob value is added. After all that, the result is usually clipped to the -5 to +5 range.
 
 
 

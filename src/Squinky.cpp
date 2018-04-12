@@ -3,6 +3,7 @@
 
 
 // The plugin-wide instance of the Plugin class
+// i cadkkf spell sdofidifof 
 Plugin *plugin;
 
 /**
@@ -17,9 +18,10 @@ void init(rack::Plugin *p)
     assert(modelBootyModule);
     p->addModel(modelBootyModule);
 
-#ifdef _EXP
     assert(modelVocalModule);
     p->addModel(modelVocalModule);
+    
+#ifdef _EXP
     assert(modelVocalFilterModule);
     p->addModel(modelVocalFilterModule);
 #endif
