@@ -3,7 +3,7 @@ This project is a frequency shifter module for VCV Rack. Over time project is ex
 
 You can find us on Facebook [here](https://www.facebook.com/SquinkyLabs)
 ## Manuals
-Here is the user’s manual for the our modules: [instruction manual](./docs/booty-shifter.md).
+Here is the user’s manual for our modules: [instruction manual](./docs/booty-shifter.md).
 ## Contributing
 Please use our GitHub issues page to report problems, request features, etc. If you don’t already have a GitHub account you will need to create one, as you must be logged in to post to GitHub.
 
