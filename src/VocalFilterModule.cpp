@@ -151,6 +151,27 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addInput(Port::create<PJ301MPort>(Vec(col4, row2-dy), Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(Vec(col4, row2), module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
 
+    // Q
+    label = new Label();
+    label->box.pos = Vec(col2, row3 + labelOffset);
+    label->text = "Q";
+    label->color = COLOR_BLACK;
+    addChild(label);
+    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col2, row3), module, module->vocalFilter.FILTER_Q_PARAM, -5.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(col1, row3 +dy), Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
+    addParam(ParamWidget::create<Trimpot>(Vec(col1, row3), module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
+
+
+    // Brightness
+
+    label = new Label();
+    label->box.pos = Vec(col3, row3 + labelOffset);
+    label->text = "Brite";
+    label->color = COLOR_BLACK;
+    addChild(label);
+    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row3), module, module->vocalFilter.FILTER_BRIGHTNESS_PARAM, -5.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(col4, row3+dy), Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
+    addParam(ParamWidget::create<Trimpot>(Vec(col4, row3), module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
 
 }
 
