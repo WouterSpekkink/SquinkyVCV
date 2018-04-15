@@ -53,6 +53,7 @@ struct VocalFilterWidget : ModuleWidget
 {
     VocalFilterWidget(VocalFilterModule *);
     void addVowelLabels();
+    void addModelKnob(VocalFilterModule *module, float x, float y);
 };
 
 void VocalFilterWidget::addVowelLabels()
@@ -98,6 +99,44 @@ void VocalFilterWidget::addVowelLabels()
     }
 
 }
+
+ void VocalFilterWidget::addModelKnob(VocalFilterModule *module, float x, float y)
+ {
+    // 5 pos vocal model
+    // 0(bass)  1(tenor) 2(countertenor) 3(alto)  4(soprano)
+    Label* label = new Label();
+    label->box.pos = Vec(x-44, y+18);
+    label->text = "bass";
+    label->color = COLOR_BLACK;
+    addChild(label);
+
+    label = new Label();
+    label->box.pos = Vec(x-50, y+0);
+    label->text = "tenor";
+    label->color = COLOR_BLACK;
+    addChild(label);
+
+    label = new Label();
+    label->box.pos = Vec(x-20, y- 20);
+    label->text = "counter tenor";
+    label->color = COLOR_BLACK;
+    addChild(label);
+
+    label = new Label();
+    label->box.pos = Vec(x+30, y+0);
+    label->text = "alto";
+    label->color = COLOR_BLACK;
+    addChild(label);
+
+    label = new Label();
+    label->box.pos = Vec(x+26, y+20);
+    label->text = "soprano";
+    label->color = COLOR_BLACK;
+    addChild(label);
+
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(x, y), module, module->vocalFilter.FILTER_MODEL_SELECT_PARAM, 0.0f, 4.0f, 2.0f));
+
+ }
 
 
 /**
@@ -184,14 +223,7 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
         Vec(col4+trimDx, row3+trimDy),
          module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
 
-    // 5 pos vocal model
-    // 0(bass)  1(tenor) 2(countertenor) 3(alto)  4(soprano)
-    label = new Label();
-    label->box.pos = Vec(10, 282);
-    label->text = "Model";
-    label->color = COLOR_BLACK;
-    addChild(label);
-    addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(82, 276), module, module->vocalFilter.FILTER_MODEL_SELECT_PARAM, 0.0f, 4.0f, 2.0f));
+    addModelKnob(module, 75, 280);
 	
 
     // I.O on row bottom
