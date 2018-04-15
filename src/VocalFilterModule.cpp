@@ -126,10 +126,13 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     const float col1 = 10;      // the left hand strip of inputs and atternuverters
     const float col2 = 50;      // left column of big knobs
     const float col3 = 100;
-    const float col4 = 150;     // inputs and attv on right
+    const float col4 = 145;     // inputs and attv on right
 
-    const float labelOffset = -12;  // height of label above knob
+    const float labelOffset = -18;  // height of label above knob
     const float dy = 30;            // vertical space between input and atten
+
+    const float trimDy = 10;          // move atten down to match knob;
+    const float trimDx = 2;           // move to the right to match input
 
     //Vowels
     Label * label = new Label();
@@ -139,7 +142,9 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col2, row2), module, module->vocalFilter.FILTER_VOWEL_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(Vec(col1, row2-dy), Port::INPUT, module, module->vocalFilter.FILTER_VOWEL_CV_INPUT));
-    addParam(ParamWidget::create<Trimpot>(Vec(col1, row2), module, module->vocalFilter.FILTER_VOWEL_TRIM_PARAM, -1.0, 1.0, 1.0));
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(col1+trimDx, row2+trimDy),
+        module, module->vocalFilter.FILTER_VOWEL_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Fc
     label = new Label();
@@ -149,7 +154,9 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row2), module, module->vocalFilter.FILTER_FC_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(Vec(col4, row2-dy), Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
-    addParam(ParamWidget::create<Trimpot>(Vec(col4, row2), module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(col4+trimDx, row2+trimDy),
+         module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Q
     label = new Label();
@@ -159,7 +166,9 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col2, row3), module, module->vocalFilter.FILTER_Q_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(Vec(col1, row3 +dy), Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
-    addParam(ParamWidget::create<Trimpot>(Vec(col1, row3), module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(col1+trimDx, row3+trimDy),
+         module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
 
 
     // Brightness
@@ -171,7 +180,36 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row3), module, module->vocalFilter.FILTER_BRIGHTNESS_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(Vec(col4, row3+dy), Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
-    addParam(ParamWidget::create<Trimpot>(Vec(col4, row3), module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(col4+trimDx, row3+trimDy),
+         module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
+
+    // 5 pos vocal model
+    // 0(bass)  1(tenor) 2(countertenor) 3(alto)  4(soprano)
+    label = new Label();
+    label->box.pos = Vec(10, 282);
+    label->text = "Model";
+    label->color = COLOR_BLACK;
+    addChild(label);
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(82, 276), module, module->vocalFilter.FILTER_MODEL_SELECT_PARAM, 0.0f, 4.0f, 2.0f));
+	
+
+    // I.O on row bottom
+    const float AudioInputX = 10.0;
+    const float outputX = 140.0;
+    const float iOrow = 317.5;
+
+    addInput(Port::create<PJ301MPort>(Vec(AudioInputX, iOrow), Port::INPUT, module, module->vocalFilter.AUDIO_INPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(outputX, iOrow), Port::OUTPUT, module, module->vocalFilter.AUDIO_OUTPUT));
+
+
+    /*************************************************
+     *  screws
+     */
+    addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 }
 
