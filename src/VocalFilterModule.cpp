@@ -94,7 +94,7 @@ void VocalFilterWidget::addVowelLabels()
          
         addChild(label);
 
-         addChild(ModuleLightWidget::create<MediumLight<RedLight>>(
+         addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(
             Vec(ledX + i * ledDx, ledY), module, id));
     }
 
@@ -158,9 +158,15 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
 
     addVowelLabels();
 
-    const float mid = 100;          // the middle area, with the four main knobs
-    const float row2 = mid + 20;    //the first row of knobs
-    const float row3 = row2 + 60;
+    const float mid = 80;          // the middle area, with the four main knobs
+    const float rightOffsetY = 35;   // right knobs drop this amount
+    const float row2L = mid + 20;    //the first row of knobs
+    const float row2R = row2L + rightOffsetY;
+    const float row3L = row2L + 70;
+    const float row3R = row3L + rightOffsetY;
+
+    const float rightOffset = 40;
+
 
     const float col1 = 10;      // the left hand strip of inputs and atternuverters
     const float col2 = 50;      // left column of big knobs
@@ -168,59 +174,74 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     const float col4 = 145;     // inputs and attv on right
 
     const float labelOffset = -18;  // height of label above knob
-    const float dy = 30;            // vertical space between input and atten
+    const float dyUp = -20;          // vertical space between input and atten
+    const float dyDn = 32;
 
-    const float trimDy = 10;          // move atten down to match knob;
+    const float trimDy = 12;          // move atten down to match knob;
     const float trimDx = 2;           // move to the right to match input
 
     //Vowels
     Label * label = new Label();
-    label->box.pos = Vec(col2, row2 + labelOffset);
+    label->box.pos = Vec(col2, row2L + labelOffset);
     label->text = "Vowel";
     label->color = COLOR_BLACK;
     addChild(label);
-    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col2, row2), module, module->vocalFilter.FILTER_VOWEL_PARAM, -5.0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(col1, row2-dy), Port::INPUT, module, module->vocalFilter.FILTER_VOWEL_CV_INPUT));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(col2, row2L),
+        module, module->vocalFilter.FILTER_VOWEL_PARAM, -5.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(
+        Vec(col1, row2L+dyDn),
+        Port::INPUT, module, module->vocalFilter.FILTER_VOWEL_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col1+trimDx, row2+trimDy),
+        Vec(col1+trimDx, row2L+trimDy),
         module, module->vocalFilter.FILTER_VOWEL_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Fc
     label = new Label();
-    label->box.pos = Vec(col3, row2 + labelOffset);
+    label->box.pos = Vec(col3, row2R + labelOffset);
     label->text = "Fc";
     label->color = COLOR_BLACK;
     addChild(label);
-    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row2), module, module->vocalFilter.FILTER_FC_PARAM, -5.0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(col4, row2-dy), Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
+    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row2R), module, module->vocalFilter.FILTER_FC_PARAM, -5.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(
+        Vec(col4, row2R+dyUp),
+         Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col4+trimDx, row2+trimDy),
+        Vec(col4+trimDx, row2R+trimDy),
          module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Q
     label = new Label();
-    label->box.pos = Vec(col2, row3 + labelOffset);
+    label->box.pos = Vec(col2, row3L + labelOffset);
     label->text = "Q";
     label->color = COLOR_BLACK;
     addChild(label);
-    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col2, row3), module, module->vocalFilter.FILTER_Q_PARAM, -5.0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(col1, row3 +dy), Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(col2, row3L),
+         module, module->vocalFilter.FILTER_Q_PARAM, -5.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(
+        Vec(col1, row3L +dyDn),
+         Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col1+trimDx, row3+trimDy),
+        Vec(col1+trimDx, row3L+trimDy),
          module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
 
 
     // Brightness
 
     label = new Label();
-    label->box.pos = Vec(col3, row3 + labelOffset);
+    label->box.pos = Vec(col3, row3R + labelOffset);
     label->text = "Brite";
     label->color = COLOR_BLACK;
     addChild(label);
-    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row3), module, module->vocalFilter.FILTER_BRIGHTNESS_PARAM, -5.0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(col4, row3+dy), Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(col3, row3R),
+         module, module->vocalFilter.FILTER_BRIGHTNESS_PARAM, -5.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(
+        Vec(col4, row3R+dyUp),
+         Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col4+trimDx, row3+trimDy),
+        Vec(col4+trimDx, row3R+trimDy),
          module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     addModelKnob(module, 75, 280);
