@@ -58,9 +58,9 @@ struct VocalFilterWidget : ModuleWidget
 
 void VocalFilterWidget::addVowelLabels()
 {
-      const float ledX = 20;
-    const float ledDx = 20;
-    const float ledY = 24;
+    const float ledX = 40;
+    const float ledDx = 26;
+    const float ledY = 42;
       
     const float vOffsetX = -8;
     const float vOffsetY = 14;
@@ -158,11 +158,11 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
 
     addVowelLabels();
 
-    const float mid = 80;          // the middle area, with the four main knobs
-    const float rightOffsetY = 35;   // right knobs drop this amount
+    const float mid = 74;          // the middle area, with the four main knobs
+    const float rightOffsetY = 38;   // right knobs drop this amount
     const float row2L = mid + 20;    //the first row of knobs
     const float row2R = row2L + rightOffsetY;
-    const float row3L = row2L + 70;
+    const float row3L = row2L + rightOffsetY * 2;
     const float row3R = row3L + rightOffsetY;
 
     const float rightOffset = 40;
@@ -171,14 +171,14 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     const float col1 = 10;      // the left hand strip of inputs and atternuverters
     const float col2 = 50;      // left column of big knobs
     const float col3 = 100;
-    const float col4 = 145;     // inputs and attv on right
+    const float col4 = 146;     // inputs and attv on right
 
     const float labelOffset = -18;  // height of label above knob
-    const float dyUp = -20;          // vertical space between input and atten
-    const float dyDn = 32;
+    const float dyUp = -24;          // vertical space between input and atten
+    const float dyDn = 40;
 
     const float trimDy = 12;          // move atten down to match knob;
-    const float trimDx = 2;           // move to the right to match input
+    const float trimDx = 3;           // move to the right to match input
 
     //Vowels
     Label * label = new Label();
