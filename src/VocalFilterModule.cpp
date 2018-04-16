@@ -58,7 +58,7 @@ struct VocalFilterWidget : ModuleWidget
 
 void VocalFilterWidget::addVowelLabels()
 {
-    const float ledX = 40;
+    const float ledX = 20;
     const float ledDx = 26;
     const float ledY = 42;
       
@@ -177,15 +177,19 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     const float dyUp = -24;          // vertical space between input and atten
     const float dyDn = 40;
 
-    const float trimDy = 12;          // move atten down to match knob;
-    const float trimDx = 3;           // move to the right to match input
+    const float trimDyL = 1;          // move atten down to match knob;
+     const float trimDyR = 22;          // move atten down to match knob;
 
+    const float trimDx = 3;           // move to the right to match input
+    Label* label;
     //Vowels
-    Label * label = new Label();
+    #if 0
+    label = new Label();
     label->box.pos = Vec(col2, row2L + labelOffset);
     label->text = "Vowel";
     label->color = COLOR_BLACK;
     addChild(label);
+    #endif
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(col2, row2L),
         module, module->vocalFilter.FILTER_VOWEL_PARAM, -5.0, 5.0, 0.0));
@@ -193,7 +197,7 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
         Vec(col1, row2L+dyDn),
         Port::INPUT, module, module->vocalFilter.FILTER_VOWEL_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col1+trimDx, row2L+trimDy),
+        Vec(col1+trimDx, row2L+trimDyL),
         module, module->vocalFilter.FILTER_VOWEL_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Fc
@@ -207,7 +211,7 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
         Vec(col4, row2R+dyUp),
          Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col4+trimDx, row2R+trimDy),
+        Vec(col4+trimDx, row2R+trimDyR),
          module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Q
@@ -223,7 +227,7 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
         Vec(col1, row3L +dyDn),
          Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col1+trimDx, row3L+trimDy),
+        Vec(col1+trimDx, row3L+trimDyL),
          module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
 
 
@@ -241,7 +245,7 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
         Vec(col4, row3R+dyUp),
          Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col4+trimDx, row3R+trimDy),
+        Vec(col4+trimDx, row3R+trimDyR),
          module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     addModelKnob(module, 75, 280);
