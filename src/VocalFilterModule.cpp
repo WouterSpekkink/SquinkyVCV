@@ -117,8 +117,8 @@ void VocalFilterWidget::addVowelLabels()
     addChild(label);
 
     label = new Label();
-    label->box.pos = Vec(x-20, y- 20);
-    label->text = "counter tenor";
+    label->box.pos = Vec(x-26, y- 20);
+    label->text = "contra tenor";
     label->color = COLOR_BLACK;
     addChild(label);
 
@@ -129,7 +129,7 @@ void VocalFilterWidget::addVowelLabels()
     addChild(label);
 
     label = new Label();
-    label->box.pos = Vec(x+26, y+20);
+    label->box.pos = Vec(x+26, y+18);
     label->text = "soprano";
     label->color = COLOR_BLACK;
     addChild(label);
@@ -158,15 +158,12 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
 
     addVowelLabels();
 
-    const float mid = 74;          // the middle area, with the four main knobs
-    const float rightOffsetY = 38;   // right knobs drop this amount
+    const float mid = 70;          // the middle area, with the four main knobs
+    const float rightOffsetY = 40;   // right knobs drop this amount
     const float row2L = mid + 20;    //the first row of knobs
     const float row2R = row2L + rightOffsetY;
     const float row3L = row2L + rightOffsetY * 2;
     const float row3R = row3L + rightOffsetY;
-
-    const float rightOffset = 40;
-
 
     const float col1 = 10;      // the left hand strip of inputs and atternuverters
     const float col2 = 50;      // left column of big knobs
@@ -174,8 +171,10 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     const float col4 = 146;     // inputs and attv on right
 
     const float labelOffset = -18;  // height of label above knob
-    const float dyUp = -24;          // vertical space between input and atten
-    const float dyDn = 40;
+   // const float dyUp = -24;          // vertical space between input and atten
+   // const float dyDn = 40;
+    const float dyUp = -14;          // vertical space between input and atten
+    const float dyDn = 30;
 
     const float trimDyL = 1;          // move atten down to match knob;
      const float trimDyR = 22;          // move atten down to match knob;
