@@ -1,3 +1,4 @@
+# ./test readme
 This folder contains a unit test program and test-support classes.
 
 In general most of this software is fairly unremarkable code that supports unit testing of the various parts of our synth plugins.
