@@ -11,7 +11,7 @@ This last point is very important, as one of the basic rules of code optimizatio
 
 As stated above, much of the test code is unremarkable, other than its existence. There are a couple of modules however that might be useful to others.
 
-[MeasureTime](../blob/master/test/MeasureTime.h) is used to measure the CPU usage of any arbitrary code. It takes a simple lambda and profiles it.
+[MeasureTime](./MeasureTime.h) is used to measure the CPU usage of any arbitrary code. It takes a simple lambda and profiles it.
 [Composite pattern](../blob/master/composite/README.md) allows us to run our plugin code inside a test applicate as well as inside a VCV Track plugin module.
 <assert library>
 <makefile> we have enhanced to standard plugin Makefile in several important ways.
