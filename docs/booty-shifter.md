@@ -3,6 +3,8 @@
 
 [Booty Shifter](#shifter)
 
+[Formants](#formants)
+
 [Attenuverters](#atten)
 
 [CV ranges](#cv)
@@ -80,6 +82,22 @@ If you shift the input down a lot, frequencies will go **below zero and wrap aro
 As you shift the input down, you may start to generate a lot of subsonic energy. A **High Pass filter** may clean this up.
 
 The down shift **frequency fold-over**, while true to the original, does cause problems when trying to pitch drum tracks down a lot. High pass filtering the input before it is down-shifted can control this.
+
+# Formants vocal filter <a name="formants"></a>
+![formants image](./formants.png)
+
+Like the **Vocal Animator**, this is a filter bank is tuned to the formant frequencies of typical **singing voices**. Unlike Growler, however, the filters do not animate on their own. And they are preset to frequencies, bandwidths, and gains that are taken from **measurements of human singers**.
+
+Controls:
+* Fc control moves all the filters up and down and the standard 1 "volt" per octave.
+* Vowel control smoothly interpolates between 'a', 'e', 'i', 'o', and 'u'.
+* Model control selects different models: bass, tenor, countertenor, alto, and soprano.
+* Brightness control gradually boosts the level of the higher formants. When it is all the way down, the filer gains are set by the singing models in the module, which typically fall off with increasing frequency. As this control is increased the gain of the high formant filters is brought up to match the F1 formant filter.
+
+The **LEDs across the top** indicate which formant is currently being "sung".
+
+Like "Growler", Formants sounds most like human vocalization when driven by a low frequency signal rich in harmonics.
+
 
 ## About Attenuverters <a name="atten"></a>
 
