@@ -98,7 +98,7 @@ Controls:
 * **Fc** control moves all the filters up and down by the standard one "volt" per octave.
 * **Vowel** control smoothly interpolates between 'a', 'e', 'i', 'o', and 'u'.
 * **Model** control selects different vocal models: bass, tenor, countertenor, alto, and soprano.
-* **Brightness** control gradually boosts the level of the higher formants. When it is all the way down, the filer gains are set by the singing models in the module, which typically fall off with increasing frequency. As this control is increased the gain of the high formant filters is brought up to match the F1 formant filter.
+* **Brightness** control gradually boosts the level of the higher formants. When it is all the way down, the filter gains are set by the singing models in the module, which typically fall off with increasing frequency. As this control is increased the gain of the high formant filters is brought up to match the F1 formant filter.
 
 The **LEDs across the top** indicate which formant is currently being "sung".
 
