@@ -19,32 +19,50 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\dsp\fft\FFT.cpp" />
+    <ClCompile Include="..\..\dsp\fft\FFTCrossFader.cpp" />
+    <ClCompile Include="..\..\dsp\fft\FFTData.cpp" />
     <ClCompile Include="..\..\dsp\filters\ButterworthFilterDesigner.cpp" />
     <ClCompile Include="..\..\dsp\filters\FormantTables2.cpp" />
     <ClCompile Include="..\..\dsp\filters\HilbertFilterDesigner.cpp" />
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp" />
+    <ClCompile Include="..\..\dsp\third-party\kiss_fft130\kiss_fft.c" />
+    <ClCompile Include="..\..\dsp\third-party\kiss_fft130\tools\kiss_fftr.c" />
     <ClCompile Include="..\..\dsp\utils\AudioMath.cpp" />
     <ClCompile Include="..\..\dsp\utils\ObjectCache.cpp" />
+    <ClCompile Include="..\..\sqsrc\thread\ThreadClient.cpp" />
+    <ClCompile Include="..\..\sqsrc\thread\ThreadServer.cpp" />
+    <ClCompile Include="..\..\sqsrc\thread\ThreadSharedState.cpp" />
     <ClCompile Include="..\..\test\main.cpp" />
     <ClCompile Include="..\..\test\perfTest.cpp" />
     <ClCompile Include="..\..\test\testAudioMath.cpp" />
     <ClCompile Include="..\..\test\testBiquad.cpp" />
+    <ClCompile Include="..\..\test\testColoredNoise.cpp" />
+    <ClCompile Include="..\..\test\testFFT.cpp" />
+    <ClCompile Include="..\..\test\testFFTCrossFader.cpp" />
+    <ClCompile Include="..\..\test\testFinalLeaks.cpp" />
     <ClCompile Include="..\..\test\testFrequencyShifter.cpp" />
     <ClCompile Include="..\..\test\testHilbert.cpp" />
     <ClCompile Include="..\..\test\testLookupTable.cpp" />
     <ClCompile Include="..\..\test\testObjectCache.cpp" />
+    <ClCompile Include="..\..\test\testRingBuffer.cpp" />
     <ClCompile Include="..\..\test\testSaw.cpp" />
     <ClCompile Include="..\..\test\testSinOscillator.cpp" />
     <ClCompile Include="..\..\test\testStateVariable.cpp" />
     <ClCompile Include="..\..\test\testTestSignal.cpp" />
+    <ClCompile Include="..\..\test\testThread.cpp" />
     <ClCompile Include="..\..\test\testVocalAnimator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\composites\ColoredNoise.h" />
     <ClInclude Include="..\..\composites\FrequencyShifter.h" />
     <ClInclude Include="..\..\composites\TestComposite.h" />
     <ClInclude Include="..\..\composites\VocalAnimator.h" />
     <ClInclude Include="..\..\composites\VocalFilter.h" />
     <ClInclude Include="..\..\composites\WidgetComposite.h" />
+    <ClInclude Include="..\..\dsp\fft\FFT.h" />
+    <ClInclude Include="..\..\dsp\fft\FFTCrossFader.h" />
+    <ClInclude Include="..\..\dsp\fft\FFTData.h" />
     <ClInclude Include="..\..\dsp\filters\BiquadFilter.h" />
     <ClInclude Include="..\..\dsp\filters\BiquadParams.h" />
     <ClInclude Include="..\..\dsp\filters\BiquadState.h" />
@@ -56,10 +74,17 @@
     <ClInclude Include="..\..\dsp\generators\SawOscillator.h" />
     <ClInclude Include="..\..\dsp\generators\SinOscillator.h" />
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h" />
+    <ClInclude Include="..\..\dsp\third-party\kiss_fft130\kiss_fft.h" />
+    <ClInclude Include="..\..\dsp\third-party\kiss_fft130\tools\kiss_fftr.h" />
     <ClInclude Include="..\..\dsp\utils\AudioMath.h" />
     <ClInclude Include="..\..\dsp\utils\LookupTable.h" />
     <ClInclude Include="..\..\dsp\utils\LookupTableFactory.h" />
     <ClInclude Include="..\..\dsp\utils\ObjectCache.h" />
+    <ClInclude Include="..\..\sqsrc\thread\ThreadClient.h" />
+    <ClInclude Include="..\..\sqsrc\thread\ThreadServer.h" />
+    <ClInclude Include="..\..\sqsrc\thread\ThreadSharedState.h" />
+    <ClInclude Include="..\..\sqsrc\util\ManagedPool.h" />
+    <ClInclude Include="..\..\sqsrc\util\RingBuffer.h" />
     <ClInclude Include="..\..\test\asserts.h" />
     <ClInclude Include="..\..\test\ExtremeTester.h" />
     <ClInclude Include="..\..\test\MeasureTime.h" />
@@ -144,7 +169,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\dsp\generators;..\..\dsp\filters;..\..\dsp\third-party\falco;..\..\composites;..\..\dsp\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\dsp\fft;..\..\dsp\generators;..\..\dsp\filters;..\..\dsp\third-party\falco;..\..\composites;..\..\sqsrc\util;..\..\sqsrc\thread;..\..\dsp\utils;..\..\dsp\third-party\kiss_fft130;..\..\dsp\third-party\kiss_fft130\tools;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -174,7 +199,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\dsp\generators;..\..\dsp\filters;..\..\dsp\third-party\falco;..\..\composites;..\..\dsp\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\dsp\fft;..\..\dsp\generators;..\..\dsp\filters;..\..\dsp\third-party\falco;..\..\composites;..\..\sqsrc\util;..\..\sqsrc\thread;..\..\dsp\utils;..\..\dsp\third-party\kiss_fft130;..\..\dsp\third-party\kiss_fft130\tools;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

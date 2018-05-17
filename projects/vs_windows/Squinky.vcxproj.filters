@@ -52,6 +52,33 @@
     <Filter Include="Header Files\composites">
       <UniqueIdentifier>{6f955dd1-2a2c-4506-bfc2-4bb55734eb72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\sqsrc">
+      <UniqueIdentifier>{69f82fd1-904a-40e1-8a26-c2cd63f1e979}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sqsrc">
+      <UniqueIdentifier>{dde575bc-41ce-4770-9fd3-411c945a262b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dsp\fft">
+      <UniqueIdentifier>{09a864b6-3479-4e18-b9de-499c30b220a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dsp\fft">
+      <UniqueIdentifier>{53848339-2c75-4ddc-8933-607d2353adee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dsp\third-party\kiss_fft">
+      <UniqueIdentifier>{80fd0025-498b-4fd2-98ac-cdae460339fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dsp\third-party\kiss_fft">
+      <UniqueIdentifier>{ea30d980-17c6-4bf8-91a7-847e331330c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sqsrc\thread">
+      <UniqueIdentifier>{19f721d6-97d9-4952-a547-52e6e418fbf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sqsrc\thread">
+      <UniqueIdentifier>{98bc8bb8-3835-46b9-be11-d534f001cac5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sqsrc\util">
+      <UniqueIdentifier>{d88fef08-3b09-4979-98d0-41863e55201d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -109,6 +136,48 @@
       <Filter>Source Files\dsp\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\testObjectCache.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testFFT.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\fft\FFTData.cpp">
+      <Filter>Source Files\dsp\fft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\kiss_fft130\tools\kiss_fftr.c">
+      <Filter>Source Files\dsp\third-party\kiss_fft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\kiss_fft130\kiss_fft.c">
+      <Filter>Source Files\dsp\third-party\kiss_fft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sqsrc\thread\ThreadClient.cpp">
+      <Filter>Source Files\sqsrc\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sqsrc\thread\ThreadServer.cpp">
+      <Filter>Source Files\sqsrc\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sqsrc\thread\ThreadSharedState.cpp">
+      <Filter>Source Files\sqsrc\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testThread.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\fft\FFT.cpp">
+      <Filter>Source Files\dsp\fft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testRingBuffer.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testColoredNoise.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testFFTCrossFader.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\fft\FFTCrossFader.cpp">
+      <Filter>Source Files\dsp\fft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testFinalLeaks.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -190,6 +259,39 @@
     </ClInclude>
     <ClInclude Include="..\..\dsp\utils\ObjectCache.h">
       <Filter>Header Files\dsp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\fft\FFTData.h">
+      <Filter>Header Files\dsp\fft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\fft\FFT.h">
+      <Filter>Header Files\dsp\fft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\third-party\kiss_fft130\kiss_fft.h">
+      <Filter>Header Files\dsp\third-party\kiss_fft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\third-party\kiss_fft130\tools\kiss_fftr.h">
+      <Filter>Header Files\dsp\third-party\kiss_fft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\thread\ThreadClient.h">
+      <Filter>Header Files\sqsrc\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\thread\ThreadServer.h">
+      <Filter>Header Files\sqsrc\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\thread\ThreadSharedState.h">
+      <Filter>Header Files\sqsrc\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\RingBuffer.h">
+      <Filter>Header Files\sqsrc\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\ManagedPool.h">
+      <Filter>Header Files\sqsrc\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\ColoredNoise.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\fft\FFTCrossFader.h">
+      <Filter>Header Files\dsp\fft</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
