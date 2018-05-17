@@ -18,6 +18,13 @@ extern void testFrequencyShifter();
 extern void testStateVariable();
 extern void testVocalAnimator();
 extern void testObjectCache();
+extern void testThread();
+extern void testFFT();
+extern void testRingBuffer();
+extern void testManagedPool();
+extern void testColoredNoise();
+extern void testFFTCrossFader();
+extern void testFinalLeaks();
 
 int main(int argc, char ** argv)
 {
@@ -40,6 +47,8 @@ int main(int argc, char ** argv)
     assert(sizeof(size_t) == 8);
 
     testAudioMath();
+    testRingBuffer();
+    testManagedPool();
     testLookupTable();
     testObjectCache();
 
@@ -51,7 +60,13 @@ int main(int argc, char ** argv)
     testHilbert();
     testStateVariable();
 
+    testFFT();
+    testFFTCrossFader();
+    testThread();
+
+
     // after testing all the components, test composites.
+    testColoredNoise();
     testFrequencyShifter();
     testVocalAnimator();
 
@@ -59,6 +74,8 @@ int main(int argc, char ** argv)
         perfTest();
     }
 
+
+    testFinalLeaks();
     // When we run inside Visual Studio, don't exit debugger immediately
 #if defined(_MSC_VER)
     printf("Test passed. Press any key to continue...\n"); fflush(stdout);
