@@ -82,8 +82,11 @@ public:
         };
     }
 
-
+    /**
+     * Generates a scale function for an audio taper attenuverter.
+     * Details the same as makeLinearScaler except that the CV
+     * scaling will be exponential for most values, becoming
+     * linear near zero.
+     */
     static ScaleFun<float> makeBipolarAudioScaler(float y0, float y1);
-   
-
 };

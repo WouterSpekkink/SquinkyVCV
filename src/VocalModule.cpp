@@ -23,7 +23,6 @@ private:
 VocalModule::VocalModule() : Module(animator.NUM_PARAMS, animator.NUM_INPUTS, animator.NUM_OUTPUTS, animator.NUM_LIGHTS),
 animator(this)
 {
-    // TODO: can we assume onSampleRateChange() gets called first, so this is unnecessary?
     onSampleRateChange();
     animator.init();
 }
@@ -48,7 +47,6 @@ struct VocalWidget : ModuleWidget
     VocalWidget(VocalModule *);
 };
 
-
 template <typename BASE>
 struct MuteLight : BASE {
 	MuteLight() {
@@ -56,13 +54,13 @@ struct MuteLight : BASE {
 	}
 };
 
-
 struct NKK2 : SVGSwitch, ToggleSwitch {
 	NKK2() {
 		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/NKK_0.svg")));
 		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/NKK_2.svg")));
 	}
 };
+
 /**
  * Widget constructor will describe my implementation structure and
  * provide meta-data.
@@ -76,7 +74,6 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/vocal_animator_panel.svg")));
-       //panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
         addChild(panel);
     }
     /**
@@ -164,8 +161,6 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
     addParam(ParamWidget::create<Trimpot>(
         Vec(trimX + 2 * colSpacingX, trimY), module, module->animator.FILTER_MOD_DEPTH_TRIM_PARAM, -1.0, 1.0, 1.0));
 
-
-    // was 317.5, let's move up to make room for label
     const float row3 = 310;
 
     // I.O on row 3
@@ -184,7 +179,6 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
     addParam(ParamWidget::create<NKK2>(
        Vec(bassX, bassY), module, module->animator.BASS_EXP_PARAM, 0.0f, 1.0f, 0.0f));
 
-
     /*************************************************
      *  screws
      */
@@ -194,10 +188,6 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 }
 
-// Specify the Module and ModuleWidget subclass, human-readable
-// manufacturer name for categorization, module slug (should never
-// change), human-readable module name, and any number of tags
-// (found in `include/tags.hpp`) separated by commas.
 Model *modelVocalModule = Model::create<VocalModule, VocalWidget>("Squinky Labs",
     "squinkylabs-vocalanimator",
     "Vocal Animator", EFFECT_TAG, FILTER_TAG);

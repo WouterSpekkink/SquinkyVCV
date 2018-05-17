@@ -1,6 +1,6 @@
 
-#ifdef _EXP
 #include "Squinky.hpp"
+#ifdef _EXP
 
 #include "WidgetComposite.h"
 #include "ColoredNoise.h"
@@ -18,19 +18,18 @@ struct ColoredNoiseModule : Module
     void step() override;
     void onSampleRateChange() override;
 
-    // TODO: real composite
     ColoredNoise<WidgetComposite> noiseSource;
 private:
     typedef float T;
 };
 
-ColoredNoiseModule::ColoredNoiseModule() : Module(noiseSource.NUM_PARAMS,
-                     noiseSource.NUM_INPUTS, 
-                     noiseSource.NUM_OUTPUTS, 
-                     noiseSource.NUM_LIGHTS),
-                     noiseSource(this)
+ColoredNoiseModule::ColoredNoiseModule() 
+    : Module(noiseSource.NUM_PARAMS,
+        noiseSource.NUM_INPUTS, 
+        noiseSource.NUM_OUTPUTS, 
+        noiseSource.NUM_LIGHTS),
+        noiseSource(this)
 {
-    // TODO: can we assume onSampleRateChange() gets called first, so this is unnecessary?
     onSampleRateChange();
     noiseSource.init();
 }
@@ -56,22 +55,10 @@ struct ColoredNoiseWidget : ModuleWidget
     Label * slopeLabel;
 };
 
-
-// F44336
-//static const unsigned char red[3] = {0xf4, 0x43, 0x36 };
 static const unsigned char red[3] = {0xff, 0x04, 0x14 };
-// EC407A
-//static const unsigned char pink[3] = {0xec, 0x40, 0x7a };
 static const unsigned char pink[3] = {0xff, 0x3a, 0x6d };
-
-static const unsigned char white[3] = {0xe0, 0xe0, 0xe0 };
-
-// #3F51B5
-//static const unsigned char blue[3] = {0x3f, 0x51, 0xb5 };
+static const unsigned char white[3] = {0xff, 0xff, 0xff };
 static const unsigned char blue[3] = {0x54, 0x43, 0xc1 };
-
-// 9C27B0
-//static const unsigned char violet[3] = {0x9c, 0x27, 0xb0 };
 static const unsigned char violet[3] = {0x9d, 0x3c, 0xe6 };
 
 // 0 <= x <= 1
@@ -115,9 +102,7 @@ static void getColor(unsigned char * out,  float x)
             copyColor(out, white);
         }
     }
-
 }
-
 
 struct ColorDisplay : OpaqueWidget {
     ColoredNoiseModule *module;
@@ -137,11 +122,13 @@ struct ColorDisplay : OpaqueWidget {
 		nvgFill(vg);
 
         std::stringstream s;
+        if (slope >= 0) {
+            s << '+';
+        }
         s.precision(1);
         s.setf( std::ios::fixed, std::ios::floatfield );
         s << slope << " db/oct";
         theLabel->text = s.str();
-
     }
 };
 
@@ -155,7 +142,10 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
  
     box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
+    // save so we can update later.
     slopeLabel = new Label();
+
+    // add the color display
 	{
 		ColorDisplay *display = new ColorDisplay(slopeLabel);
 		display->module = module;
@@ -164,8 +154,13 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
 		addChild(display);
         display->module = module;
 	}
+    {
+        SVGPanel *panel = new SVGPanel();
+        panel->box.size = box.size;
+        panel->setBackground(SVG::load(assetPlugin(plugin, "res/colors3.svg")));
+        addChild(panel);
+    }
 
-    
     Label * label = new Label();
     label->box.pos = Vec(23, 24);
     label->text = "Noise";
@@ -196,13 +191,8 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     slopeLabel->text = "slope";
     slopeLabel->color = COLOR_BLACK;
     addChild(slopeLabel);
-
 }
 
-// Specify the Module and ModuleWidget subclass, human-readable
-// manufacturer name for categorization, module slug (should never
-// change), human-readable module name, and any number of tags
-// (found in `include/tags.hpp`) separated by commas.
 Model *modelColoredNoiseModule = Model::create<ColoredNoiseModule, ColoredNoiseWidget>(
     "Squinky Labs",
     "squinkylabs-coloredNoise",
