@@ -52,6 +52,7 @@ struct ColoredNoiseWidget : ModuleWidget
 {
     ColoredNoiseWidget(ColoredNoiseModule *);
     Label * slopeLabel;
+    Label * signLabel;
 };
 
 static const unsigned char red[3] = {0xff, 0x04, 0x14 };
@@ -105,9 +106,11 @@ static void getColor(unsigned char * out,  float x)
 
 struct ColorDisplay : OpaqueWidget {
     ColoredNoiseModule *module;
-    ColorDisplay(Label *l) : theLabel(l) {}
+    ColorDisplay(Label *slopeLabel, Label *signLabel) 
+        : _slopeLabel(slopeLabel), _signLabel(signLabel) {}
 
-    Label* theLabel=0;
+    Label* _slopeLabel;
+    Label* _signLabel;
     void draw(NVGcontext *vg) override 
     {
         const float slope = module->noiseSource.getSlope();
@@ -120,14 +123,17 @@ struct ColorDisplay : OpaqueWidget {
         nvgRect(vg, 0, 0, 6 * RACK_GRID_WIDTH,RACK_GRID_HEIGHT);
 		nvgFill(vg);
 
+        const bool slopeSign = slope >= 0;
+        const float slopeAbs = std::abs(slope);
         std::stringstream s;
-        if (slope >= 0) {
-            s << '+';
-        }
+    
         s.precision(1);
         s.setf( std::ios::fixed, std::ios::floatfield );
-        s << slope << " db/oct";
-        theLabel->text = s.str();
+        s << slopeAbs << " db/oct";
+        _slopeLabel->text = s.str();
+
+        const char * mini = "\u2005-";
+        _signLabel->text = slopeSign ? "+" : mini;
     }
 };
 
@@ -143,11 +149,12 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
 
     // save so we can update later.
     slopeLabel = new Label();
+    signLabel = new Label();
 
     // add the color display
     #if 1
 	{
-		ColorDisplay *display = new ColorDisplay(slopeLabel);
+		ColorDisplay *display = new ColorDisplay(slopeLabel, signLabel);
 		display->module = module;
 		display->box.pos = Vec( 0, 0);
 		display->box.size = Vec(6 * RACK_GRID_WIDTH,RACK_GRID_HEIGHT);
@@ -164,38 +171,46 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     }
     #endif
 
+#if 0
     Label * label = new Label();
     label->box.pos = Vec(23, 24);
     label->text = "Noise";
     label->color = COLOR_BLACK;
     addChild(label);
+    #endif
 
     addOutput(Port::create<PJ301MPort>(
-        Vec(20, 300),
+        Vec(30, 310),
         Port::OUTPUT,
         module,
         module->noiseSource.AUDIO_OUTPUT));
 
 //Davies1900hBlackKnob
 //Rogan1PSWhite
+
     addParam(ParamWidget::create<Rogan2PSWhite>(
-        Vec(28, 100), module, module->noiseSource.SLOPE_PARAM, -5.0, 5.0, 0.0));
+        Vec(22, 80), module, module->noiseSource.SLOPE_PARAM, -5.0, 5.0, 0.0));
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(28, 170),
+        Vec(58, 46),
         module, module->noiseSource.SLOPE_TRIM, -1.0, 1.0, 1.0));
 
     addInput(Port::create<PJ301MPort>(
-        Vec(20, 200),
+        Vec(14, 42),
         Port::INPUT,
         module,
         module->noiseSource.SLOPE_CV));
 
-    
-    slopeLabel->box.pos = Vec(6, 50);
-    slopeLabel->text = "slope";
+
+    const float labelY = 146;    
+    slopeLabel->box.pos = Vec(12, labelY);
+    slopeLabel->text = "foo";
     slopeLabel->color = COLOR_BLACK;
     addChild(slopeLabel);
+    signLabel->box.pos = Vec(2, labelY);
+    signLabel->text = "x";
+    signLabel->color = COLOR_BLACK;
+    addChild(signLabel);
 }
 
 Model *modelColoredNoiseModule = Model::create<ColoredNoiseModule, ColoredNoiseWidget>(
