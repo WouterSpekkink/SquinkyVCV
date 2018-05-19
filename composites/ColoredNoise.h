@@ -44,7 +44,7 @@ public:
     // must be called after setSampleRate
     void init()
     {
-        cv_scaler = AudioMath::makeBipolarAudioScaler(-8, 8);
+        cv_scaler = AudioMath::makeLinearScaler<T>(-8, 8);
     }
 
     // Define all the enums here. This will let the tests and the widget access them.

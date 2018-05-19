@@ -1,5 +1,5 @@
 #include "rack.hpp"
-#define _EXP
+
 using namespace rack;
 extern Plugin *plugin;
 extern Model *modelBootyModule;

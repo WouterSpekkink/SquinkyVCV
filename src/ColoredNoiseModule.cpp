@@ -1,6 +1,5 @@
 
 #include "Squinky.hpp"
-#ifdef _EXP
 
 #include "WidgetComposite.h"
 #include "ColoredNoise.h"
@@ -146,6 +145,7 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     slopeLabel = new Label();
 
     // add the color display
+    #if 1
 	{
 		ColorDisplay *display = new ColorDisplay(slopeLabel);
 		display->module = module;
@@ -154,12 +154,15 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
 		addChild(display);
         display->module = module;
 	}
+    #endif
+    #if 1
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin, "res/colors3.svg")));
+        panel->setBackground(SVG::load(assetPlugin(plugin, "res/colors_panel.svg")));
         addChild(panel);
     }
+    #endif
 
     Label * label = new Label();
     label->box.pos = Vec(23, 24);
@@ -173,15 +176,17 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
         module,
         module->noiseSource.AUDIO_OUTPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(
+//Davies1900hBlackKnob
+//Rogan1PSWhite
+    addParam(ParamWidget::create<Rogan2PSWhite>(
         Vec(28, 100), module, module->noiseSource.SLOPE_PARAM, -5.0, 5.0, 0.0));
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(28, 140),
+        Vec(28, 170),
         module, module->noiseSource.SLOPE_TRIM, -1.0, 1.0, 1.0));
 
     addInput(Port::create<PJ301MPort>(
-        Vec(20, 160),
+        Vec(20, 200),
         Port::INPUT,
         module,
         module->noiseSource.SLOPE_CV));
@@ -198,4 +203,3 @@ Model *modelColoredNoiseModule = Model::create<ColoredNoiseModule, ColoredNoiseW
     "squinkylabs-coloredNoise",
     "Colored Noise", EFFECT_TAG, FILTER_TAG);
 
-#endif

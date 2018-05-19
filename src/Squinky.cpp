@@ -23,8 +23,8 @@ void init(rack::Plugin *p)
     assert(modelVocalFilterModule);
     p->addModel(modelVocalFilterModule);
 
-#ifdef _EXP
+
     assert(modelColoredNoiseModule);
     p->addModel(modelColoredNoiseModule);
-#endif
+
 }
