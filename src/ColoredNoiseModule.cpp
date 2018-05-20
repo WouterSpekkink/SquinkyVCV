@@ -105,74 +105,16 @@ static void getColor(unsigned char * out,  float x)
     }
 }
 
-
-void doDraw(NVGcontext *vg) 
-{
-  
-
-    //const int width = 100;
-    //const int height = 100;
-    const int width = 6 * RACK_GRID_WIDTH;
-    const int height = RACK_GRID_HEIGHT;
-    const char * filename = "D:\\VCVRack\\6rack\\plugins\\SquinkyVCV\\res\\test2.png";
-   // printf("try load %s\n", filename);
-
-   // context, file, imageFlags
-   static int handle = 0;
-   if (!handle) {
-        handle =  nvgCreateImage(vg, filename,
-      //NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
-        0);
-   }
-    if (!handle) printf("image load fail\n");
-
-
-    {
-        int x, y;
-        nvgImageSize(vg, handle, &x, &y);
-       // printf("loaded image size = %d, %d\n", x, y);
-    }
-
-    NVGpaint paint;
-    paint.image = 567;
-
-
-// changing ox, oy moves the image around in the rect
-   paint = nvgImagePattern(vg,
-      //  0, 0,
-        -30, -30,
-        width, height, 0, handle, 0.99f);
-  // printf("paint image = %d\n", paint.image);
-
-/*
-// Creates and returns an image patter. Parameters (ox,oy) specify the left-top location of the image pattern,
-// (ex,ey) the size of one image, angle rotation around the top-left corner, image is handle to the image to render.
-// The gradient is transformed by the current transform when it is passed to nvgFillPaint() or nvgStrokePaint().
-NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey,
-						 float angle, int image, float alpha);
-                         */
-
-    nvgBeginPath( vg );
-    nvgRect( vg, 0, 0, width, height);
-   // nvgRoundedRect( vg, 0, 0, width, height, 5);
-
- 
-
-
-        
-    nvgFillPaint( vg, paint );
-    nvgFill( vg );
-
-  //  nvgDeleteImage(vg, handle);
- //   printf("leaving draw\n");
-}
-
+// the draw size of the colored noise display.
+const int colorWidth = 100;
+const int colorHeight = 100;
+const int colorX = 10;
+const int colorY = 50;
 struct ColorDisplay : OpaqueWidget {
     ColoredNoiseModule *module;
     ColorDisplay(Label *slopeLabel, Label *signLabel) 
         : _slopeLabel(slopeLabel),
          _signLabel(signLabel)
-     //    _noiseDrawer(0,0, 100, 100)
          {}
 
     Label* _slopeLabel;
@@ -181,95 +123,23 @@ struct ColorDisplay : OpaqueWidget {
 
     void draw(NVGcontext *vg) override 
     {
-        if (!_noiseDrawer) {
-            _noiseDrawer.reset( new NoiseDrawer(vg, 0, 0, 100, 100));
-        }
-        _noiseDrawer->draw(vg);
-       // doDraw(vg);
-    }
-
-    #if 0
-    void draw(NVGcontext *vg) override 
-    {
+        // First draw the solid fill
         const float slope = module->noiseSource.getSlope();
         unsigned char color[3];
         getColor(color, slope);
         nvgFillColor(vg, nvgRGBA(color[0], color[1], color[2], 0xff));
 
         nvgBeginPath(vg);
-        // todo: pass in ctor
+
         nvgRect(vg, 0, 0, 6 * RACK_GRID_WIDTH,RACK_GRID_HEIGHT);
 		nvgFill(vg);
 
-        const bool slopeSign = slope >= 0;
-        const float slopeAbs = std::abs(slope);
-        std::stringstream s;
-    
-        s.precision(1);
-        s.setf( std::ios::fixed, std::ios::floatfield );
-        s << slopeAbs << " db/oct";
-        _slopeLabel->text = s.str();
-
-        const char * mini = "\u2005-";
-        _signLabel->text = slopeSign ? "+" : mini;
-
-    // let's overlay some noise
-    #if 1
-        {
-            const int width = 6 * RACK_GRID_WIDTH;
-            const int height = RACK_GRID_HEIGHT;
-           // const int size = 100;
-            const int memSize = width * height * 4;
-            //make the noise data
-            unsigned char * memImage = new unsigned char[memSize];
-       // printf("mem size = %d\n", memSize);
-
-#if 1
-int vmin=100;
-int vmax= -1000;
-            for (int row=0; row<height; ++row) {
-                for (int col=0; col<width; ++col) {
-                    int value = int((255.f * rand()) / float(RAND_MAX));
-                    vmin = std::min(value, vmin);
-                    vmax = std::max(value, vmax);
-                    unsigned char * pix = memImage + (4 * (row*width + col));
-                    pix[0] = value;
-                    pix[1] = value;
-                    pix[2] = value; 
-                    pix[3] = 255;
-                }
-            } 
-
-            printf("val range %d, %d\n", vmin, vmax);
-            #endif
-
-
-//int nvgCreateImageRGBA(NVGcontext* ctx, int w, int h, int imageFlags, const unsigned char* data);
-
-            const int handle = nvgCreateImageRGBA(vg,
-             width, height, NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY,
-              memImage );
-
-            NVGpaint paint = nvgImagePattern(vg, 0, 0, width, height, 0, handle, 1.f);
-
-
-            nvgBeginPath( vg );
-            nvgRect( vg, 0, 0, width, height);
-
-        
-            nvgFillPaint( vg, paint );
-            nvgFill( vg );
-
-    
-            printf("image handle = %d\n", handle);
-        
-            nvgDeleteImage(vg, handle);
-            delete[] memImage;
-        
+        // then the noise
+        if (!_noiseDrawer) {
+            _noiseDrawer.reset( new NoiseDrawer(vg, 0, 0, 100, 100));
         }
-        #endif
+        _noiseDrawer->draw(vg);
     }
-    #endif
 };
 
 /**
