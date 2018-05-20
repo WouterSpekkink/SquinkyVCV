@@ -109,7 +109,7 @@ static void getColor(unsigned char * out,  float x)
 const int colorWidth = 100;
 const int colorHeight = 100;
 const int colorX = 10;
-const int colorY = 50;
+const int colorY = 200;
 struct ColorDisplay : OpaqueWidget {
     ColoredNoiseModule *module;
     ColorDisplay(Label *slopeLabel, Label *signLabel) 
@@ -124,6 +124,7 @@ struct ColorDisplay : OpaqueWidget {
     void draw(NVGcontext *vg) override 
     {
         // First draw the solid fill
+#if 0
         const float slope = module->noiseSource.getSlope();
         unsigned char color[3];
         getColor(color, slope);
@@ -131,14 +132,16 @@ struct ColorDisplay : OpaqueWidget {
 
         nvgBeginPath(vg);
 
-        nvgRect(vg, 0, 0, 6 * RACK_GRID_WIDTH,RACK_GRID_HEIGHT);
+        nvgRect(vg, colorX, colorY, 6 * colorWidth,colorHeight);
 		nvgFill(vg);
-
+#endif
+#if 1
         // then the noise
         if (!_noiseDrawer) {
             _noiseDrawer.reset( new NoiseDrawer(vg, 0, 0, 100, 100));
         }
-        _noiseDrawer->draw(vg);
+        _noiseDrawer->draw(vg, colorX, colorY, colorWidth, colorHeight);
+#endif
     }
 };
 

@@ -19,7 +19,7 @@ public:
         _image=0;
     }
 
-    void draw(NVGcontext *vg);
+    void draw(NVGcontext *vg, float colorX, float colorY, float colorWidth, float colorHeight);
 
 private:
     int _image=0;
@@ -57,8 +57,6 @@ inline void NoiseDrawer::makeImage(NVGcontext *vg)
         }
     } 
 
-//int nvgCreateImageRGBA(NVGcontext* ctx, int w, int h, int imageFlags, const unsigned char* data);
-
     _image = nvgCreateImageRGBA(vg,
                                 _width,
                                 _height,
@@ -69,7 +67,11 @@ inline void NoiseDrawer::makeImage(NVGcontext *vg)
 }
 
 
-inline void NoiseDrawer::draw(NVGcontext *vg)
+inline void NoiseDrawer::draw(NVGcontext *vg, 
+                              float drawX,
+                              float drawY,
+                              float drawWidth,
+                              float drawHeight)
 {
     assert(_image);
     
@@ -90,7 +92,7 @@ NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey
                          */
 
     nvgBeginPath( vg );
-    nvgRect( vg, 0, 0, _width, _height);
+    nvgRect( vg, drawX, drawY, drawWidth, drawHeight);
    // nvgRoundedRect( vg, 0, 0, width, height, 5);
  
     nvgFillPaint( vg, paint );
