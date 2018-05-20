@@ -27,6 +27,10 @@ private:
     const float _x, _y;
     const int _width, _height;
 
+    int frameCount=0;
+    float randomX=0;
+    float randomY=0;
+
     void makeImage(NVGcontext *vg);
 
 };
@@ -75,13 +79,18 @@ inline void NoiseDrawer::draw(NVGcontext *vg,
 {
     assert(_image);
     
+    if (frameCount++ > 2) {
+        randomX = rand() * _width / float(RAND_MAX);
+        randomY = rand() * _height / float(RAND_MAX);
+        frameCount=0;
+    }
     // changing ox, oy moves the image around in the rect
     // (ex,ey) the size of one image. if you use the 
     NVGpaint paint = nvgImagePattern(vg,
-        0, 0,
+        randomX, randomY,
         _width, _height,
        // 90, 380,
-         0, _image, 0.99f);
+         0, _image, 0.2f);
 
 /*
 // Creates and returns an image patter. Parameters (ox,oy) specify the left-top location of the image pattern,

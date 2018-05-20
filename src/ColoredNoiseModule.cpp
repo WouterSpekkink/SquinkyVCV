@@ -106,10 +106,10 @@ static void getColor(unsigned char * out,  float x)
 }
 
 // the draw size of the colored noise display.
-const int colorWidth = 100;
-const int colorHeight = 100;
+const int colorWidth = 85;
+const int colorHeight = 180;
 const int colorX = 10;
-const int colorY = 200;
+const int colorY = 170;
 struct ColorDisplay : OpaqueWidget {
     ColoredNoiseModule *module;
     ColorDisplay(Label *slopeLabel, Label *signLabel) 
@@ -124,7 +124,7 @@ struct ColorDisplay : OpaqueWidget {
     void draw(NVGcontext *vg) override 
     {
         // First draw the solid fill
-#if 0
+#if 1
         const float slope = module->noiseSource.getSlope();
         unsigned char color[3];
         getColor(color, slope);
@@ -142,6 +142,20 @@ struct ColorDisplay : OpaqueWidget {
         }
         _noiseDrawer->draw(vg, colorX, colorY, colorWidth, colorHeight);
 #endif
+
+        const bool slopeSign = slope >= 0;
+        const float slopeAbs = std::abs(slope);
+        std::stringstream s;
+        s.precision(1);
+        s.setf( std::ios::fixed, std::ios::floatfield );
+
+        s << slopeAbs << " db/oct";
+        _slopeLabel->text = s.str();
+
+        const char * mini = "\u2005-";
+        _signLabel->text = slopeSign ? "+" : mini;
+
+
     }
 };
 
@@ -170,7 +184,7 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
         display->module = module;
 	}
     #endif
-    #if 0
+    #if 1
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
@@ -179,13 +193,6 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     }
     #endif
 
-#if 0
-    Label * label = new Label();
-    label->box.pos = Vec(23, 24);
-    label->text = "Noise";
-    label->color = COLOR_BLACK;
-    addChild(label);
- #endif
 
     addOutput(Port::create<PJ301MPort>(
         Vec(30, 310),
