@@ -32,7 +32,6 @@ private:
     float randomY=0;
 
     void makeImage(NVGcontext *vg);
-
 };
 
 
@@ -42,17 +41,13 @@ inline void NoiseDrawer::makeImage(NVGcontext *vg)
         const char * filename = "D:\\VCVRack\\6rack\\plugins\\SquinkyVCV\\res\\test2.png";
         _image =  nvgCreateImage(vg, filename, 0);
 #else
-    // let's synthesize some white noiss
+    // let's synthesize some white noise
     const int memSize = _width * _height * 4;
     unsigned char * memImage = new unsigned char[memSize];
-
-
 
     for (int row=0; row<_height; ++row) {
         for (int col=0; col<_width; ++col) {
             int value = int((255.f * rand()) / float(RAND_MAX));
-           // vmin = std::min(value, vmin);
-           // vmax = std::max(value, vmax);
             unsigned char * pix = memImage + (4 * (row*_width + col));
             pix[0] = value;
             pix[1] = value;
@@ -79,30 +74,23 @@ inline void NoiseDrawer::draw(NVGcontext *vg,
 {
     assert(_image);
     
+    // Don't update the noise position every frame. Old TV is only 
+    // 30 fps.
     if (frameCount++ > 2) {
         randomX = rand() * _width / float(RAND_MAX);
         randomY = rand() * _height / float(RAND_MAX);
         frameCount=0;
     }
-    // changing ox, oy moves the image around in the rect
-    // (ex,ey) the size of one image. if you use the 
+
+    // Clever trick. We don't draw new noise every time, we just
+    // draw the same noise image from a random offset.
     NVGpaint paint = nvgImagePattern(vg,
         randomX, randomY,
         _width, _height,
-       // 90, 380,
          0, _image, 0.2f);
-
-/*
-// Creates and returns an image patter. Parameters (ox,oy) specify the left-top location of the image pattern,
-// (ex,ey) the size of one image, angle rotation around the top-left corner, image is handle to the image to render.
-// The gradient is transformed by the current transform when it is passed to nvgFillPaint() or nvgStrokePaint().
-NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey,
-						 float angle, int image, float alpha);
-                         */
 
     nvgBeginPath( vg );
     nvgRect( vg, drawX, drawY, drawWidth, drawHeight);
-   // nvgRoundedRect( vg, 0, 0, width, height, 5);
  
     nvgFillPaint( vg, paint );
     nvgFill( vg );

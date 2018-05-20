@@ -143,6 +143,7 @@ struct ColorDisplay : OpaqueWidget {
         _noiseDrawer->draw(vg, colorX, colorY, colorWidth, colorHeight);
 #endif
 
+        // update the slope display in the UI
         const bool slopeSign = slope >= 0;
         const float slopeAbs = std::abs(slope);
         std::stringstream s;
@@ -154,8 +155,6 @@ struct ColorDisplay : OpaqueWidget {
 
         const char * mini = "\u2005-";
         _signLabel->text = slopeSign ? "+" : mini;
-
-
     }
 };
 
@@ -193,15 +192,11 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     }
     #endif
 
-
     addOutput(Port::create<PJ301MPort>(
         Vec(30, 310),
         Port::OUTPUT,
         module,
         module->noiseSource.AUDIO_OUTPUT));
-
-//Davies1900hBlackKnob
-//Rogan1PSWhite
 
     addParam(ParamWidget::create<Rogan2PSWhite>(
         Vec(22, 80), module, module->noiseSource.SLOPE_PARAM, -5.0, 5.0, 0.0));
@@ -215,7 +210,6 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
         Port::INPUT,
         module,
         module->noiseSource.SLOPE_CV));
-
 
     const float labelY = 146;    
     slopeLabel->box.pos = Vec(12, labelY);
