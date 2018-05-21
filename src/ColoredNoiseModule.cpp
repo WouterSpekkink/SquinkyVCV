@@ -193,7 +193,7 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     #endif
 
     addOutput(Port::create<PJ301MPort>(
-        Vec(30, 310),
+        Vec(32, 310),     
         Port::OUTPUT,
         module,
         module->noiseSource.AUDIO_OUTPUT));
@@ -213,11 +213,11 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
 
     const float labelY = 146;    
     slopeLabel->box.pos = Vec(12, labelY);
-    slopeLabel->text = "foo";
+    slopeLabel->text = "";
     slopeLabel->color = COLOR_BLACK;
     addChild(slopeLabel);
     signLabel->box.pos = Vec(2, labelY);
-    signLabel->text = "x";
+    signLabel->text = "";
     signLabel->color = COLOR_BLACK;
     addChild(signLabel);
 }

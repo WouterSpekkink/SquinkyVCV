@@ -3,6 +3,10 @@
 #include "nanovg.h"
 
 //#define _PNG
+
+// 0 = random pixel grey level
+// 1 = random white, bk, transparent.
+const int method = 0;
 class NoiseDrawer
 {
 public:
@@ -46,13 +50,33 @@ inline void NoiseDrawer::makeImage(NVGcontext *vg)
     unsigned char * memImage = new unsigned char[memSize];
 
     for (int row=0; row<_height; ++row) {
-        for (int col=0; col<_width; ++col) {
-            int value = int((255.f * rand()) / float(RAND_MAX));
+        for (int col=0; col<_width; ++col) { 
             unsigned char * pix = memImage + (4 * (row*_width + col));
-            pix[0] = value;
-            pix[1] = value;
-            pix[2] = value; 
-            pix[3] = 255;  // opaque, for now
+            if (method == 0) {
+                int value = int((255.f * rand()) / float(RAND_MAX));
+                pix[0] = value;
+                pix[1] = value;
+                pix[2] = value; 
+                pix[3] = 255;  // opaque, for now
+            } else if (method == 1) {
+                //generate 0 .. 100
+                int rnd = int((100.f * rand()) / float(RAND_MAX));
+                int value, alpha;
+                if (rnd > 75) {
+                    value = 0;
+                    alpha = 255;
+                } else if (rnd > 75) {
+                    value = 255;
+                    alpha = 255;
+                } else {
+                    value = 128;
+                    alpha = 0;
+                }
+                pix[0] = value;
+                pix[1] = value;
+                pix[2] = value; 
+                pix[3] = alpha;
+            }
         }
     } 
 
@@ -73,7 +97,9 @@ inline void NoiseDrawer::draw(NVGcontext *vg,
                               float drawHeight)
 {
     assert(_image);
-    
+
+    // noise looks slightly better with anti-alias off?
+    nvgShapeAntiAlias(vg, false);    
     // Don't update the noise position every frame. Old TV is only 
     // 30 fps.
     if (frameCount++ > 2) {
@@ -87,7 +113,7 @@ inline void NoiseDrawer::draw(NVGcontext *vg,
     NVGpaint paint = nvgImagePattern(vg,
         randomX, randomY,
         _width, _height,
-         0, _image, 0.2f);
+         0, _image, 0.15f);
 
     nvgBeginPath( vg );
     nvgRect( vg, drawX, drawY, drawWidth, drawHeight);
