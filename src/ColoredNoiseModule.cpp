@@ -197,6 +197,11 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
         Port::OUTPUT,
         module,
         module->noiseSource.AUDIO_OUTPUT));
+    Label* label = new Label();
+    label->box.pos = Vec(24.2, 294);
+    label->text = "OUT";
+    label->color = COLOR_WHITE;
+    addChild(label);
 
     addParam(ParamWidget::create<Rogan2PSWhite>(
         Vec(22, 80), module, module->noiseSource.SLOPE_PARAM, -5.0, 5.0, 0.0));
