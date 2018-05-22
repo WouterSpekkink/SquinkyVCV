@@ -48,17 +48,21 @@ struct VocalWidget : ModuleWidget
 };
 
 template <typename BASE>
-struct MuteLight : BASE {
-	MuteLight() {
-		this->box.size = mm2px(Vec(6.0f, 6.0f));
-	}
+struct MuteLight : BASE
+{
+    MuteLight()
+    {
+        this->box.size = mm2px(Vec(6.0f, 6.0f));
+    }
 };
 
-struct NKK2 : SVGSwitch, ToggleSwitch {
-	NKK2() {
-		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/NKK_0.svg")));
-		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/NKK_2.svg")));
-	}
+struct NKK2 : SVGSwitch, ToggleSwitch
+{
+    NKK2()
+    {
+        addFrame(SVG::load(assetGlobal("res/ComponentLibrary/NKK_0.svg")));
+        addFrame(SVG::load(assetGlobal("res/ComponentLibrary/NKK_2.svg")));
+    }
 };
 
 /**
@@ -113,19 +117,19 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
 
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(lfoRateKnobX, lfoRateKnobY), module, module->animator.LFO_RATE_PARAM, -5.0, 5.0, 0.0));
-    
+
     addInput(Port::create<PJ301MPort>(
         Vec(lfoInputX, lfoInputY), Port::INPUT, module, VocalModule::Animator::LFO_RATE_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
         Vec(lfoTrimX, lfoTrimY), module, module->animator.LFO_RATE_TRIM_PARAM, -1.0, 1.0, 1.0));
-    
+
     // the matrix switch
     addParam(ParamWidget::create<NKK>(
-       Vec(42, 65), module, module->animator.LFO_MIX_PARAM, 0.0f, 2.0f, 0.0f));
-  
-    /**
-     * Parameters and CV
-     */
+        Vec(42, 65), module, module->animator.LFO_MIX_PARAM, 0.0f, 2.0f, 0.0f));
+
+     /**
+      * Parameters and CV
+      */
     const float mainBlockY = 140;
     const float mainBlockX = 20;
 
@@ -164,7 +168,7 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
     const float row3 = 310;
 
     // I.O on row 3
-    const float AudioInputX = inputX ;
+    const float AudioInputX = inputX;
     const float outputX = inputX + 2 * colSpacingX;
 
     addInput(Port::create<PJ301MPort>(
@@ -172,16 +176,16 @@ VocalWidget::VocalWidget(VocalModule *module) : ModuleWidget(module)
     addOutput(Port::create<PJ301MPort>(
         Vec(outputX, row3), Port::OUTPUT, module, VocalModule::Animator::AUDIO_OUTPUT));
 
-    const float bassX = inputX  + colSpacingX-4;
-    const float bassY = row3 -8;
- 
+    const float bassX = inputX + colSpacingX - 4;
+    const float bassY = row3 - 8;
+
      // the bass boost switch
     addParam(ParamWidget::create<NKK2>(
-       Vec(bassX, bassY), module, module->animator.BASS_EXP_PARAM, 0.0f, 1.0f, 0.0f));
+        Vec(bassX, bassY), module, module->animator.BASS_EXP_PARAM, 0.0f, 1.0f, 0.0f));
 
-    /*************************************************
-     *  screws
-     */
+     /*************************************************
+      *  screws
+      */
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));

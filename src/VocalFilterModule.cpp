@@ -57,10 +57,10 @@ void VocalFilterWidget::addVowelLabels()
     const float ledX = 20;
     const float ledDx = 26;
     const float ledY = 43;
-      
+
     const float vOffsetX = -8;
     const float vOffsetY = 14;
-    for (int i=0; i<5; ++i) {
+    for (int i = 0; i < 5; ++i) {
         VocalFilter<WidgetComposite>::LightIds id = (VocalFilter<WidgetComposite>::LightIds) i;
         std::string ltext;
         switch (id) {
@@ -82,11 +82,11 @@ void VocalFilterWidget::addVowelLabels()
             default:
                 assert(false);
         }
-        Label * label = nullptr;label = new Label();
+        Label * label = nullptr; label = new Label();
         label->text = ltext;
         label->color = COLOR_BLACK;
         label->box.pos = Vec(ledX + vOffsetX + i * ledDx, ledY + vOffsetY);
-         
+
         addChild(label);
 
         addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(
@@ -94,42 +94,42 @@ void VocalFilterWidget::addVowelLabels()
     }
 }
 
- void VocalFilterWidget::addModelKnob(VocalFilterModule *module, float x, float y)
- {
-    // 5 pos vocal model
-    // 0(bass)  1(tenor) 2(countertenor) 3(alto)  4(soprano)
+void VocalFilterWidget::addModelKnob(VocalFilterModule *module, float x, float y)
+{
+   // 5 pos vocal model
+   // 0(bass)  1(tenor) 2(countertenor) 3(alto)  4(soprano)
     Label* label = new Label();
-    label->box.pos = Vec(x-18, y+24);
+    label->box.pos = Vec(x - 18, y + 24);
     label->text = "B";
     label->color = COLOR_BLACK;
     addChild(label);
 
     label = new Label();
-    label->box.pos = Vec(x-20, y+0);
+    label->box.pos = Vec(x - 20, y + 0);
     label->text = "T";
     label->color = COLOR_BLACK;
     addChild(label);
 
     label = new Label();
-    label->box.pos = Vec(x-2, y- 20);
+    label->box.pos = Vec(x - 2, y - 20);
     label->text = "CT";
     label->color = COLOR_BLACK;
     addChild(label);
 
     label = new Label();
-    label->box.pos = Vec(x+30, y+0);
+    label->box.pos = Vec(x + 30, y + 0);
     label->text = "A";
     label->color = COLOR_BLACK;
     addChild(label);
 
     label = new Label();
-    label->box.pos = Vec(x+23, y+24);
+    label->box.pos = Vec(x + 23, y + 24);
     label->text = "S";
     label->color = COLOR_BLACK;
     addChild(label);
 
-    addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(x-.5, y), module, module->vocalFilter.FILTER_MODEL_SELECT_PARAM, 0.0f, 4.0f, 2.0f));
- }
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(x - .5, y), module, module->vocalFilter.FILTER_MODEL_SELECT_PARAM, 0.0f, 4.0f, 2.0f));
+}
 
 /**
  * Widget constructor will describe my implementation structure and
@@ -175,10 +175,10 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
         Vec(col2, row2L),
         module, module->vocalFilter.FILTER_VOWEL_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(
-        Vec(col1, row2L+dyDn),
+        Vec(col1, row2L + dyDn),
         Port::INPUT, module, module->vocalFilter.FILTER_VOWEL_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col1+trimDx, row2L+trimDyL),
+        Vec(col1 + trimDx, row2L + trimDyL),
         module, module->vocalFilter.FILTER_VOWEL_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     // Fc
@@ -189,13 +189,13 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(col3, row2R), module, module->vocalFilter.FILTER_FC_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(
-        Vec(col4, row2R+dyUp),
-         Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
+        Vec(col4, row2R + dyUp),
+        Port::INPUT, module, module->vocalFilter.FILTER_FC_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col4+trimDx, row2R+trimDyR),
-         module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
+        Vec(col4 + trimDx, row2R + trimDyR),
+        module, module->vocalFilter.FILTER_FC_TRIM_PARAM, -1.0, 1.0, 1.0));
 
-    // Q
+   // Q
     label = new Label();
     label->box.pos = Vec(col2, row3L + labelOffset);
     label->text = "Q";
@@ -203,15 +203,15 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(col2, row3L),
-         module, module->vocalFilter.FILTER_Q_PARAM, -5.0, 5.0, 0.0));
+        module, module->vocalFilter.FILTER_Q_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(
-        Vec(col1, row3L +dyDn),
-         Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
+        Vec(col1, row3L + dyDn),
+        Port::INPUT, module, module->vocalFilter.FILTER_Q_CV_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col1+trimDx, row3L+trimDyL),
-         module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
+        Vec(col1 + trimDx, row3L + trimDyL),
+        module, module->vocalFilter.FILTER_Q_TRIM_PARAM, -1.0, 1.0, 1.0));
 
-    // Brightness
+   // Brightness
     label = new Label();
     label->box.pos = Vec(col3, row3R + labelOffset);
     label->text = "Brite";
@@ -219,16 +219,16 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     addChild(label);
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(col3, row3R),
-         module, module->vocalFilter.FILTER_BRIGHTNESS_PARAM, -5.0, 5.0, 0.0));
+        module, module->vocalFilter.FILTER_BRIGHTNESS_PARAM, -5.0, 5.0, 0.0));
     addInput(Port::create<PJ301MPort>(
-        Vec(col4, row3R+dyUp),
-         Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
+        Vec(col4, row3R + dyUp),
+        Port::INPUT, module, module->vocalFilter.FILTER_BRIGHTNESS_INPUT));
     addParam(ParamWidget::create<Trimpot>(
-        Vec(col4+trimDx, row3R+trimDyR),
-         module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
+        Vec(col4 + trimDx, row3R + trimDyR),
+        module, module->vocalFilter.FILTER_BRIGHTNESS_TRIM_PARAM, -1.0, 1.0, 1.0));
 
     addModelKnob(module, 71, 274);
-	
+
     // I.O on row bottom
     const float AudioInputX = 10.0;
     const float outputX = 140.0;
@@ -236,12 +236,12 @@ VocalFilterWidget::VocalFilterWidget(VocalFilterModule *module) : ModuleWidget(m
     const float ioLabelOffset = -19;
 
     label = new Label();
-    label->box.pos = Vec(outputX-6, iOrow+ioLabelOffset);
+    label->box.pos = Vec(outputX - 6, iOrow + ioLabelOffset);
     label->text = "Out";
     label->color = COLOR_WHITE;
     addChild(label);
     label = new Label();
-    label->box.pos = Vec(AudioInputX-1, iOrow+ioLabelOffset);
+    label->box.pos = Vec(AudioInputX - 1, iOrow + ioLabelOffset);
     label->text = "In";
     label->color = COLOR_BLACK;
     addChild(label);

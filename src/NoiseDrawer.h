@@ -2,8 +2,9 @@
 #pragma once
 #include "nanovg.h"
 
-//#define _PNG
-
+/**
+ * Renders animated noise image sing nanogl
+ */
 // 0 = random pixel grey level
 // 1 = random white, bk, transparent.
 const int method = 0;
@@ -17,23 +18,27 @@ public:
         _vg = vg;
     }
 
-    ~NoiseDrawer() 
+    ~NoiseDrawer()
     {
         nvgDeleteImage(_vg, _image);
-        _image=0;
+        _image = 0;
     }
 
     void draw(NVGcontext *vg, float colorX, float colorY, float colorWidth, float colorHeight);
 
 private:
-    int _image=0;
+    /**
+     * Holds an image (gl texture) in memory for
+     * the lifetime of the plugin instance.
+     */
+    int _image = 0;
     NVGcontext* _vg = nullptr;
     const float _x, _y;
     const int _width, _height;
 
-    int frameCount=0;
-    float randomX=0;
-    float randomY=0;
+    int frameCount = 0;
+    float randomX = 0;
+    float randomY = 0;
 
     void makeImage(NVGcontext *vg);
 };
@@ -42,21 +47,21 @@ private:
 inline void NoiseDrawer::makeImage(NVGcontext *vg)
 {
 #ifdef _PNG
-        const char * filename = "D:\\VCVRack\\6rack\\plugins\\SquinkyVCV\\res\\test2.png";
-        _image =  nvgCreateImage(vg, filename, 0);
+    const char * filename = "D:\\VCVRack\\6rack\\plugins\\SquinkyVCV\\res\\test2.png";
+    _image = nvgCreateImage(vg, filename, 0);
 #else
     // let's synthesize some white noise
     const int memSize = _width * _height * 4;
     unsigned char * memImage = new unsigned char[memSize];
 
-    for (int row=0; row<_height; ++row) {
-        for (int col=0; col<_width; ++col) { 
+    for (int row = 0; row < _height; ++row) {
+        for (int col = 0; col < _width; ++col) {
             unsigned char * pix = memImage + (4 * (row*_width + col));
             if (method == 0) {
                 int value = int((255.f * rand()) / float(RAND_MAX));
                 pix[0] = value;
                 pix[1] = value;
-                pix[2] = value; 
+                pix[2] = value;
                 pix[3] = 255;  // opaque, for now
             } else if (method == 1) {
                 //generate 0 .. 100
@@ -74,38 +79,38 @@ inline void NoiseDrawer::makeImage(NVGcontext *vg)
                 }
                 pix[0] = value;
                 pix[1] = value;
-                pix[2] = value; 
+                pix[2] = value;
                 pix[3] = alpha;
             }
         }
-    } 
+    }
 
     _image = nvgCreateImageRGBA(vg,
-                                _width,
-                                _height,
-                                NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY,
-                                memImage);
+        _width,
+        _height,
+        NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY,
+        memImage);
 #endif
-        assert(_image != 0);
+    assert(_image != 0);
 }
 
 
-inline void NoiseDrawer::draw(NVGcontext *vg, 
-                              float drawX,
-                              float drawY,
-                              float drawWidth,
-                              float drawHeight)
+inline void NoiseDrawer::draw(NVGcontext *vg,
+    float drawX,
+    float drawY,
+    float drawWidth,
+    float drawHeight)
 {
     assert(_image);
 
     // noise looks slightly better with anti-alias off?
-    nvgShapeAntiAlias(vg, false);    
+    nvgShapeAntiAlias(vg, false);
     // Don't update the noise position every frame. Old TV is only 
     // 30 fps.
     if (frameCount++ > 2) {
         randomX = rand() * _width / float(RAND_MAX);
         randomY = rand() * _height / float(RAND_MAX);
-        frameCount=0;
+        frameCount = 0;
     }
 
     // Clever trick. We don't draw new noise every time, we just
@@ -113,11 +118,11 @@ inline void NoiseDrawer::draw(NVGcontext *vg,
     NVGpaint paint = nvgImagePattern(vg,
         randomX, randomY,
         _width, _height,
-         0, _image, 0.15f);
+        0, _image, 0.15f);
 
-    nvgBeginPath( vg );
-    nvgRect( vg, drawX, drawY, drawWidth, drawHeight);
- 
-    nvgFillPaint( vg, paint );
-    nvgFill( vg );
+    nvgBeginPath(vg);
+    nvgRect(vg, drawX, drawY, drawWidth, drawHeight);
+
+    nvgFillPaint(vg, paint);
+    nvgFill(vg);
 }
