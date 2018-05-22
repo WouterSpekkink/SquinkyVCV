@@ -11,8 +11,8 @@ const int method = 0;
 class NoiseDrawer
 {
 public:
-    NoiseDrawer(NVGcontext *vg, float x, float y, float width, float height)
-        : _x(x), _y(y), _width(width), _height(height)
+    NoiseDrawer(NVGcontext *vg, float width, float height)
+        : _width(width), _height(height)
     {
         makeImage(vg);
         _vg = vg;
@@ -33,7 +33,6 @@ private:
      */
     int _image = 0;
     NVGcontext* _vg = nullptr;
-    const float _x, _y;
     const int _width, _height;
 
     int frameCount = 0;
@@ -105,11 +104,12 @@ inline void NoiseDrawer::draw(NVGcontext *vg,
 
     // noise looks slightly better with anti-alias off?
     nvgShapeAntiAlias(vg, false);
+
     // Don't update the noise position every frame. Old TV is only 
-    // 30 fps.
-    if (frameCount++ > 2) {
-        randomX = rand() * _width / float(RAND_MAX);
-        randomY = rand() * _height / float(RAND_MAX);
+    // 30 fps, and this looks better even slower.
+    if (frameCount++ > 3) {
+        randomX = (float) rand() * _width / float(RAND_MAX);
+        randomY = (float) rand() * _height / float(RAND_MAX);
         frameCount = 0;
     }
 
