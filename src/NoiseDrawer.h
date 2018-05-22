@@ -45,10 +45,6 @@ private:
 
 inline void NoiseDrawer::makeImage(NVGcontext *vg)
 {
-#ifdef _PNG
-    const char * filename = "D:\\VCVRack\\6rack\\plugins\\SquinkyVCV\\res\\test2.png";
-    _image = nvgCreateImage(vg, filename, 0);
-#else
     // let's synthesize some white noise
     const int memSize = _width * _height * 4;
     unsigned char * memImage = new unsigned char[memSize];
@@ -89,8 +85,9 @@ inline void NoiseDrawer::makeImage(NVGcontext *vg)
         _height,
         NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY,
         memImage);
-#endif
+
     assert(_image != 0);
+    delete memImage;
 }
 
 
