@@ -83,14 +83,14 @@ bool FFT::inverse(FFTDataReal* out, const FFTDataCpx& in)
     return true;
 }
 
-static int freqToBin(float freq, float sampleRate, int numBins)
+int FFT::freqToBin(float freq, float sampleRate, int numBins)
 {
     assert(freq <= (sampleRate / 2));
     // bin(numBins) <> sr / 2;
     return (int)((freq / sampleRate)*(numBins * 2));
 }
 
-static float bin2Freq(int bin, float sampleRate, int numBins)
+float FFT::bin2Freq(int bin, float sampleRate, int numBins)
 {
     return  sampleRate * float(bin) / (float(numBins) * 2);
 }
@@ -103,25 +103,24 @@ static float randomPhase()
     return phase;
 }
 
-
 static void makeNegSlope(FFTDataCpx* output, const ColoredNoiseSpec& spec)
 {
     const int numBins = int(output->size());
     const float lowFreqCorner = 40;
-   // const float octave40 = float(std::log2(lowFreqCorner));
 
-    // find bin for 40 hz
-    const int bin40 = freqToBin(lowFreqCorner, spec.sampleRate, numBins);
+    // find bin for 40 Hz
+    const int bin40 = FFT::freqToBin(lowFreqCorner, spec.sampleRate, numBins);
  
     // fill bottom bins with 1.0 mag
     for (int i = 0; i <= bin40; ++i) {
         output->set(i, std::polar(1.f, randomPhase()));
     }
+
     // now go to the end and at slope
     static float k = -spec.slope * log2(lowFreqCorner);
     for (int i = bin40 + 1; i < numBins; ++i) {
         if (i < numBins / 2) {
-            const float f = bin2Freq(i, spec.sampleRate, numBins);
+            const float f = FFT::bin2Freq(i, spec.sampleRate, numBins);
             const float gainDb = std::log2(f) * spec.slope + k;
             const float gain = float(AudioMath::gainFromDb(gainDb));
             output->set(i, std::polar(gain, randomPhase()));
@@ -134,35 +133,35 @@ static void makeNegSlope(FFTDataCpx* output, const ColoredNoiseSpec& spec)
 
 static void makePosSlope(FFTDataCpx* output, const ColoredNoiseSpec& spec)
 {
-
     const int numBins = int(output->size());
-  
-   // const float octaveHighCorner = float(std::log2(spec.highFreqCorner));
 
     // find bin for high corner
-    const int binHigh = freqToBin(spec.highFreqCorner, spec.sampleRate, numBins);
+    const int binHigh = FFT::freqToBin(spec.highFreqCorner, spec.sampleRate, numBins);
 
-    // fill top bins with 1.0 mag
-    for (int i = numBins-1; i >= binHigh; --i) {
-        if (i < numBins / 2) {
-            output->set(i, std::polar(1.f, randomPhase()));
-        } else {
-            output->set(i, cpx(0.0));
-        }
-    }
     // now go to the end and at slope
+    float gainMax = 1;              // even if nothing in the bins (ut) needs something in there.
     static float k = -spec.slope * log2(spec.highFreqCorner);
     for (int i = binHigh - 1; i > 0; --i) {
         if (i < numBins / 2) {
-            const float f = bin2Freq(i, spec.sampleRate, numBins);
+            const float f = FFT::bin2Freq(i, spec.sampleRate, numBins);
             const float gainDb = std::log2(f) * spec.slope + k;
             const float gain = float(AudioMath::gainFromDb(gainDb));
+            gainMax = std::max(gain, gainMax);
             output->set(i, std::polar(gain, randomPhase()));
         } else {
             output->set(i, cpx(0, 0));
         }
-
     }
+
+    // fill top bins with mag mag
+    for (int i = numBins - 1; i >= binHigh; --i) {
+        if (i < numBins / 2) {
+            output->set(i, std::polar(gainMax, randomPhase()));
+        } else {
+            output->set(i, cpx(0.0));
+        }
+    }
+
     output->set(0, 0);          // make sure dc bin zero
 }
 

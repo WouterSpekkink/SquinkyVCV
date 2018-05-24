@@ -100,7 +100,6 @@ static void testRoundTrip()
 
 static void testNoiseFormula()
 {
-
     const int bins = 64 * 1024 ;
     std::unique_ptr<FFTDataCpx> data(new FFTDataCpx(bins));
     assertEQ(data->size(), bins);
@@ -117,7 +116,6 @@ static void testNoiseFormula()
         const float expectedMag = (i == 0) ? 0.f : (i < (bins / 2)) ? 1.f : 0.f;
         
         assertClose(mag, expectedMag, .0001);
-       // printf("%d %f\n", i, mag);
         phases.insert(phase);
     }
 }
@@ -165,9 +163,9 @@ static void testWhiteNoiseRT()
 
         //printf("phase[%d] = %f\n", i, std::arg(data));
     }
-    printf("TODO: assert on phase\n");
-    printf("total phase=%f, average=%f\n", totalPhase, totalPhase / (bins / 2));
-    printf("maxPhase %f min %f\n", maxPhase, minPhase);
+    //printf("TODO: assert on phase\n");
+    //printf("total phase=%f, average=%f\n", totalPhase, totalPhase / (bins / 2));
+    //printf("maxPhase %f min %f\n", maxPhase, minPhase);
 }
 
 static void testNoiseRTSub(int bins)
@@ -181,25 +179,13 @@ static void testNoiseRTSub(int bins)
     FFT::normalize(dataReal.get());
 
     const float peak = getPeak(*dataReal);
+
     assertClose( peak, 1.0f , .001);
 
 }
 
-#include <complex>
-static void test0()
-{
-    
-    for (float theta = -6; theta < 6; theta += 1) {
-
-        std::complex<float> x = std::polar(1.f, theta);
-        printf("theta=%f, comes back as %f\n", theta, std::arg(x));
-    }
-    
-
-}
 static void testNoiseRT()
 {
-    test0();
     testNoiseRTSub(4);
     testNoiseRTSub(8);
     testNoiseRTSub(16);
@@ -224,7 +210,8 @@ static void testPinkNoise()
 
     // pick a starting bin above our 40 hz low freq corner
     const int baseBin = 16;
-    float freqBase = 44100 * baseBin / (float) bins;
+    //float freqBase = 44100 * baseBin / (float) bins;
+    const float freqBase = FFT::bin2Freq(baseBin, 44100, bins);
     assertGT (freqBase, 80);
 
     // mid-band, quadruple freq should reduce amp by 6db
@@ -233,21 +220,35 @@ static void testPinkNoise()
 
     // TODO: compare in db
     assertClose(mag16, 2 * mag64, .01);
+
+
+    float lastMag = std::abs(data->get(1));
+    for (int i = 1; i < bins / 2; ++i) {
+        const float mag = std::abs(data->get(i));
+        assertLE(mag, lastMag);
+        lastMag = mag;
+    }
+
     for (int i = bins / 2; i < bins; ++i) {
         assertClose(std::abs(data->get(i)), 0, .00001);
     }
 }
 
-static void testBlueNoise()
+static void testBlueNoise(float corner = 0)
 {
-    const int bins = 1024 * 4;
+   const int bins = 1024 * 4;
     std::unique_ptr<FFTDataCpx> data(new FFTDataCpx(bins));
     assertEQ(data->size(), bins);
 
-    ColoredNoiseSpec spec;
-    spec.highFreqCorner = 8000;       
+    ColoredNoiseSpec spec;      
     spec.slope = 3;
     spec.sampleRate = 44100;
+
+    if (corner != 0) {
+        spec.highFreqCorner = corner;
+    } else {
+        assertEQ(spec.highFreqCorner, 4000);
+    }
 
     FFT::makeNoiseSpectrum(data.get(), spec);
 
@@ -259,6 +260,13 @@ static void testBlueNoise()
     float mag64 = std::abs(data->get(64));
 
     assertClose(2 * mag16, mag64, .1);
+
+    float lastMag = 0;
+    for (int i = 1; i < bins / 2; ++i) {
+        const float mag = std::abs(data->get(i));
+        assertGE(mag, .999f * lastMag);
+        lastMag = mag;
+    }
 
     for (int i = bins / 2; i < bins; ++i) {
         assertClose(std::abs(data->get(i)), 0, .00001);
@@ -278,6 +286,7 @@ void testFFT()
     testNoiseRT();
     testPinkNoise();
     testBlueNoise();
+    testBlueNoise(8000.f);
     testWhiteNoiseRT();
     testFinalLeaks();
 }

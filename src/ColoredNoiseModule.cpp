@@ -56,6 +56,7 @@ struct ColoredNoiseWidget : ModuleWidget
     Label * signLabel;
 };
 
+// The colors of noise (UI colors)
 static const unsigned char red[3] = {0xff, 0x04, 0x14};
 static const unsigned char pink[3] = {0xff, 0x3a, 0x6d};
 static const unsigned char white[3] = {0xff, 0xff, 0xff};
@@ -110,7 +111,8 @@ const int colorWidth = 85;
 const int colorHeight = 180;
 const int colorX = 10;
 const int colorY = 170;
-struct ColorDisplay : OpaqueWidget
+
+struct ColorDisplay : TransparentWidget
 {
     ColoredNoiseModule *module;
     ColorDisplay(Label *slopeLabel, Label *signLabel)
@@ -168,7 +170,6 @@ struct ColorDisplay : OpaqueWidget
  */
 ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidget(module)
 {
-
     box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
     // save so we can update later.
@@ -176,7 +177,6 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
     signLabel = new Label();
 
     // add the color display
-
     {
         ColorDisplay *display = new ColorDisplay(slopeLabel, signLabel);
         display->module = module;
@@ -186,13 +186,13 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
         display->module = module;
     }
 
+    // Add the background panel
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/colors_panel.svg")));
         addChild(panel);
     }
-
 
     addOutput(Port::create<PJ301MPort>(
         Vec(32, 310),

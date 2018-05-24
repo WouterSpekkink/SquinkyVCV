@@ -34,4 +34,6 @@ public:
     static void makeNoiseSpectrum(FFTDataCpx* output, const ColoredNoiseSpec&);
 
     static void normalize(FFTDataReal*);
+    static float bin2Freq(int bin, float sampleRate, int numBins);
+    static int freqToBin(float freq, float sampleRate, int numBins);
 };

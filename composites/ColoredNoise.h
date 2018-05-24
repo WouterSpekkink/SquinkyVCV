@@ -274,6 +274,7 @@ void ColoredNoise<TBase>::serviceInputs()
     combinedSlope = i / 10.f;
     ColoredNoiseSpec sp;
     sp.slope = combinedSlope;
+    sp.highFreqCorner = 6000;
     const NoiseMessage* playingData = crossFader.playingMessage();
     if (!playingData || !(sp != playingData->noiseSpec)) {
         // If we aren't playing yet, or no change in slope,
