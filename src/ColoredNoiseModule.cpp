@@ -1,4 +1,5 @@
 
+#ifdef _EXP
 #include "Squinky.hpp"
 
 #include "WidgetComposite.h"
@@ -239,4 +240,7 @@ Model *modelColoredNoiseModule = Model::create<ColoredNoiseModule, ColoredNoiseW
     "Squinky Labs",
     "squinkylabs-coloredNoise",
     "Colored Noise", NOISE_TAG);
+
+#endif
+
 
