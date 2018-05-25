@@ -1,4 +1,7 @@
 # makefile fragment to make test.exe, the unit test program.
+#include "../../arch.mk"
+include $(RACK_DIR)/arch.mk
+
 TEST_SOURCES = $(wildcard test/*.cpp)
 TEST_SOURCES += $(wildcard dsp/**/*.cpp)
 TEST_SOURCES += $(wildcard dsp/third-party/falco/*.cpp)
@@ -25,11 +28,24 @@ perf.exe : FLAGS += $(ASSERTOFF)
 
 FLAGS += $(PERFFLAG)
 
-# don't need these yet
-#  -lcomdlg32 -lole32 -ldsound -lwinmm
+ifeq ($(ARCH), win)
+	# don't need these yet
+	#  -lcomdlg32 -lole32 -ldsound -lwinmm
 test.exe : LDFLAGS = -static \
-	-mwindows \
-	-lpthread -lopengl32 -lgdi32 -lws2_32
+		-mwindows \
+		-lpthread -lopengl32 -lgdi32 -lws2_32
+endif
+
+ifeq ($(ARCH), lin)
+test.exe : LDFLAGS = -rdynamic \
+		-lpthread -lGL -ldl \
+		$(shell pkg-config --libs gtk+-2.0)
+endif
+
+ifeq ($(ARCH), mac)
+test.exe : LDFLAGS = -stdlib=libc++ -lpthread -ldl \
+		-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
+endif
 
 test : test.exe
 
