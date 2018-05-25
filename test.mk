@@ -25,11 +25,11 @@ perf.exe : FLAGS += $(ASSERTOFF)
 
 FLAGS += $(PERFFLAG)
 
-# this probably goes away with 0.6.1
-# but for now our execs need to dynlink to pthread
+# don't need these yet
+#  -lcomdlg32 -lole32 -ldsound -lwinmm
 test.exe : LDFLAGS = -static \
 	-Wl,--export-all-symbols,--out-implib -mwindows \
-	-lpthread -lopengl32 -lgdi32 -lws2_32 -lcomdlg32 -lole32 -ldsound -lwinmm
+	-lpthread -lopengl32 -lgdi32 -lws2_32
 
 
 

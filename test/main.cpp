@@ -28,7 +28,6 @@ extern void testFinalLeaks();
 
 int main(int argc, char ** argv)
 {
-    printf("in test main\n");
     bool runPerf = false;
     if (argc > 1) {
         std::string arg = argv[1];
@@ -52,9 +51,6 @@ int main(int argc, char ** argv)
     testManagedPool();
     testLookupTable();
     testObjectCache();
-
- printf("in test main 2\n");
-
     testTestSignal();
     testBiquad();
     testSaw();
@@ -62,28 +58,19 @@ int main(int argc, char ** argv)
     testSinOscillator();
     testHilbert();
     testStateVariable();
- printf("in test main 3\n");
 
     testFFT();
     testFFTCrossFader();
-    printf("in test main 4\n"); 
-   
     testThread();
     
-     
- printf("in test main 5\n");
-
     // after testing all the components, test composites.
-    // this test make test.exe freeze, even if it's not run!
     testColoredNoise();
-
     testFrequencyShifter();
     testVocalAnimator();
 
     if (runPerf) {
         perfTest();
     }
-
 
     testFinalLeaks();
 
