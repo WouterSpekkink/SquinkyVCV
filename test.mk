@@ -28,11 +28,8 @@ FLAGS += $(PERFFLAG)
 # don't need these yet
 #  -lcomdlg32 -lole32 -ldsound -lwinmm
 test.exe : LDFLAGS = -static \
-	-Wl,--export-all-symbols,--out-implib -mwindows \
+	-mwindows \
 	-lpthread -lopengl32 -lgdi32 -lws2_32
-
-
-
 
 test : test.exe
 
