@@ -25,4 +25,12 @@ void init(rack::Plugin *p)
 
     assert(modelColoredNoiseModule);
     p->addModel(modelColoredNoiseModule);
+#ifdef _CPU_Hog
+    assert(modelCPU_HogModule);
+    p->addModel(modelCPU_HogModule);
+#endif
+#ifdef _EXP
+    assert(modelThreadBoostModule);
+    p->addModel(modelThreadBoostModule);
+#endif
 }
