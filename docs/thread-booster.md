@@ -26,11 +26,13 @@ This is all quite platform specific; here’s what we have observed so far:
 
 * In Windows, the boost setting works, and does not require admin rights. The real time setting always fails, even when running as admin.
 * On mac, both settings work, and neither requires running as root.
-* On Linux (Ubuntu 16) there is only a single non-real-time priority, so the boosted setting fails. The real-time setting does work if you sudo rack.
+* On Linux (Ubuntu 16) there is only a single non-real-time priority, so the boosted setting fails. The real-time setting will only succeed if you run Rack as root, which is not advised.
 
 If you try this plugin, be aware that changing Rack’s thread priority behind its back may cause some things to misbehave. We have not seen this happen, but it’s a real possibility. Running in the real-time policy could lock your computer up, although this seems unlikely since there will only be one audio thread running at this elevated policy. Running at any elevated priority could make something in VCV or the plugins misbehave or glitch.
 
 Note that Thread Booster has no effect on the main VCV Rack process, or its UI thread - it only affects the audio thread.
+
+Another limitation is that Thread Booster does not boost the thread(s) that move data between Rack's audio engine and the Audio (sound card) Module(s).
 
 ## Questions for testers
 
@@ -82,3 +84,7 @@ As we said, this test case is artificial. In the real world are pops and clicks 
 On the Mac, Boosting and the switching back to normal will not restore the original priority. It will actually be running at a lower priority.
 
 When the Thread Booster comes up initially, no LEDs are illuminated - normal should be.
+
+## Notes from the field
+
+Some users are reporting that Thread Booster helps significantly with pops and clicks. Other report no improvement at all.
