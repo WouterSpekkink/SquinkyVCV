@@ -1,5 +1,5 @@
 
-LDFLAGS += -lws2_32 -lPsapi
+LDFLAGS += -static -lws2_32 -lPsapi
 
 pboost.exe : build/pboost.obj
 	$(CXX) -o $@ $^ $(LDFLAGS)
