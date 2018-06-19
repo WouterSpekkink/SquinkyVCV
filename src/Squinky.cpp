@@ -19,18 +19,20 @@ void init(rack::Plugin *p)
 
     assert(modelVocalModule);
     p->addModel(modelVocalModule);
-    
+
     assert(modelVocalFilterModule);
     p->addModel(modelVocalFilterModule);
 
     assert(modelColoredNoiseModule);
     p->addModel(modelColoredNoiseModule);
+
+    assert(modelTremoloModule);
+    p->addModel(modelTremoloModule);
+
 #ifdef _CPU_HOG
     assert(modelCPU_HogModule);
     p->addModel(modelCPU_HogModule);
 #endif
-#ifdef _EXP
     assert(modelThreadBoostModule);
     p->addModel(modelThreadBoostModule);
-#endif
 }

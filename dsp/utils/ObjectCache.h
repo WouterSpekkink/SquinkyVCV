@@ -32,13 +32,19 @@ public:
     static std::shared_ptr<LookupTableParams<T>> getExp2();
     static std::shared_ptr<LookupTableParams<T>> getDb2Gain();
 
+    /**
+     * tanh, unscaled, from -5 to 5
+     */
+    static std::shared_ptr<LookupTableParams<T>> getTanh5();
+
 private:
     /**
-     * Cache uses weak pointers. This allows the cached objects to be 
+     * Cache uses weak pointers. This allows the cached objects to be
      * freed when the last client reference goes away.
      */
     static std::weak_ptr<LookupTableParams<T>> bipolarAudioTaper;
     static std::weak_ptr<LookupTableParams<T>> sinLookupTable;
     static std::weak_ptr<LookupTableParams<T>> exp2;
     static std::weak_ptr<LookupTableParams<T>> db2Gain;
+    static std::weak_ptr<LookupTableParams<T>> tanh5;
 };

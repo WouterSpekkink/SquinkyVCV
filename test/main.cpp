@@ -18,22 +18,25 @@ extern void testFrequencyShifter();
 extern void testStateVariable();
 extern void testVocalAnimator();
 extern void testObjectCache();
-extern void testThread();
+extern void testThread(bool exended);
 extern void testFFT();
 extern void testRingBuffer();
 extern void testManagedPool();
 extern void testColoredNoise();
 extern void testFFTCrossFader();
 extern void testFinalLeaks();
+extern void testClockMult();
+extern void testTremolo();
+extern void testGateTrigger();
 
 int main(int argc, char ** argv)
 {
-    printf("--- test2 ----\n"); fflush(stdout);
     bool runPerf = false;
+    bool extended = false;
     if (argc > 1) {
         std::string arg = argv[1];
-        if (arg == "--perf") {
-            runPerf = true;
+        if (arg == "--ext") {
+            extended = true;
         }
     }
 #ifdef _PERF
@@ -48,22 +51,25 @@ int main(int argc, char ** argv)
 
     testAudioMath();
     testRingBuffer();
+    testGateTrigger();
     testManagedPool();
     testLookupTable();
     testObjectCache();
     testTestSignal();
     testBiquad();
     testSaw();
-    
+    testClockMult();
+
     testSinOscillator();
     testHilbert();
     testStateVariable();
 
     testFFT();
     testFFTCrossFader();
-    testThread();
-    
+    testThread(extended);
+
     // after testing all the components, test composites.
+    testTremolo();
     testColoredNoise();
     testFrequencyShifter();
     testVocalAnimator();

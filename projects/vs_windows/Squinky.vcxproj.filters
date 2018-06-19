@@ -79,6 +79,12 @@
     <Filter Include="Header Files\sqsrc\util">
       <UniqueIdentifier>{d88fef08-3b09-4979-98d0-41863e55201d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\sqsrc\clock">
+      <UniqueIdentifier>{2919976b-3c5e-48c7-9bc1-70b34d905594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sqsrc\clock">
+      <UniqueIdentifier>{6c381890-e472-4d98-a18a-8c768ec7a670}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -178,6 +184,18 @@
       <Filter>Source Files\dsp\fft</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\testFinalLeaks.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testClockMult.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sqsrc\clock\ClockMult.cpp">
+      <Filter>Source Files\sqsrc\clock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testTremolo.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testGateTrigger.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -292,6 +310,24 @@
     </ClInclude>
     <ClInclude Include="..\..\dsp\fft\FFTCrossFader.h">
       <Filter>Header Files\dsp\fft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\clock\ClockMult.h">
+      <Filter>Header Files\sqsrc\clock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\utils\AsymRampShaper.h">
+      <Filter>Header Files\dsp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\Tremolo.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\GateTrigger.h">
+      <Filter>Header Files\sqsrc\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\SchmidtTrigger.h">
+      <Filter>Header Files\sqsrc\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\Constants.h">
+      <Filter>Header Files\sqsrc\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sqsrc\thread\ThreadPriority.h">
       <Filter>Header Files\sqsrc\thread</Filter>
