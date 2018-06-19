@@ -117,6 +117,10 @@ static void test3()
 
 }
 
+static void test5()
+{
+    ThreadPriority::boostRealtimeWindows();
+}
 /*****************************************************************/
 
 void testThread()
@@ -127,6 +131,7 @@ void testThread()
    test1();
    test2();
    test3();
+   test5();
    assertEQ(ThreadSharedState::_dbgCount, 0);
    assertEQ(ThreadMessage::_dbgCount, 0);
 }

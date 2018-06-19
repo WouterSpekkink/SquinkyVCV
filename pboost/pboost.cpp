@@ -15,7 +15,7 @@ bool setRealtimePriority(HANDLE pHandle);
 bool enablePrivilege(HANDLE hProcess, const char * privilege);
 std::string GetLastErrorAsString();
 
-int main(int, char**)
+int main(int argc, char** argv)
 {
 
     HANDLE realHandle = GetCurrentProcess();
@@ -23,10 +23,53 @@ int main(int, char**)
     printf("try set debug on us: %d\n", b);
     if (!b) {
         // TODO: we should re-run here
-        printf("can't get right from system. Try running as admin\n");
-        return -1;
+        printf("can't get debug right from system. Try running as admin\n");
+        fflush(stdout);
+
+        // Spawn a copy of ourselves, via ShellExecuteEx().
+        // The "runas" verb is important because that's what
+        // internally triggers Windows to open up a UAC prompt.
+       // HANDLE child = ShellExecuteEx(argc, argv, "runas");
+        SHELLEXECUTEINFO sinfo;
+        memset(&sinfo, 0, sizeof(SHELLEXECUTEINFO));
+        sinfo.cbSize       = sizeof(SHELLEXECUTEINFO);
+        sinfo.fMask        = SEE_MASK_FLAG_DDEWAIT |
+                        SEE_MASK_NOCLOSEPROCESS;
+        sinfo.hwnd         = NULL;
+        sinfo.lpFile       = argv[0];
+        sinfo.lpParameters = "";
+        sinfo.lpVerb       = "runas"; // <<-- this is what makes a UAC prompt show up
+        sinfo.nShow        = SW_SHOWMAXIMIZED;
+
+        // The only way to get a UAC prompt to show up
+        // is by calling ShellExecuteEx() with the correct
+        // SHELLEXECUTEINFO struct.  Non privlidged applications
+        // cannot open/start a UAC prompt by simply spawning
+        // a process that has the correct XML manifest.
+        BOOL result = ShellExecuteEx(&sinfo);
+        if (!result) {
+            printf("re-exec as admin failed\n");
+            return -1;
+        }
+
+       // HINSTANCE appInstance = sinfo.hInstApp;
+
+    
+        printf("exec worked. hp=%x\n", sinfo.hProcess);
+        fflush(stdout);
+        // User accepted UAC prompt (gave permission).
+        // The unprivileged parent should wait for
+        // the privileged child to finish.
+        WaitForSingleObject(sinfo.hProcess, INFINITE);
+        printf("orig proc finished waiting\n");
+
+        DWORD exitCode=666;
+        GetExitCodeProcess(sinfo.hProcess, &exitCode);
+        printf("EXIT CODE %d\n", exitCode);
+        CloseHandle(sinfo.hProcess);
     }
 
+    // here were able to set debug
     DWORD aProcesses[1024], cbNeeded, cProcesses;
     unsigned int i;
 

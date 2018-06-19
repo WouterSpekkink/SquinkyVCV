@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef ARCH_WIN
+#include <windows.h>
+#endif
+
+
 class ThreadPriority
 {
 public:
@@ -17,12 +22,38 @@ public:
     static bool boostRealtime();
 
     static void restore();
+
+#ifdef ARCH_WIN
+    static bool boostRealtimeWindows();
+#endif
 private:
 
     static bool boostNormalPthread();
     static bool boostRealtimePthread();
     static void restorePthread();
 };
+
+#ifdef ARCH_WIN
+inline bool ThreadPriority::boostRealtimeWindows()
+{
+    HANDLE h = GetCurrentProcess();
+    auto x = GetPriorityClass(h);
+    printf("cur priority class = %x, realtime=%x", x, REALTIME_PRIORITY_CLASS);
+
+    SetPriorityClass(h, HIGH_PRIORITY_CLASS);
+    printf("set pri class to %x is now %x\n", HIGH_PRIORITY_CLASS, GetPriorityClass(h));
+
+    bool b = SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+    int y = GetThreadPriority(GetCurrentThread());
+    printf("set pri ret %d, is now %d want %d err=%d\n",
+        b,
+        y,
+        THREAD_PRIORITY_TIME_CRITICAL, GetLastError());
+    fflush(stdout);
+    return y == THREAD_PRIORITY_TIME_CRITICAL;
+
+}
+#endif
 
 // Inside Visual Studio test we don't try to link in PThreads, 
 // So they can't be used here. But they will work on all command line
@@ -35,7 +66,11 @@ inline bool ThreadPriority::boostNormal()
 
 inline bool ThreadPriority::boostRealtime()
 {
+#ifdef ARCH_WIN
+    return boostRealtimeWindows();
+#else
     return boostRealtimePthread();
+#endif
 }
 
 inline void ThreadPriority::restore()
