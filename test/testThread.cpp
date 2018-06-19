@@ -206,19 +206,25 @@ static void test4()
     printf("ref = %f, boosted = %f rt=%f\n", ref, boosted, boostedRT); fflush(stdout);
 }
 
+static void test5()
+{
+    ThreadPriority::boostRealtimeWindows();
+}
 /*****************************************************************/
 
 void testThread(bool extended)
 {
-    assertEQ(ThreadSharedState::_dbgCount, 0);
-    assertEQ(ThreadMessage::_dbgCount, 0);
-    test0();
-    test1();
-    test2();
-    test3();
-    if (extended) {
-        test4();
-    }
-    assertEQ(ThreadSharedState::_dbgCount, 0);
-    assertEQ(ThreadMessage::_dbgCount, 0);
+
+   assertEQ(ThreadSharedState::_dbgCount, 0);
+   assertEQ(ThreadMessage::_dbgCount, 0);
+   test0();
+   test1();
+   test2();
+   test3();
+   if (extended) {
+       test4();
+   }
+   test5();
+   assertEQ(ThreadSharedState::_dbgCount, 0);
+   assertEQ(ThreadMessage::_dbgCount, 0);
 }
