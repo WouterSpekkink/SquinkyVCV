@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifdef ARCH_WIN
 #include <windows.h>
 #endif
@@ -50,14 +49,14 @@ inline bool ThreadPriority::boostRealtimeWindows()
 {
     HANDLE h = GetCurrentProcess();
     auto x = GetPriorityClass(h);
-    printf("cur priority class = %x, realtime=%x", x, REALTIME_PRIORITY_CLASS);
+    printf("cur priority class = %lx, realtime=%x", x, REALTIME_PRIORITY_CLASS);
 
     SetPriorityClass(h, HIGH_PRIORITY_CLASS);
-    printf("set pri class to %x is now %x\n", HIGH_PRIORITY_CLASS, GetPriorityClass(h));
+    printf("set pri class to %x is now %lx\n", HIGH_PRIORITY_CLASS, GetPriorityClass(h));
 
     bool b = SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
     int y = GetThreadPriority(GetCurrentThread());
-    printf("set pri ret %d, is now %d want %d err=%d\n",
+    printf("set pri ret %d, is now %d want %d err=%ld\n",
         b,
         y,
         THREAD_PRIORITY_TIME_CRITICAL, GetLastError());
@@ -158,6 +157,7 @@ inline bool ThreadPriority::boostNormalPthread()
     if (x != 0) {
         printf("failed to set pri %d for SCHED_OTHER. error= %d\n", maxPriority, x);
     }
+    fflush(stdout);
     return x == 0;
 }
 
