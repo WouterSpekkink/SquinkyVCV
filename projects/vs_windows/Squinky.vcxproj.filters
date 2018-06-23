@@ -85,6 +85,9 @@
     <Filter Include="Header Files\sqsrc\clock">
       <UniqueIdentifier>{6c381890-e472-4d98-a18a-8c768ec7a670}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\sqsrc\grammar">
+      <UniqueIdentifier>{c8db16de-4e6f-4c6d-bd7a-aeb75e464495}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -202,6 +205,9 @@
       <Filter>Source Files\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\Analyzer.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testStochasticGrammar.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -340,6 +346,9 @@
     </ClInclude>
     <ClInclude Include="..\..\test\Analyzer.h">
       <Filter>Source Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\grammar\StochasticGrammar.h">
+      <Filter>Header Files\sqsrc\grammar</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

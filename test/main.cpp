@@ -29,6 +29,7 @@ extern void testClockMult();
 extern void testTremolo();
 extern void testGateTrigger();
 extern void testFilters();
+extern void testStochasticGrammar();
 
 int main(int argc, char ** argv)
 {
@@ -71,6 +72,8 @@ int main(int argc, char ** argv)
     if (extended) {
         testThread(extended);
     }
+
+    testStochasticGrammar();
 
     // after testing all the components, test composites.
     testTremolo();
