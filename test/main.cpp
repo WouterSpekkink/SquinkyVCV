@@ -28,6 +28,7 @@ extern void testFinalLeaks();
 extern void testClockMult();
 extern void testTremolo();
 extern void testGateTrigger();
+extern void testFilters();
 
 int main(int argc, char ** argv)
 {
@@ -65,8 +66,11 @@ int main(int argc, char ** argv)
     testStateVariable();
 
     testFFT();
+    testFilters();
     testFFTCrossFader();
-    testThread(extended);
+    if (extended) {
+        testThread(extended);
+    }
 
     // after testing all the components, test composites.
     testTremolo();
@@ -77,6 +81,8 @@ int main(int argc, char ** argv)
     if (runPerf) {
         perfTest();
     }
+
+
 
     testFinalLeaks();
 

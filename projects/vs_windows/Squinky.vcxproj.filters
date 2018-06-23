@@ -198,6 +198,12 @@
     <ClCompile Include="..\..\test\testGateTrigger.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\testFilters.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\Analyzer.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
@@ -331,6 +337,9 @@
     </ClInclude>
     <ClInclude Include="..\..\sqsrc\thread\ThreadPriority.h">
       <Filter>Header Files\sqsrc\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\test\Analyzer.h">
+      <Filter>Source Files\test</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
