@@ -23,3 +23,12 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
     }
     return ret;
 }
+
+void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func)
+{
+    const float db = (float) AudioMath::db(1);
+
+    for (int i = 0; i < out.size(); ++i) {
+        out.set(i, cpx(db, 0));
+    }
+}

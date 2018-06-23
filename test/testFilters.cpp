@@ -40,10 +40,20 @@ static void ana2()
     assertClose(data[1].freq, 44100 / 4, .0001);
 }
 
+static void ana3()
+{
+    FFTDataCpx x(4);
+    std::function<float(float)> unity = [](float x) {
+        return x;
+    };
+    Analyzer::getFreqResponse(x, unity);
+}
+
 void testFilters()
 {
     ana0();
     ana1();
     ana2();
+    ana3();
 
 }
