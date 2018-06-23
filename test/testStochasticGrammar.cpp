@@ -18,7 +18,7 @@ static void test0()
         assert(!s.empty());
         assert(s.length() < 256);
 
-        printf("key: %s\n", s.c_str());
+       // printf("key: %s\n", s.c_str());
 
         int dur = ProductionRuleKeys::getDuration(key);
         assert(dur > 0);
