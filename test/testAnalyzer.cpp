@@ -11,7 +11,7 @@
 static void ana0()
 {
     FFTDataCpx f(16);
-    Analyzer::printf(f);
+    Analyzer::print(f);
 }
 
 static void ana1()
@@ -43,6 +43,19 @@ static void ana2()
 
 static void ana3()
 {
+    const int size = 1024;
+    std::vector<float> buffer(size);
+    Analyzer::generateSweep(44100., buffer.data(), size, 20, 20000);
+    
+    auto minMax = AudioMath::getMinMax(buffer.data(), size);
+    assertClose(minMax.first, -1, .01);
+    assertClose(minMax.second, 1, .01);
+}
+
+
+#if 0
+static void ana7()
+{
     FFTDataCpx x(4);
     std::function<float(float)> unity = [](float x) {
         return x;
@@ -53,13 +66,15 @@ static void ana3()
         assertClose(std::abs(x.get(i)), 1, .01);
     }
 }
+#endif
 
 
 
-void testFilters()
+void testAnalyzer()
 {
     ana0();
     ana1();
     ana2();
     ana3();
+   // ana7();
 }

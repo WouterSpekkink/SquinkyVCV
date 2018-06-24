@@ -89,4 +89,17 @@ public:
      * linear near zero.
      */
     static ScaleFun<float> makeBipolarAudioScaler(float y0, float y1);
+
+
+    template <typename T>
+    static std::pair<T, T> getMinMax(const T* data, int numSamples)
+    {
+        T min = 1, max = -1;
+        for (int i = 0; i < numSamples; ++i) {
+            const T x = data[i];
+            min = std::min(min, x);
+            max = std::max(max, x);
+        }
+        return std::pair<T,T>(min, max);
+    }
 };

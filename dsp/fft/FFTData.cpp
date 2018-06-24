@@ -1,10 +1,14 @@
 
 #include "FFTData.h"
-#include "kiss_fft.h"
-#include "kiss_fftr.h"
 
-#include <assert.h>
+//template <typename T>
 
+template <>
+int FFTData<cpx>::_count = 0;
+
+template <>
+int FFTDataReal::_count = 0;
+#if 0
 int FFTDataCpx::_count = 0;
 FFTDataCpx::FFTDataCpx(int numBins) :
     buffer(numBins)
@@ -65,3 +69,4 @@ void FFTDataReal::set(int index, float value)
     assert(index < (int)buffer.size());
     buffer[index] = value;
 }
+#endif

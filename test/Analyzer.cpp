@@ -4,8 +4,9 @@
 #include "AudioMath.h"
 #include "FFT.h"
 #include "FFTData.h"
+#include "SinOscillator.h"
 
-void Analyzer::printf(const FFTDataCpx&)
+void Analyzer::print(const FFTDataCpx&)
 {
 
 }
@@ -41,4 +42,28 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
     assert(false);
     // then take the inverse fft
     assert(false);
+}
+
+
+void Analyzer::generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq)
+{
+    assert(maxFreq > minFreq);
+    const double minLog = std::log2(minFreq);
+    const double maxLog = std::log2(maxFreq);
+    const double delta = (maxLog - minLog) / numSamples;
+
+    SinOscillatorParams<double> params;
+    SinOscillatorState<double> state;
+
+    double fLog = minLog;
+    for (int i = 0; i < numSamples; ++i, fLog+=delta) {
+        const double freq = std::pow(2, fLog);
+        assert(freq < (sampleRate / 2));
+
+        SinOscillator<double, false>::setFrequency(params, freq / sampleRate);
+        double val = SinOscillator<double, false>::run(state, params);
+
+       // ::printf("out[%d] = %f f=%f\n", i, val, freq);
+        out[i] = (float) val;
+    }
 }

@@ -28,7 +28,7 @@ extern void testFinalLeaks();
 extern void testClockMult();
 extern void testTremolo();
 extern void testGateTrigger();
-extern void testFilters();
+extern void testAnalyzer();
 extern void testStochasticGrammar();
 
 int main(int argc, char ** argv)
@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
     testStateVariable();
 
     testFFT();
-    testFilters();
+    testAnalyzer();
     testFFTCrossFader();
     if (extended) {
         testThread(extended);

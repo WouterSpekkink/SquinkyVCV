@@ -3,14 +3,15 @@
 #include <vector>
 #include <functional>
 
-class FFTDataCpx;
+#include "FFTData.h"
+//class FFTDataCpx;
 
 
 class Analyzer
 {
 public:
     Analyzer() = delete;
-    static void printf(const FFTDataCpx&);
+    static void print(const FFTDataCpx&);
 
     class FPoint
     {
@@ -29,6 +30,8 @@ public:
    // fillFFTFrame(FFDataReal& out,)
     //std::function<double(double)> makeFunc_Audi
     static void getFreqResponse(FFTDataCpx& out, std::function<float(float)>);
+
+    static void generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq);
     
     
 };

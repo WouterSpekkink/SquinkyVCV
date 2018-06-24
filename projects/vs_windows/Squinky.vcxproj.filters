@@ -201,13 +201,13 @@
     <ClCompile Include="..\..\test\testGateTrigger.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\testFilters.cpp">
-      <Filter>Source Files\test</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\test\Analyzer.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\testStochasticGrammar.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testAnalyzer.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
