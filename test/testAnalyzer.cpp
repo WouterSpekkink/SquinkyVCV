@@ -53,7 +53,7 @@ static void ana3()
 }
 
 
-#if 0
+#if 1
 static void ana7()
 {
     FFTDataCpx x(4);
@@ -76,5 +76,5 @@ void testAnalyzer()
     ana1();
     ana2();
     ana3();
-   // ana7();
+    ana7();
 }

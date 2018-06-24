@@ -28,19 +28,38 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
 
 void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func)
 {
+#if 0
     const float db = (float) AudioMath::db(1);
 
+    
     for (int i = 0; i < out.size(); ++i) {
         out.set(i, cpx(db, 0));
     }
+#endif
 
     //  TestBuffers<float> buf;
 
-    // First set up a test signal (noise for now)
-    assert(false);
+    // First set up a test signal 
+    const int numSamples = 1024;
+    std::vector<float> testSignal(numSamples);
+    generateSweep(44100, testSignal.data(), numSamples, 20, 20000);
+
     // Run the test signal though func, capture output in fft real
-    assert(false);
+    FFTDataReal testOutput(numSamples);
+    for (int i = 0; i < out.size(); ++i) {
+        const float y = func(testSignal[i]);
+        testOutput.set(i, y);
+    }
+
     // then take the inverse fft
+    FFTDataCpx spectrum(numSamples);
+    FFT::forward(&spectrum, testOutput);
+
+   
+    // then divide by test
+    FFTDataCpx testSpecturm(numSamples);
+    FFT::forward(&testSpecturm, testOutput);
+
     assert(false);
 }
 
