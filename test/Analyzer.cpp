@@ -28,19 +28,8 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
 
 void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func)
 {
-#if 0
-    const float db = (float) AudioMath::db(1);
-
-    
-    for (int i = 0; i < out.size(); ++i) {
-        out.set(i, cpx(db, 0));
-    }
-#endif
-
-    //  TestBuffers<float> buf;
-
     // First set up a test signal 
-    const int numSamples = 1024;
+    const int numSamples = out.size();
     std::vector<float> testSignal(numSamples);
     generateSweep(44100, testSignal.data(), numSamples, 20, 20000);
 
@@ -57,10 +46,26 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
 
    
     // then divide by test
-    FFTDataCpx testSpecturm(numSamples);
-    FFT::forward(&testSpecturm, testOutput);
+    FFTDataCpx testSpectrum(numSamples);
+    FFT::forward(&testSpectrum, testOutput);
 
-    assert(false);
+    for (int i = 0; i < numSamples; ++i) {
+
+        const cpx x =  (std::abs(testSpectrum.get(i)) == 0) ? 0 :
+            spectrum.get(i) / testSpectrum.get(i);
+        out.set(i, x);
+    }
+
+#if 0
+    for (int i = 0; i < numSamples; ++i) {
+        printf("%d, sig=%f out=%f mag(sig)=%f mag(out)=%f rsp=%f\n",
+            i, testSignal[i], testOutput.get(i),
+            std::abs(testSpectrum.get(i)),
+            std::abs(spectrum.get(i)),
+            std::abs(out.get(i))
+        );
+    }
+#endif
 }
 
 

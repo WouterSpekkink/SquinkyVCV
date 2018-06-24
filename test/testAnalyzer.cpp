@@ -56,14 +56,15 @@ static void ana3()
 #if 1
 static void ana7()
 {
-    FFTDataCpx x(4);
+    const int size = 64;
+    FFTDataCpx x(size);
     std::function<float(float)> unity = [](float x) {
         return x;
     };
     Analyzer::getFreqResponse(x, unity);
 
-    for (int i = 0; i < 4; ++i) {
-        assertClose(std::abs(x.get(i)), 1, .01);
+    for (int i = 0; i < size/2; ++i) {
+        assertClose(std::abs(x.get(i)), 1, .0001);
     }
 }
 #endif
