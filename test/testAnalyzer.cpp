@@ -8,15 +8,9 @@
 #include "FFTData.h"
 #include "MeasureTime.h"
 
-static void ana0()
-{
-    FFTDataCpx f(16);
-    Analyzer::print(f);
-}
-
 static void ana1()
 {
-    FFTDataCpx x(1);
+    FFTDataCpx x(2);
     x.set(0, cpx( float(AudioMath::gainFromDb(0)), 0));
 
     auto data = Analyzer::getFeatures(x, 3, 44100);
@@ -30,7 +24,8 @@ static void ana1()
 // very different gains
 static void ana2()
 {
-    FFTDataCpx x(2);
+    printf("starting ana2");
+    FFTDataCpx x(4);
     x.set(0, cpx(float(AudioMath::gainFromDb(0)), 0));
     x.set(1, cpx(float(AudioMath::gainFromDb(10)), 0));
 
@@ -42,7 +37,7 @@ static void ana2()
     assertClose(data[1].gain, 10, .0001);
 
     // bin 1 (last bin) is sr/2 ... sr
-    assertClose(data[1].freq, 44100 / 2, .0001);
+    assertClose(data[1].freq, 44100 / 4, .0001);
 }
 
 static void ana3()
@@ -71,7 +66,6 @@ static void ana7()
 }
 void testAnalyzer()
 {
-    ana0();
     ana1();
     ana2();
     ana3();

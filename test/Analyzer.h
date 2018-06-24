@@ -11,7 +11,6 @@ class Analyzer
 {
 public:
     Analyzer() = delete;
-    static void print(const FFTDataCpx&);
 
     class FPoint
     {

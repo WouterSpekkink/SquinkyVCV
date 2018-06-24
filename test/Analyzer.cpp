@@ -6,10 +6,6 @@
 #include "FFTData.h"
 #include "SinOscillator.h"
 
-void Analyzer::print(const FFTDataCpx&)
-{
-
-}
 
 int Analyzer::getMax(const FFTDataCpx& data)
 {
@@ -29,12 +25,15 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
 {
     std::vector<FPoint> ret;
     float lastDb = 10000000000;
-    for (int i = 0; i < data.size(); ++i) {
+    // only look at the below nyquist stuff
+    for (int i = 0; i < data.size()/2; ++i) {
         const float db = (float) AudioMath::db( std::abs(data.get(i)));
         if (std::abs(db - lastDb) >= sensitivityDb) {
             float freq = FFT::bin2Freq(i, sampleRate, data.size());
             FPoint p(freq, db);
+           // printf("feature at bin %d, db=%f raw val=%f\n", i, db, std::abs(data.get(i)));
             ret.push_back(p);
+            lastDb = db;
         }
     }
     return ret;
@@ -43,8 +42,8 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
 void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
 {
     auto features = getFeatures(data, sensitivityDb, sampleRate);
+    printf("there are %d features\n", (int)features.size());
     for (int i = 0; i < features.size(); ++i) {
-       
         printf("feature: freq=%f, db=%f\n", features[i].freq, features[i].gain);
     }
 }
