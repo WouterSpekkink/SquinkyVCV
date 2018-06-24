@@ -24,14 +24,9 @@ public:
     };
 
     static std::vector<FPoint> getFeatures(const FFTDataCpx&, float sensitivityDb, float sampleRate);
+    static void getAndPrintFeatures(const FFTDataCpx&, float sensitivityDb, float sampleRate);
+    static int getMax(const FFTDataCpx&);
 
-   // void takeFFT(FFTDataCpx& out, const  float* samples, int numSamples);
-
-   // fillFFTFrame(FFDataReal& out,)
-    //std::function<double(double)> makeFunc_Audi
     static void getFreqResponse(FFTDataCpx& out, std::function<float(float)>);
-
     static void generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq);
-    
-    
 };

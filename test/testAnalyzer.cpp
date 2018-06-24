@@ -52,8 +52,6 @@ static void ana3()
     assertClose(minMax.second, 1, .01);
 }
 
-
-#if 1
 static void ana7()
 {
     const int size = 64;
@@ -67,10 +65,6 @@ static void ana7()
         assertClose(std::abs(x.get(i)), 1, .0001);
     }
 }
-#endif
-
-
-
 void testAnalyzer()
 {
     ana0();

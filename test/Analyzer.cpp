@@ -11,6 +11,20 @@ void Analyzer::print(const FFTDataCpx&)
 
 }
 
+int Analyzer::getMax(const FFTDataCpx& data)
+{
+    int maxBin = -1;
+    float maxMag = 0;
+    for (int i = 0; i < data.size(); ++i) {
+        const float mag = std::abs(data.get(i));
+        if (mag > maxMag) {
+            maxMag = mag;
+            maxBin = i;
+        }
+    }
+    return maxBin;
+}
+
 std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
 {
     std::vector<FPoint> ret;
@@ -26,17 +40,34 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
     return ret;
 }
 
+void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
+{
+    auto features = getFeatures(data, sensitivityDb, sampleRate);
+    for (int i = 0; i < features.size(); ++i) {
+       
+        printf("feature: freq=%f, db=%f\n", features[i].freq, features[i].gain);
+    }
+}
+
 void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func)
 {
+    /**
+     * testSignal is the time domain sweep
+     * testOutput if the time domain output of "func"
+     * testSpecrum is the FFT of testSignal
+     * spectrum is the FFT of testOutput
+
+     */
     // First set up a test signal 
     const int numSamples = out.size();
-    std::vector<float> testSignal(numSamples);
+  //  std::vector<float> testSignal(numSamples);
+    FFTDataReal testSignal(numSamples);
     generateSweep(44100, testSignal.data(), numSamples, 20, 20000);
 
     // Run the test signal though func, capture output in fft real
     FFTDataReal testOutput(numSamples);
     for (int i = 0; i < out.size(); ++i) {
-        const float y = func(testSignal[i]);
+        const float y = func(testSignal.get(i));
         testOutput.set(i, y);
     }
 
@@ -47,7 +78,7 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
    
     // then divide by test
     FFTDataCpx testSpectrum(numSamples);
-    FFT::forward(&testSpectrum, testOutput);
+    FFT::forward(&testSpectrum, testSignal);
 
     for (int i = 0; i < numSamples; ++i) {
 
@@ -59,7 +90,7 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
 #if 0
     for (int i = 0; i < numSamples; ++i) {
         printf("%d, sig=%f out=%f mag(sig)=%f mag(out)=%f rsp=%f\n",
-            i, testSignal[i], testOutput.get(i),
+            i, testSignal.get(i), testOutput.get(i),
             std::abs(testSpectrum.get(i)),
             std::abs(spectrum.get(i)),
             std::abs(out.get(i))

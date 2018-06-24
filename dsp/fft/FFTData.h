@@ -28,6 +28,12 @@ public:
     {
         return (int) buffer.size();
     }
+
+    T * data()
+    {
+        return buffer.data();
+    }
+
     static int _count;
 private:
     std::vector<T> buffer;
