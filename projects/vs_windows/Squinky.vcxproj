@@ -44,6 +44,7 @@
     <ClCompile Include="..\..\test\testFFT.cpp" />
     <ClCompile Include="..\..\test\testFFTCrossFader.cpp" />
     <ClCompile Include="..\..\test\testAnalyzer.cpp" />
+    <ClCompile Include="..\..\test\testFilter.cpp" />
     <ClCompile Include="..\..\test\testFinalLeaks.cpp" />
     <ClCompile Include="..\..\test\testFrequencyShifter.cpp" />
     <ClCompile Include="..\..\test\testGateTrigger.cpp" />
