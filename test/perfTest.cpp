@@ -24,6 +24,8 @@ using Trem = Tremolo<TestComposite>;
 
 #include "MeasureTime.h"
 
+double SqTime::frequency = 0;
+
 // There are many tests that are disabled with #if 0.
 // In most cases they still work, but don't need to be run regularly
 

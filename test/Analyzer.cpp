@@ -1,3 +1,4 @@
+#include <assert.h>
 
 #include "Analyzer.h"
 #include "AudioMath.h"
@@ -31,4 +32,13 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
     for (int i = 0; i < out.size(); ++i) {
         out.set(i, cpx(db, 0));
     }
+
+    //  TestBuffers<float> buf;
+
+    // First set up a test signal (noise for now)
+    assert(false);
+    // Run the test signal though func, capture output in fft real
+    assert(false);
+    // then take the inverse fft
+    assert(false);
 }

@@ -6,6 +6,7 @@
 #include "asserts.h"
 #include "AudioMath.h"
 #include "FFTData.h"
+#include "MeasureTime.h"
 
 static void ana0()
 {
@@ -47,7 +48,13 @@ static void ana3()
         return x;
     };
     Analyzer::getFreqResponse(x, unity);
+
+    for (int i = 0; i < 4; ++i) {
+        assertClose(std::abs(x.get(i)), 1, .01);
+    }
 }
+
+
 
 void testFilters()
 {
@@ -55,5 +62,4 @@ void testFilters()
     ana1();
     ana2();
     ana3();
-
 }

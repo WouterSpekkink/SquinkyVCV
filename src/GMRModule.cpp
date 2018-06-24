@@ -74,11 +74,11 @@ struct GMRWidget : ModuleWidget
  */
 GMRWidget::GMRWidget(GMRModule *module) : ModuleWidget(module)
 {
-    box.size = Vec(10 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+    box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin, "res/trem_panel.svg")));
+        panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
         addChild(panel);
     }
 
