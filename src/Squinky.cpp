@@ -14,25 +14,20 @@ void init(rack::Plugin *p)
     p->slug = "squinkylabs-plug1";
     p->version = TOSTRING(VERSION);
 
-    assert(modelBootyModule);
     p->addModel(modelBootyModule);
 
     assert(modelVocalModule);
     p->addModel(modelVocalModule);
-
-    assert(modelVocalFilterModule);
     p->addModel(modelVocalFilterModule);
-
-    assert(modelColoredNoiseModule);
     p->addModel(modelColoredNoiseModule);
-
-    assert(modelTremoloModule);
     p->addModel(modelTremoloModule);
-
+    p->addModel(modelThreadBoostModule);
+    p->addModel(modelLFNModule);
+    p->addModel(modelGMRModule);
+    
 #ifdef _CPU_HOG
     assert(modelCPU_HogModule);
     p->addModel(modelCPU_HogModule);
 #endif
-    assert(modelThreadBoostModule);
-    p->addModel(modelThreadBoostModule);
+
 }

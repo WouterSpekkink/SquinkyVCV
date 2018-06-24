@@ -27,6 +27,13 @@ static void test0()
     }
 }
 
+/** to make a real grammar and test it
+
+    need to make a big table of ProductinRule. one entry for every key.
+    validate that it's valid
+    then you can start generating music from it.
+*/
+
 void testStochasticGrammar()
 {
     test0();
