@@ -87,12 +87,12 @@ int FFT::freqToBin(float freq, float sampleRate, int numBins)
 {
     assert(freq <= (sampleRate / 2));
     // bin(numBins) <> sr / 2;
-    return (int)((freq / sampleRate)*(numBins * 2));
+    return (int)((freq / sampleRate)*(numBins));
 }
 
 float FFT::bin2Freq(int bin, float sampleRate, int numBins)
 {
-    return  sampleRate * float(bin) / (float(numBins) * 2);
+    return  sampleRate * float(bin) / (float(numBins));
 }
 
 static float randomPhase()

@@ -26,6 +26,8 @@ static void ana1()
 }
 
 
+// test  Analyzer::getFeatures with two bins of 
+// very different gains
 static void ana2()
 {
     FFTDataCpx x(2);
@@ -38,7 +40,9 @@ static void ana2()
     assertClose(data[0].freq, 0, .0001);
 
     assertClose(data[1].gain, 10, .0001);
-    assertClose(data[1].freq, 44100 / 4, .0001);
+
+    // bin 1 (last bin) is sr/2 ... sr
+    assertClose(data[1].freq, 44100 / 2, .0001);
 }
 
 static void ana3()

@@ -7,9 +7,9 @@
 #include "Analyzer.h"
 #include "asserts.h"
 
-static void testPeak(std::function<float(float)> filter, float sampleRate, float expectedMax)
+static void testPeak(std::function<float(float)> filter, float sampleRate, float expectedMax, float percentTolerance)
 {
-    const int numSamples = 16 * 1024;
+    const int numSamples = 64 * 1024;
     FFTDataCpx x(numSamples);
     Analyzer::getFreqResponse(x, filter);
 
@@ -17,11 +17,19 @@ static void testPeak(std::function<float(float)> filter, float sampleRate, float
     //Analyzer::getAndPrintFeatures(x, 3.0f, 44100);
 
     int maxBin = Analyzer::getMax(x);
-    printf("max bin = %d, freq=%f expected =%f\n", maxBin, FFT::bin2Freq(maxBin, 44100, numSamples), expectedMax);
+    float maxFreq = (FFT::bin2Freq(maxBin, 44100, numSamples) +
+        FFT::bin2Freq(maxBin + 1, 44100, numSamples)) / 2;
+    printf("max bin = %d, freq=%f expected =%f\n", maxBin, maxFreq, expectedMax);
+
+    const float delta = expectedMax * percentTolerance / 100.f ;      // One percent accuracy
+    assertClose(maxFreq, expectedMax, delta);
     
 }
 
-
+/**
+ * Really a test of the analyzer.
+ * make as sin wave and see if the peak is where it should be.
+ */
 static void test0()
 {
     SinOscillatorParams<float> params;
@@ -32,20 +40,18 @@ static void test0()
     SinOscillator<float, false>::setFrequency(params, Fc / sampleRate);
     std::function<float(float)> filter = [&state, &params](float x) {
         auto y = SinOscillator<float, false>::run(state, params);
-        // printf("filter(%f) ret (%f)\n", x, y);
         return y;
     };
-    testPeak(filter, sampleRate, 100);
+    testPeak(filter, sampleRate, 100, 1);
 }
 
 
-static void test1()
+static void testBandpass(float Fc, float tolerancePercent)
 {
     StateVariableFilterState<float> state;
     StateVariableFilterParams<float> params;
 
-
-    const float Fc = 100;
+   // const float Fc = 100;
     const float sampleRate = 44100;
 
     params.setMode(params.Mode::BandPass);
@@ -57,23 +63,16 @@ static void test1()
        // printf("filter(%f) ret (%f)\n", x, y);
         return y;
     };
-    testPeak(filter, sampleRate, 100);
-
-   // Analyzer::getFreqResponse(x, filter);
-#if 0
-    // fix this
-    //Analyzer::getAndPrintFeatures(x, 3.0f, 44100);
-
-    int maxBin = Analyzer::getMax(x);
-    printf("max bin = %d, freq=%f target = %f\n", maxBin, FFT::bin2Freq(maxBin, 44100, size), Fc);
-    // TODO: tests something
-
-    for (int i = 0; i < size / 2; ++i) {
-        assertClose(std::abs(x.get(i)), 1, .0001);
-    }
-#endif
- 
+    testPeak(filter, sampleRate, Fc, tolerancePercent);
 }
+
+static void test1()
+{
+    testBandpass(10, 10);
+    testBandpass(100, 1);
+    testBandpass(1000, 1);
+}
+
 void testFilter()
 {
     test0();
