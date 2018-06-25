@@ -105,9 +105,43 @@ static void test2()
 }
 
 
+static void test3()
+{
+    StateVariableFilterState<float> state;
+    StateVariableFilterParams<float> params;
+
+    const float Fc = 100;
+    const float sampleRate = 44100;
+
+    params.setMode(params.Mode::BandPass);
+    params.setFreq(Fc / sampleRate);
+    params.setNormalizedBandwidth(.2f);
+
+    std::function<float(float)> filter = [&state, &params](float x) {
+        auto y = StateVariableFilter<float>::run(x, state, params);
+        // printf("filter(%f) ret (%f)\n", x, y);
+        return y;
+    };
+    //testPeak(filter, sampleRate, Fc, tolerancePercent);
+
+    printf("test2: bp resp:\n");
+    const int numSamples = 64 * 1024;
+    FFTDataCpx response(numSamples);
+    Analyzer::getFreqResponse(response, filter);
+
+    auto x = Analyzer::getMaxAndShoulders(response);
+    printf("lf 3db at %f, high at %f, center at %f\n",
+        FFT::bin2Freq(std::get<0>(x), sampleRate, numSamples),
+        FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples),
+        FFT::bin2Freq(std::get<1>(x), sampleRate, numSamples)
+    );
+
+}
+
 void testFilter()
 {
     test0();
     test1();
     test2();
+    test3();
 }

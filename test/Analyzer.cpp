@@ -5,6 +5,7 @@
 #include "FFT.h"
 #include "FFTData.h"
 #include "SinOscillator.h"
+#include "AudioMath.h"
 
 
 int Analyzer::getMax(const FFTDataCpx& data)
@@ -19,6 +20,44 @@ int Analyzer::getMax(const FFTDataCpx& data)
         }
     }
     return maxBin;
+}
+
+std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data)
+{
+    int maxBin = getMax(data);
+    int iMax = data.size() / 2;
+
+    const double dbShoulder = -3 +  AudioMath::db(std::abs(data.get(maxBin)));
+
+    int i;
+    int iShoulderLow = -1;
+    int iShoulderHigh = -1;
+    bool done;
+    for (done = false, i = maxBin; !done; ) {
+        const double db = AudioMath::db(std::abs(data.get(i)));
+        if (i >= iMax) {
+            done = true;
+        } else if (db <= dbShoulder) {
+            iShoulderHigh = i;
+            done = true;
+        } else {
+            i++;
+        }
+    }
+    for (done = false, i = maxBin; !done; ) {
+        const double db = AudioMath::db(std::abs(data.get(i)));
+        if (i < 0) {
+            done = true;
+        } else if (db <= dbShoulder) {
+            iShoulderLow = i;
+            done = true;
+        } else {
+            i--;
+        }
+    }
+    printf("out of loop, imax=%d, shoulders=%d,%d\n", maxBin, iShoulderLow, iShoulderHigh);
+
+    return std::make_tuple(iShoulderLow, maxBin, iShoulderHigh);
 }
 
 std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
