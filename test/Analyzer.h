@@ -30,8 +30,9 @@ public:
      * 0 = low freq
      * 1 = peak
      * 2 = high
+     * dbAtten (typically -3
      */
-    static std::tuple<int, int, int> getMaxAndShoulders(const FFTDataCpx&);
+    static std::tuple<int, int, int> getMaxAndShoulders(const FFTDataCpx&, float dbAtten);
 
     static void getFreqResponse(FFTDataCpx& out, std::function<float(float)>);
     static void generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq);

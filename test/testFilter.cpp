@@ -108,15 +108,18 @@ static void test2()
 
 static void test3()
 {
+    const float bw = .7f;
+    const float Fc = 200;
+    printf("one stage, fc=%f bw=%f\n", Fc, bw);
     StateVariableFilterState<float> state;
     StateVariableFilterParams<float> params;
 
-    const float Fc = 100;
+   
     const float sampleRate = 44100;
 
     params.setMode(params.Mode::BandPass);
     params.setFreq(Fc / sampleRate);
-    params.setNormalizedBandwidth(.5f);
+    params.setNormalizedBandwidth(bw);
 
     std::function<float(float)> filter = [&state, &params](float x) {
         auto y = StateVariableFilter<float>::run(x, state, params);
@@ -130,7 +133,7 @@ static void test3()
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
 
-    auto x = Analyzer::getMaxAndShoulders(response);
+    auto x = Analyzer::getMaxAndShoulders(response, -3);
     printf("lf 3db at %f, high at %f, center at %f\n",
         FFT::bin2Freq(std::get<0>(x), sampleRate, numSamples),
         FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples),
@@ -139,9 +142,10 @@ static void test3()
 
 }
 
-static void test4()
+static void _test4(int stages, float bw)
 {
-    GraphicEq geq;
+    printf("\ntest geq %d sages bw=%f\n", stages, bw);
+    GraphicEq geq(stages, bw);
     std::function<float(float)> filter = [&geq](float x) {
         auto y = geq.run(x);
         // printf("filter(%f) ret (%f)\n", x, y);
@@ -153,12 +157,28 @@ static void test4()
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
 
-    auto x = Analyzer::getMaxAndShoulders(response);
+    auto x = Analyzer::getMaxAndShoulders(response, -2);
     printf("geq: lf 3db at %f, high at %f, center at %f\n",
         FFT::bin2Freq(std::get<0>(x), sampleRate, numSamples),
         FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples),
         FFT::bin2Freq(std::get<1>(x), sampleRate, numSamples)
     );
+}
+
+static void test4()
+{
+    printf("\n");
+   // _test4(2, .8f);
+    _test4(2, .7f);
+  //  _test4(3, 1.1f);
+  //  _test4(3, 1.0f);
+ //   _test4(3, .9f);
+ //   _test4(3, .8f);
+    _test4(3, .7f);
+   // _test4(3, .6f);
+   // _test4(4, .7f);
+    _test4(4, .7f);
+
 }
 
 void testFilter()

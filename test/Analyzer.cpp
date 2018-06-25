@@ -22,12 +22,13 @@ int Analyzer::getMax(const FFTDataCpx& data)
     return maxBin;
 }
 
-std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data)
+std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, float atten)
 {
+    assert(atten < 0);
     int maxBin = getMax(data);
     int iMax = data.size() / 2;
 
-    const double dbShoulder = -3 +  AudioMath::db(std::abs(data.get(maxBin)));
+    const double dbShoulder = atten +  AudioMath::db(std::abs(data.get(maxBin)));
 
     int i;
     int iShoulderLow = -1;
