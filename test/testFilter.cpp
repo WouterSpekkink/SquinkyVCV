@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "FFT.h"
+#include "GraphicEq.h"
 #include "StateVariableFilter.h"
 #include "SinOscillator.h"
 #include "Analyzer.h"
@@ -115,7 +116,7 @@ static void test3()
 
     params.setMode(params.Mode::BandPass);
     params.setFreq(Fc / sampleRate);
-    params.setNormalizedBandwidth(.2f);
+    params.setNormalizedBandwidth(.5f);
 
     std::function<float(float)> filter = [&state, &params](float x) {
         auto y = StateVariableFilter<float>::run(x, state, params);
@@ -138,10 +139,33 @@ static void test3()
 
 }
 
+static void test4()
+{
+    GraphicEq geq;
+    std::function<float(float)> filter = [&geq](float x) {
+        auto y = geq.run(x);
+        // printf("filter(%f) ret (%f)\n", x, y);
+        return y;
+    };
+
+    const int numSamples = 64 * 1024;
+    const int sampleRate = 44100;
+    FFTDataCpx response(numSamples);
+    Analyzer::getFreqResponse(response, filter);
+
+    auto x = Analyzer::getMaxAndShoulders(response);
+    printf("geq: lf 3db at %f, high at %f, center at %f\n",
+        FFT::bin2Freq(std::get<0>(x), sampleRate, numSamples),
+        FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples),
+        FFT::bin2Freq(std::get<1>(x), sampleRate, numSamples)
+    );
+}
+
 void testFilter()
 {
     test0();
     test1();
     test2();
     test3();
+    test4();
 }

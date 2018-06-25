@@ -77,6 +77,7 @@
     <ClInclude Include="..\..\dsp\filters\BiquadState.h" />
     <ClInclude Include="..\..\dsp\filters\ButterworthFilterDesigner.h" />
     <ClInclude Include="..\..\dsp\filters\FormantTables2.h" />
+    <ClInclude Include="..\..\dsp\filters\GraphicEq.h" />
     <ClInclude Include="..\..\dsp\filters\HilbertFilterDesigner.h" />
     <ClInclude Include="..\..\dsp\filters\StateVariableFilter.h" />
     <ClInclude Include="..\..\dsp\generators\MultiModOsc.h" />
