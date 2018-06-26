@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Decimator.h"
+#include "LowpassFilter.h"
 #include "ObjectCache.h"
 
 
@@ -38,6 +39,7 @@ public:
 
     enum OutputIds
     {
+        OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -55,7 +57,16 @@ private:
     float reciprocalSampleRate = 0;
 
     Decimator decimator;
+    LowpassFilterState<float> lpfState;
+    LowpassFilterParams<float> lpfParams;
 
+    float noise()
+    {
+        float x = (float) rand() / float(RAND_MAX);
+        x -= .5;
+        x *= 10;
+        return x;
+    }
 };
 
 
@@ -63,12 +74,23 @@ private:
 template <class TBase>
 inline void LFN<TBase>::init()
 {
-  
+    assert(reciprocalSampleRate > 0);
+    // TODO: make sample rate aware
+    decimator.setDecimationRate(100 * reciprocalSampleRate);
+    LowpassFilter<float>::setCutoff(lpfParams, 50 * reciprocalSampleRate);
 }
 
 template <class TBase>
 inline void LFN<TBase>::step()
 {
+    bool needsData;
+    float x = decimator.clock(needsData);
+    x = LowpassFilter<float>::run(x, lpfState, lpfParams);
+    if (needsData) {
+        decimator.acceptData(noise());
+    }
+
+    TBase::outputs[OUTPUT].value = x;
  
 }
 

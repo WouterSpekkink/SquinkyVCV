@@ -82,6 +82,9 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module)
         addChild(panel);
     }
 
+    addOutput(Port::create<PJ301MPort>(Vec(50, 300), Port::OUTPUT, module, module->lfn.OUTPUT));
+ 
+
   
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));

@@ -37,6 +37,7 @@ public:
 
     enum OutputIds
     {
+        OUTPUT,
         NUM_OUTPUTS
     };
 

@@ -15,12 +15,15 @@
 #include "Tremolo.h"
 #include "VocalAnimator.h"
 #include "VocalFilter.h"
+#include "LFN.h"
+#include "GMR.h"
 
 using Shifter = FrequencyShifter<TestComposite>;
 using Animator = VocalAnimator<TestComposite>;
 using VocFilter = VocalFilter<TestComposite>;
 using Colors = ColoredNoise<TestComposite>;
 using Trem = Tremolo<TestComposite>;
+
 
 #include "MeasureTime.h"
 
@@ -179,8 +182,6 @@ static void testVocalFilter()
         }, 1);
 }
 
-
-
 static void testColors()
 {
     Colors co;
@@ -207,6 +208,32 @@ static void testTremolo()
         tr.inputs[Trem::AUDIO_INPUT].value = TestBuffers<float>::get();
         tr.step();
         return tr.outputs[Trem::AUDIO_OUTPUT].value;
+        }, 1);
+}
+
+static void testLFN()
+{
+    LFN<TestComposite> lfn;
+
+    lfn.setSampleRate(44100);
+    lfn.init();
+
+    MeasureTime<float>::run("lfn", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
+        }, 1);
+}
+
+static void testGMR()
+{
+    GMR<TestComposite> gmr;
+
+    gmr.setSampleRate(44100);
+    gmr.init();
+
+    MeasureTime<float>::run("gmr", [&gmr]() {
+        gmr.step();
+        return gmr.outputs[GMR<TestComposite>::OUTPUT].value;
         }, 1);
 }
 
@@ -254,6 +281,8 @@ void perfTest()
     testAttenuverters();
     testExpRange();
 #endif
+    testLFN();
+    testGMR();
     testVocalFilter();
     testAnimator();
     testShifter();
