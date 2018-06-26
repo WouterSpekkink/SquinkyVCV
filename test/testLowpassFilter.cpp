@@ -65,9 +65,28 @@ static void decimate0()
     assertEQ(x, 5);
 }
 
+
+static void decimate1()
+{
+    Decimator d;
+    d.setDecimationRate(2);
+    d.acceptData(5);
+    bool b = true;
+    auto x = d.clock(b);
+    assert(!b);
+    assertEQ(x, 5);
+
+    x = d.clock(b);
+    assert(b);
+    assertEQ(x, 5);
+
+
+}
+
 void testLowpassFilter()
 {
     _testLowpassFilter<float>();
     _testLowpassFilter<double>();
     decimate0();
+    decimate1();
 }
