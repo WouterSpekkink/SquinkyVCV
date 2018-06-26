@@ -39,9 +39,7 @@ static void test1()
     srand(57);
     const double scale = 1.0 / RAND_MAX;
 
-    MeasureTime<float>::run("test1 (do nothing)", [&d, scale]() {
-        return TestBuffers<float>::get();
-        }, 1);
+
 
     MeasureTime<float>::run("test1 sin", []() {
         float x = std::sin(TestBuffers<float>::get());
@@ -103,6 +101,24 @@ static void test1()
 }
 #endif
 
+double overheadInOut = 0;
+double overheadOutOnly = 0;
+
+static void setup()
+{
+
+    double d = .1;
+    const double scale = 1.0 / RAND_MAX;
+    overheadInOut = MeasureTime<float>::run(0.0, "test1 (do nothing i/o)", [&d, scale]() {
+        return TestBuffers<float>::get();
+        }, 1);
+
+    overheadOutOnly = MeasureTime<float>::run(0.0, "test1 (do nothing oo)", [&d, scale]() {
+        return 0.0f;
+        }, 1);
+
+}
+
 template <typename T>
 static void testHilbert()
 {
@@ -142,7 +158,8 @@ static void testShifter()
 
     fs.inputs[Shifter::AUDIO_INPUT].value = 0;
 
-    MeasureTime<float>::run("shifter", [&fs]() {
+    assert(overheadInOut >= 0);
+    MeasureTime<float>::run(overheadInOut, "shifter", [&fs]() {
         fs.inputs[Shifter::AUDIO_INPUT].value = TestBuffers<float>::get();
         fs.step();
         return fs.outputs[Shifter::SIN_OUTPUT].value;
@@ -158,7 +175,7 @@ static void testAnimator()
 
     an.inputs[Shifter::AUDIO_INPUT].value = 0;
 
-    MeasureTime<float>::run("animator", [&an]() {
+    MeasureTime<float>::run(overheadInOut, "animator", [&an]() {
         an.inputs[Shifter::AUDIO_INPUT].value = TestBuffers<float>::get();
         an.step();
         return an.outputs[Shifter::SIN_OUTPUT].value;
@@ -175,7 +192,7 @@ static void testVocalFilter()
 
     an.inputs[Shifter::AUDIO_INPUT].value = 0;
 
-    MeasureTime<float>::run("vocal filter", [&an]() {
+    MeasureTime<float>::run(overheadInOut, "vocal filter", [&an]() {
         an.inputs[Shifter::AUDIO_INPUT].value = TestBuffers<float>::get();
         an.step();
         return an.outputs[Shifter::SIN_OUTPUT].value;
@@ -190,7 +207,7 @@ static void testColors()
     co.init();
 
 
-    MeasureTime<float>::run("colors", [&co]() {
+    MeasureTime<float>::run(overheadInOut, "colors", [&co]() {
         co.step();
         return co.outputs[Colors::AUDIO_OUTPUT].value;
         }, 1);
@@ -204,7 +221,7 @@ static void testTremolo()
     tr.init();
 
 
-    MeasureTime<float>::run("trem", [&tr]() {
+    MeasureTime<float>::run(overheadInOut, "trem", [&tr]() {
         tr.inputs[Trem::AUDIO_INPUT].value = TestBuffers<float>::get();
         tr.step();
         return tr.outputs[Trem::AUDIO_OUTPUT].value;
@@ -218,7 +235,7 @@ static void testLFN()
     lfn.setSampleRate(44100);
     lfn.init();
 
-    MeasureTime<float>::run("lfn", [&lfn]() {
+    MeasureTime<float>::run(overheadOutOnly, "lfn", [&lfn]() {
         lfn.step();
         return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
         }, 1);
@@ -231,7 +248,7 @@ static void testGMR()
     gmr.setSampleRate(44100);
     gmr.init();
 
-    MeasureTime<float>::run("gmr", [&gmr]() {
+    MeasureTime<float>::run(overheadOutOnly, "gmr", [&gmr]() {
         gmr.step();
         return gmr.outputs[GMR<TestComposite>::OUTPUT].value;
         }, 1);
@@ -277,6 +294,7 @@ static void testAttenuverters()
 
 void perfTest()
 {
+    setup();
 #if 0
     testAttenuverters();
     testExpRange();
