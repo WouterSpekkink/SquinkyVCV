@@ -34,6 +34,11 @@ public:
         return buffer.data();
     }
 
+    float getAbs(int bin) const
+    {
+        return std::abs(buffer[bin]);
+    }
+
     static int _count;
 private:
     std::vector<T> buffer;

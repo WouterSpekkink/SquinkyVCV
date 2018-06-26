@@ -24,7 +24,14 @@ int Analyzer::getMax(const FFTDataCpx& data)
 
 float Analyzer::getSlope(const FFTDataCpx& response, float fTest, float sampleRate)
 {
-    return 0;
+    const int bin1 = FFT::freqToBin(fTest, sampleRate, response.size());
+    const int bin2 = bin1 * 4;                // two octaves
+    assert(bin2 < response.size());
+    const float mag1 = response.getAbs(bin1);
+    const float mag2 = response.getAbs(bin2);
+    return float(AudioMath::db(mag2) - AudioMath::db(mag1)) / 2;
+
+
 }
 
 std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, float atten)
