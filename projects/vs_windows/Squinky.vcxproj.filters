@@ -362,5 +362,8 @@
     <ClInclude Include="..\..\dsp\filters\LowPassFilter.h">
       <Filter>Header Files\dsp\filters</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\dsp\utils\Decimator.h">
+      <Filter>Header Files\dsp\utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

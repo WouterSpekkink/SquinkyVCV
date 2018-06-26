@@ -1,5 +1,6 @@
 
 #include "LowpassFilter.h"
+#include "Decimator.h"
 #include "Analyzer.h"
 #include "asserts.h"
 
@@ -31,13 +32,10 @@ static void test1()
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
 
-    int m = Analyzer::getMax(response);
-    assert(m >= 0);
     auto x = Analyzer::getMaxAndShoulders(response, -3);
   
-
     const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
-    assert(m == 0);                 // lowpass, peak at 0hz
+    assert(std::get<1>(x) == 0);                 // low pass, peak at 0hz
     assertEQ(std::get<0>(x), -1);   // no LF shoulder
     assertClose(cutoff, 100, 1);    // 3db down at Fc
 
@@ -53,8 +51,23 @@ void _testLowpassFilter()
     test1<T>();
 }
 
+/************ also test decimator here
+ */
+
+static void decimate0()
+{
+    Decimator d;
+    d.setDecimationRate(2);
+    d.acceptData(5);
+    bool b=true;
+    auto x = d.clock(b);
+    assert(!b);
+    assertEQ(x, 5);
+}
+
 void testLowpassFilter()
 {
     _testLowpassFilter<float>();
     _testLowpassFilter<double>();
+    decimate0();
 }
