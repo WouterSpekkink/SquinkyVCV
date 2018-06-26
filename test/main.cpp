@@ -31,6 +31,7 @@ extern void testGateTrigger();
 extern void testAnalyzer();
 extern void testFilter();
 extern void testStochasticGrammar();
+extern void testLowpassFilter();
 
 int main(int argc, char ** argv)
 {
@@ -74,7 +75,9 @@ int main(int argc, char ** argv)
         testThread(extended);
     }
 
+    testLowpassFilter();
     testFilter();
+    
     testStochasticGrammar();
 
     // after testing all the components, test composites.
