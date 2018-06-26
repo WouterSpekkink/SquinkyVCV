@@ -189,7 +189,6 @@ inline void ProductionRuleKeys::breakDown(GKEY key, GKEY * outKeys)
     }
 }
 
-#ifdef _MSC_VER
 inline const char * ProductionRuleKeys::toString(GKEY key)
 {
     const char * ret;
@@ -233,7 +232,6 @@ inline const char * ProductionRuleKeys::toString(GKEY key)
     }
     return ret;
 }
-#endif
 
 inline int ProductionRuleKeys::getDuration(GKEY key)
 {

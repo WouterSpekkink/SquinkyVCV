@@ -1,7 +1,7 @@
 
 #pragma once
 
-
+#include "Decimator.h"
 #include "ObjectCache.h"
 
 
@@ -17,6 +17,7 @@ public:
     LFN() : TBase()
     {
     }
+
     void setSampleRate(float rate)
     {
         reciprocalSampleRate = 1 / rate;
@@ -51,9 +52,9 @@ public:
     void step();
 
 private:
-
-  
     float reciprocalSampleRate = 0;
+
+    Decimator decimator;
 
 };
 
