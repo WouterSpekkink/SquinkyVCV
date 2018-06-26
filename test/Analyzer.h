@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "FFTData.h"
-//class FFTDataCpx;
+#include "FFT.h"
 
 
 class Analyzer
@@ -35,5 +35,8 @@ public:
     static std::tuple<int, int, int> getMaxAndShoulders(const FFTDataCpx&, float dbAtten);
 
     static void getFreqResponse(FFTDataCpx& out, std::function<float(float)>);
+
+    static float getSlope(const FFTDataCpx& response, float fTest, float sampleRate);
+
     static void generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq);
 };

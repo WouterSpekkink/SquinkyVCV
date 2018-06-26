@@ -74,13 +74,13 @@ inline FFTData<T>::~FFTData()
 template <typename T>
 inline T FFTData<T>::get(int index) const
 {
-    assert(index < (int) buffer.size());
+    assert(index < (int) buffer.size() && index >= 0);
     return buffer[index];
 }
 
 template <typename T>
 inline void FFTData<T>::set(int index, T value)
 {
-    assert(index < (int) buffer.size());
+    assert(index < (int) buffer.size() && index >= 0);
     buffer[index] = value;
 }

@@ -22,12 +22,18 @@ int Analyzer::getMax(const FFTDataCpx& data)
     return maxBin;
 }
 
+float Analyzer::getSlope(const FFTDataCpx& response, float fTest, float sampleRate)
+{
+    return 0;
+}
+
 std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, float atten)
 {
     assert(atten < 0);
     int maxBin = getMax(data);
     int iMax = data.size() / 2;
 
+    assert(maxBin >= 0);
     const double dbShoulder = atten +  AudioMath::db(std::abs(data.get(maxBin)));
 
     int i;
@@ -47,10 +53,10 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
     }
     for (done = false, i = maxBin; !done; ) {
         const double db = AudioMath::db(std::abs(data.get(i)));
-        if (i < 0) {
-            done = true;
-        } else if (db <= dbShoulder) {
+        if (db <= dbShoulder) {
             iShoulderLow = i;
+            done = true;
+        } else if (i <= 0) {
             done = true;
         } else {
             i--;
