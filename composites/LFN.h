@@ -29,6 +29,11 @@ public:
 
     enum ParamIds
     {
+        EQ0_PARAM,
+        EQ1_PARAM,
+        EQ2_PARAM,
+        EQ3_PARAM,
+        EQ4_PARAM,
         NUM_PARAMS
     };
 

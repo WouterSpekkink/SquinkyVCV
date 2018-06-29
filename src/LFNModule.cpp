@@ -61,7 +61,8 @@ struct LFNWidget : ModuleWidget
         label->color = color;
         addChild(label);
     }
-    //void addClockSection(TremoloModule *module);
+
+     //void addClockSection(TremoloModule *module);
     //void addIOSection(TremoloModule *module);
     //void addMainSection(TremoloModule *module);
 };
@@ -82,8 +83,22 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module)
         addChild(panel);
     }
 
-    addOutput(Port::create<PJ301MPort>(Vec(50, 300), Port::OUTPUT, module, module->lfn.OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(50, 340), Port::OUTPUT, module, module->lfn.OUTPUT));
  
+
+    const float knobX=20;
+    const float knobY=80;
+    const float knobDy = 50;
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 0 * knobDy), module, module->lfn.EQ0_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 1 * knobDy), module, module->lfn.EQ1_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 2 * knobDy), module, module->lfn.EQ2_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 3 * knobDy), module, module->lfn.EQ3_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 4 * knobDy), module, module->lfn.EQ4_PARAM, -5.0, 5.0, 0.0));
 
   
     // screws
