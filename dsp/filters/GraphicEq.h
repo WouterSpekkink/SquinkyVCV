@@ -9,9 +9,15 @@ public:
     GraphicEq(int stages, float bw);
 
     float run(float);
+    void setGain(int stage, float g)
+    {
+        gain[stage] = g;
+       // printf("just set gain[%d] to %f\n", stage, g);
+    }
 private:
     StateVariableFilterParams<float> params[6];
     StateVariableFilterState<float> states[6];
+    float gain[6];
     const int _stages;
 
 };
@@ -29,15 +35,19 @@ inline GraphicEq::GraphicEq(int stages, float bw) : _stages(stages)
         params[i].setFreq(freq);
         params[i].setNormalizedBandwidth(bw);
         freq *= 2.f;
+        gain[i] = 1;
 
     }
 }
 
 inline float GraphicEq::run(float input)
 {
+   //  printf("run filter with ");
     float out = 0;
     for (int i = 0; i < _stages; ++i) {
-        out += StateVariableFilter<float>::run(input, states[i], params[i]);
+     //  printf("%f ", gain[i]);
+        out += StateVariableFilter<float>::run(input, states[i], params[i]) * gain[i];
     }
+   // printf("\n");
     return out;
 }

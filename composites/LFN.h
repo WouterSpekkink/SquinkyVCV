@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Decimator.h"
+#include "GraphicEq.h"
 #include "LowpassFilter.h"
 #include "ObjectCache.h"
 
@@ -12,10 +13,11 @@ template <class TBase>
 class LFN : public TBase
 {
 public:
-    LFN(struct Module * module) : TBase(module)
+    const int numEqStages=5;
+    LFN(struct Module * module) : TBase(module), geq(numEqStages, .6f)
     {
     }
-    LFN() : TBase()
+    LFN() : TBase(), geq(numEqStages, .6f)
     {
     }
 
@@ -65,6 +67,8 @@ private:
     LowpassFilterState<float> lpfState;
     LowpassFilterParams<float> lpfParams;
 
+    GraphicEq geq;
+
     float noise()
     {
         float x = (float) rand() / float(RAND_MAX);
@@ -88,12 +92,28 @@ inline void LFN<TBase>::init()
 template <class TBase>
 inline void LFN<TBase>::step()
 {
+    /*
+     EQ0_PARAM,
+        EQ1_PARAM,
+        EQ2_PARAM,
+        EQ3_PARAM,
+        EQ4_PARAM,
+        */
+    for (int i=0; i<numEqStages; ++i) {
+        auto paramNum = i + EQ0_PARAM;
+        const float gain = TBase::params[paramNum].value;
+        geq.setGain(i, gain);
+    }
+
+
     bool needsData;
     float x = decimator.clock(needsData);
     x = LowpassFilter<float>::run(x, lpfState, lpfParams);
     if (needsData) {
         decimator.acceptData(noise());
     }
+
+    x = geq.run(x);
 
     TBase::outputs[OUTPUT].value = x;
  

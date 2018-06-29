@@ -21,6 +21,7 @@ public:
 
     LFN<WidgetComposite> lfn;
 private:
+
 };
 
 void LFNModule::onSampleRateChange()
@@ -89,16 +90,17 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module)
     const float knobX=20;
     const float knobY=80;
     const float knobDy = 50;
+    const float gmin=0, gmax=5;
     addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 0 * knobDy), module, module->lfn.EQ0_PARAM, -5.0, 5.0, 0.0));
+        Vec(knobX, knobY + 0 * knobDy), module, module->lfn.EQ0_PARAM, gmin, gmax, gmax));
     addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 1 * knobDy), module, module->lfn.EQ1_PARAM, -5.0, 5.0, 0.0));
+        Vec(knobX, knobY + 1 * knobDy), module, module->lfn.EQ1_PARAM, gmin, gmax, gmax));
     addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 2 * knobDy), module, module->lfn.EQ2_PARAM, -5.0, 5.0, 0.0));
+        Vec(knobX, knobY + 2 * knobDy), module, module->lfn.EQ2_PARAM, gmin, gmax, gmax));
     addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 3 * knobDy), module, module->lfn.EQ3_PARAM, -5.0, 5.0, 0.0));
+        Vec(knobX, knobY + 3 * knobDy), module, module->lfn.EQ3_PARAM, gmin, gmax, gmax));
     addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 4 * knobDy), module, module->lfn.EQ4_PARAM, -5.0, 5.0, 0.0));
+        Vec(knobX, knobY + 4 * knobDy), module, module->lfn.EQ4_PARAM, gmin, gmax, gmax));
 
   
     // screws
