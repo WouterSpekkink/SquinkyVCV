@@ -1,9 +1,13 @@
 
 #pragma once
 
+#include "ButterworthFilterDesigner.h"
 #include "Decimator.h"
 #include "GraphicEq.h"
 #include "LowpassFilter.h"
+#include "BiquadParams.h"
+#include "BiquadState.h"
+#include "BiquadFilter.h"
 #include "ObjectCache.h"
 
 
@@ -64,10 +68,12 @@ private:
     float reciprocalSampleRate = 0;
 
     Decimator decimator;
-    LowpassFilterState<float> lpfState;
-    LowpassFilterParams<float> lpfParams;
+   // LowpassFilterState<float> lpfState;
+  //  LowpassFilterParams<float> lpfParams;
 
     GraphicEq geq;
+    BiquadParams<float, 2> lpfParams;
+    BiquadState<float, 2> lpfState;
 
     float noise()
     {
@@ -85,8 +91,12 @@ inline void LFN<TBase>::init()
 {
     assert(reciprocalSampleRate > 0);
     // TODO: make sample rate aware
-    decimator.setDecimationRate(100 * reciprocalSampleRate);
-    LowpassFilter<float>::setCutoff(lpfParams, 50 * reciprocalSampleRate);
+    decimator.setDecimationRate(100);
+
+    
+    ButterworthFilterDesigner<float>::designThreePoleLowpass(
+        lpfParams, 1.0 / (44 * 100.0));
+   // LowpassFilter<float>::setCutoff(lpfParams, 50 * reciprocalSampleRate);
 }
 
 template <class TBase>
@@ -108,12 +118,16 @@ inline void LFN<TBase>::step()
 
     bool needsData;
     float x = decimator.clock(needsData);
-    x = LowpassFilter<float>::run(x, lpfState, lpfParams);
+   // printf("need = %d\n", needsData);
+ //   x = LowpassFilter<float>::run(x, lpfState, lpfParams);
+    x = BiquadFilter<float>::run(x, lpfState, lpfParams);
     if (needsData) {
-        decimator.acceptData(noise());
+        float z = noise();
+        z = geq.run(z);
+        decimator.acceptData(z);
     }
 
-    x = geq.run(x);
+    //x = geq.run(x);
 
     TBase::outputs[OUTPUT].value = x;
  
