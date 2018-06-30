@@ -69,7 +69,7 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
             i--;
         }
     }
-    printf("out of loop, imax=%d, shoulders=%d,%d\n", maxBin, iShoulderLow, iShoulderHigh);
+   // printf("out of loop, imax=%d, shoulders=%d,%d\n", maxBin, iShoulderLow, iShoulderHigh);
 
     return std::make_tuple(iShoulderLow, maxBin, iShoulderHigh);
 }

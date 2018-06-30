@@ -10,13 +10,21 @@
 #include "BiquadFilter.h"
 #include "ObjectCache.h"
 
-
+#define _GEQ2
 /**
  */
 template <class TBase>
 class LFN : public TBase
 {
 public:
+#ifdef _GEQ2
+    LFN(struct Module * module) : TBase(module)
+    {
+    }
+    LFN() : TBase()
+    {
+    }
+#else
     const int numEqStages=5;
     LFN(struct Module * module) : TBase(module), geq(numEqStages, .6f)
     {
@@ -24,6 +32,7 @@ public:
     LFN() : TBase(), geq(numEqStages, .6f)
     {
     }
+#endif
 
     void setSampleRate(float rate)
     {
@@ -71,7 +80,11 @@ private:
    // LowpassFilterState<float> lpfState;
   //  LowpassFilterParams<float> lpfParams;
 
+#ifdef _GEQ2
+    GraphicEq2<5> geq;
+#else
     GraphicEq geq;
+#endif
     BiquadParams<float, 2> lpfParams;
     BiquadState<float, 2> lpfState;
 
@@ -95,7 +108,7 @@ inline void LFN<TBase>::init()
 
     
     ButterworthFilterDesigner<float>::designThreePoleLowpass(
-        lpfParams, 1.0 / (44 * 100.0));
+        lpfParams, float(1.0 / (44 * 100.0)));
    // LowpassFilter<float>::setCutoff(lpfParams, 50 * reciprocalSampleRate);
 }
 
@@ -109,6 +122,7 @@ inline void LFN<TBase>::step()
         EQ3_PARAM,
         EQ4_PARAM,
         */
+    const int numEqStages = geq.getNumStages();
     for (int i=0; i<numEqStages; ++i) {
         auto paramNum = i + EQ0_PARAM;
         const float gain = TBase::params[paramNum].value;

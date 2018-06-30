@@ -2,6 +2,7 @@
 
 #include "StateVariableFilter.h"
 
+
 class GraphicEq
 {
 public:
@@ -49,5 +50,76 @@ inline float GraphicEq::run(float input)
         out += StateVariableFilter<float>::run(input, states[i], params[i]) * gain[i];
     }
    // printf("\n");
+    return out;
+}
+
+/**
+ * Two bandpass filters in series.
+ */
+class TwoStageBandpass
+{
+public:
+    TwoStageBandpass();
+    float run(float);
+    void setFreq(float);
+private:
+    StateVariableFilterParams<float> params[2];
+    StateVariableFilterState<float> state[2];
+};
+
+inline TwoStageBandpass::TwoStageBandpass()
+{
+    for (int i = 0; i <= 1; ++i) {
+        params[i].setMode(StateVariableFilterParams<float>::Mode::BandPass);
+        params[i].setFreq(.1f);
+        params[i].setNormalizedBandwidth(1);
+    }
+}
+
+inline void TwoStageBandpass::setFreq(float freq)
+{
+    for (int i = 0; i <= 1; ++i) {
+        params[i].setFreq(freq);
+    }
+}
+
+inline float TwoStageBandpass::run(float input)
+{
+    auto y = StateVariableFilter<float>::run(input, state[0], params[0]);
+    auto z = StateVariableFilter<float>::run(y, state[1], params[1]);
+    return z;
+}
+
+
+template <int NumStages>
+class GraphicEq2
+{
+public:
+
+    float run(float);
+    void setGain(int stage, float g)
+    {
+        assert(stage < NumStages);
+        gain[stage] = g;
+
+    }
+    int getNumStages()
+    {
+        return NumStages;
+    }
+private:
+    TwoStageBandpass filters[NumStages];
+    float gain[NumStages];
+};
+
+template <int NumStages>
+inline float GraphicEq2<NumStages>::run(float input)
+{
+    float out = 0;
+    for (int i = 0; i < NumStages; ++i) {
+
+        out += filters[i].run(input) * gain[i];
+    }
+;
     return out;
 }
