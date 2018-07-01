@@ -19,30 +19,30 @@ public:
     void step() override;
     void onSampleRateChange() override;
 
-    GMR<WidgetComposite> GMR;
+    GMR<WidgetComposite> gmr;
 private:
 };
 
 void GMRModule::onSampleRateChange()
 {
     float rate = engineGetSampleRate();
-    GMR.setSampleRate(rate);
+    gmr.setSampleRate(rate);
 }
 
 GMRModule::GMRModule()
-    : Module(GMR.NUM_PARAMS,
-    GMR.NUM_INPUTS,
-    GMR.NUM_OUTPUTS,
-    GMR.NUM_LIGHTS),
-    GMR(this)
+    : Module(gmr.NUM_PARAMS,
+      gmr.NUM_INPUTS,
+      gmr.NUM_OUTPUTS,
+      gmr.NUM_LIGHTS),
+      gmr(this)
 {
     onSampleRateChange();
-    GMR.init();
+    gmr.init();
 }
 
 void GMRModule::step()
 {
-    GMR.step();
+    gmr.step();
 }
 
 ////////////////////
