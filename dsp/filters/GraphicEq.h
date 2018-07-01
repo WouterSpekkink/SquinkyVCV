@@ -90,12 +90,21 @@ inline float TwoStageBandpass::run(float input)
     return z;
 }
 
-
+/**
+ * Octave EQ using dual bandpass sections
+ */
 template <int NumStages>
 class GraphicEq2
 {
 public:
-
+    GraphicEq2()
+    {
+        float freq = 100.0f / 44100.0f;
+        for (int i = 0; i < NumStages; ++i) {
+            filters[i].setFreq(freq);
+            freq *= 2.0f;
+        }
+    }
     float run(float);
     void setGain(int stage, float g)
     {
@@ -117,7 +126,6 @@ inline float GraphicEq2<NumStages>::run(float input)
 {
     float out = 0;
     for (int i = 0; i < NumStages; ++i) {
-
         out += filters[i].run(input) * gain[i];
     }
 ;
