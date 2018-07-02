@@ -62,10 +62,6 @@ struct LFNWidget : ModuleWidget
         label->color = color;
         addChild(label);
     }
-
-     //void addClockSection(TremoloModule *module);
-    //void addIOSection(TremoloModule *module);
-    //void addMainSection(TremoloModule *module);
 };
 
 
@@ -90,6 +86,14 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module)
     const float knobX=20;
     const float knobY=80;
     const float knobDy = 50;
+
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY - 1 * knobDy), module, module->lfn.FREQ_RANGE_PARAM, -5, 5, 0));
+    addLabel(Vec(knobX+50,knobY - 1 * knobDy), "R");
+ 
+
+    // make all the qeq filter gains
+    // TODO: why do they go to 5?
     const float gmin=0, gmax=5;
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(knobX, knobY + 0 * knobDy), module, module->lfn.EQ0_PARAM, gmin, gmax, gmax));

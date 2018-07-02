@@ -11,8 +11,48 @@
 #include "ObjectCache.h"
 
 #define _GEQ2
+
 /**
+ * Noise generator feeding a graphic equalizer.
+ * Calculated at very low sample rate, then resampled
+ * up to audio rate.
+ * 
+ * Below assumes 44k SR. TODO: other rates.
+ * 
+ * We first design the EQ around bands of 100, 200, 400, 800,
+ * 1600. EQ gets noise.
+ * 
+ * Then output of EQ is resampled up by a factor of 100 
+ * to bring the first band down to 1hz.
+ * or : decimation factor = 100 * (fs) / 44100.
+ * 
+ * A butterworth lowpass then removes the resmapling artifacts.
+ * Otherwise these images bring in high frequencies that we
+ * don't want.
+ * 
+ * Cutoff for the filter can be as low as the top of the eq,
+ * which is 3.2khz. 44k/3.2k is about 10,
+ * so fc/fs can be 1/1000.
+ * 
+ * or :   fc = (fs / 44100) / 1000;
+ * 
+ * (had been using  fc/fs = float(1.0 / (44 * 100.0)));)
+ * 
+ * Design for R = root freq (was 1 hz, above)
+ * EQ first band at E (was 100 hz, above)
+ * 
+ * Decimation divider = E / R
+ * 
+ * Imaging filter fc = 3.2khz / decimation-divider
+ * fc/fs = 3200 * (reciprocal sr) / decimation-divider.
+ * 
+ * Experiment: let's use those values and compare to what we had been using.
+ * result: not too far off.
+ * 
+ * make a range/base control. map -5 to +5 into 1/10 hz to 2 hz rate. Can use regular
+ * functions, since we won't calc that often.
  */
+
 template <class TBase>
 class LFN : public TBase
 {
@@ -36,7 +76,9 @@ public:
 
     void setSampleRate(float rate)
     {
-        reciprocalSampleRate = 1 / rate;
+        //reciprocalSampleRate = 1 / rate;
+        reciprocalSampleRate = engineGetSampleTime();
+        init();
     }
 
     // must be called after setSampleRate
@@ -49,6 +91,7 @@ public:
         EQ2_PARAM,
         EQ3_PARAM,
         EQ4_PARAM,
+        FREQ_RANGE_PARAM,
         NUM_PARAMS
     };
 
@@ -77,8 +120,6 @@ private:
     float reciprocalSampleRate = 0;
 
     Decimator decimator;
-   // LowpassFilterState<float> lpfState;
-  //  LowpassFilterParams<float> lpfParams;
 
 #ifdef _GEQ2
     GraphicEq2<5> geq;
@@ -87,6 +128,15 @@ private:
 #endif
     BiquadParams<float, 2> lpfParams;
     BiquadState<float, 2> lpfState;
+    float baseFrequency = 1;
+    float lastBaseFrequencyParamValue = -100;
+
+ //   static std::function<double(double)> makeFunc_Exp(double xMin, double xMax, double yMin, double yMax);
+    
+    std::function<double(double)> rangeFunc;
+
+
+
 
     float noise()
     {
@@ -98,30 +148,46 @@ private:
 };
 
 
-
+/**
+ * re-calc everything that changes with sample
+ * rate. Also everything that depends on baseFrequency.
+ * 
+ * TODO: break up into one time, and onBaseFreq()
+ */
 template <class TBase>
 inline void LFN<TBase>::init()
 {
     assert(reciprocalSampleRate > 0);
-    // TODO: make sample rate aware
-    decimator.setDecimationRate(100);
 
+    // map knob range from .1 Hz to 2.0 Hz
+    rangeFunc = AudioMath::makeFunc_Exp(-5, 5, .1, 2);
     
+ 
+    // decimation must be 100hz (what our eq is designed at)
+    // divided by base.
+    const float decimationDivider = 100.0 / baseFrequency;
+    decimator.setDecimationRate(decimationDivider);
+
+    // Imaging filter fc = 3.2khz / decimation-divider
+    // fc/fs = 3200 * (reciprocal sr) / decimation-divider.
+    const float lpFc = 3200 * reciprocalSampleRate / decimationDivider; 
     ButterworthFilterDesigner<float>::designThreePoleLowpass(
-        lpfParams, float(1.0 / (44 * 100.0)));
-   // LowpassFilter<float>::setCutoff(lpfParams, 50 * reciprocalSampleRate);
+        lpfParams, lpFc);
+
+    printf("\n**** setting lpf to %f, used to be %f\n", lpFc, float(1.0 / (44 * 100.0))); 
+        //
+       // lpfParams, float(1.0 / (44 * 100.0)));
+ 
 }
 
 template <class TBase>
 inline void LFN<TBase>::step()
 {
-    /*
-     EQ0_PARAM,
-        EQ1_PARAM,
-        EQ2_PARAM,
-        EQ3_PARAM,
-        EQ4_PARAM,
-        */
+    if (lastBaseFrequencyParamValue != TBase::params[FREQ_RANGE_PARAM].value) {
+        lastBaseFrequencyParamValue = TBase::params[FREQ_RANGE_PARAM].value;
+        baseFrequency = rangeFunc(lastBaseFrequencyParamValue);
+        init();
+    }
     const int numEqStages = geq.getNumStages();
     for (int i=0; i<numEqStages; ++i) {
         auto paramNum = i + EQ0_PARAM;
