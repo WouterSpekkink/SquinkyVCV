@@ -15,7 +15,7 @@ static void ana1()
 
     auto data = Analyzer::getFeatures(x, 3, 44100);
     assert(data.size() == 1);
-    assertClose(data[0].gain, 0, .0001);
+    assertClose(data[0].gainDb, 0, .0001);
     assertClose(data[0].freq, 0, .0001);
 }
 
@@ -31,10 +31,10 @@ static void ana2()
 
     auto data = Analyzer::getFeatures(x, 3, 44100);
     assert(data.size() == 2);
-    assertClose(data[0].gain, 0, .0001);
+    assertClose(data[0].gainDb, 0, .0001);
     assertClose(data[0].freq, 0, .0001);
 
-    assertClose(data[1].gain, 10, .0001);
+    assertClose(data[1].gainDb, 10, .0001);
 
     // bin 1 (last bin) is sr/2 ... sr
     assertClose(data[1].freq, 44100 / 4, .0001);

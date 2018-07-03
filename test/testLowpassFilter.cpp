@@ -3,6 +3,8 @@
 #include "Decimator.h"
 #include "Analyzer.h"
 #include "asserts.h"
+#include "LFN.h"
+#include "TestComposite.h"
 
 template<typename T>
 static void test0()
@@ -41,7 +43,6 @@ static void test1()
 
     float slope = Analyzer::getSlope(response, 200, sampleRate);
     assertClose(slope, -6, 1);          // to get accurate we need to go to higher freq, etc... this is fine
-   
 }
 
 template<typename T>
@@ -83,10 +84,169 @@ static void decimate1()
 
 }
 
+// temp - remove later
+using tLFN = LFN<TestComposite>;
+static void testLFN()
+{
+    tLFN lfn;
+    lfn.setSampleRate(44100.0f);
+    lfn.params[tLFN::FREQ_RANGE_PARAM].value = 5;
+    lfn.step();
+    lfn.init();
+    for (int i = tLFN::EQ0_PARAM; i <= tLFN::EQ4_PARAM; ++i) {
+        lfn.params[i].value = 1;
+    }
+
+
+    std::function<float(float)> filter = [&lfn](float x) {
+        lfn.step();
+        float ret = lfn.outputs[tLFN::OUTPUT].value;
+        //printf("noise: %f\n", ret);
+        return ret;
+    };
+
+    const int numSamples =  1024;
+    FFTDataCpx response(numSamples);
+    Analyzer::getFreqResponse(response, filter);
+    for (int i = 0; i < numSamples; ++i) {
+        //printf("mag[%d] = %f\n", i, std::abs(response.get(i)));
+    }
+
+   // auto x = Analyzer::getMaxAndShoulders(response, -3);
+   Analyzer::getAndPrintFeatures(response, 3, 44100);
+
+    printf("did it (LFN)\n");
+}
+
+static float noise()
+{
+    float x = (float) rand() / float(RAND_MAX);
+    x -= .5;
+    x *= 10;
+    return x;
+}
+
+
+#include <random>
+
+static std::default_random_engine generator(12345);
+std::normal_distribution<double> distribution(-1.0, 1.0);
+static float noise2()
+{
+    static bool b = false;
+    static float last = 0;
+
+    b = !b;
+    if (b) { 
+        last = (float) distribution(generator);
+    }
+    return last;
+  
+}
+
+template <typename TButter>
+static void testButter(float fc)
+{
+    printf("butter w/noise\n");
+    int seed = 57;
+    std::default_random_engine generator(seed);
+    std::normal_distribution<double> distribution(-1.0, 1.0);
+
+    BiquadParams<TButter, 2> params;
+    BiquadState<TButter, 2> state;
+
+    const float ff = fc / 44100.0f;
+    printf("butter at fc %f is %f\n", fc, ff);
+    ButterworthFilterDesigner<TButter>::designThreePoleLowpass(params, fc / 44100.0f);
+
+    std::function<float(float)> filter = [&params, &state, &distribution, &generator](float x) {
+        return (float) BiquadFilter<TButter>::run(x, state, params);
+       // return  (float) BiquadFilter<TButter>::run(noise2(), state, params);
+    };
+
+    const int numSamples =  256;
+    FFTDataCpx response(numSamples);
+    Analyzer::getFreqResponse(response, filter);
+    for (int i = 0; i < numSamples; ++i) {
+        //printf("mag[%d] = %f\n", i, std::abs(response.get(i)));
+    }
+
+    // auto x = Analyzer::getMaxAndShoulders(response, -3);
+    Analyzer::getAndPrintFeatures(response, 3, 44100);
+
+    printf("did it (butterworth)\n");
+}
+
+static void testButter()
+{
+    testButter<float>(64.f);
+}
+
+
+
+static void testNoise()
+{
+
+    int seed = 57;
+    std::default_random_engine generator(seed);
+    std::normal_distribution<double> distribution(-1.0, 1.0);
+
+    std::function<float()> filter = [&generator, &distribution]() {
+        //return (float) BiquadFilter<TButter>::run(x, state, params);
+       // return 1000.0f * (float) BiquadFilter<TButter>::run(noise(), state, params);
+        return (float )distribution(generator);
+    };
+
+    const int numSamples = 256;
+    FFTDataCpx response(numSamples);
+    Analyzer::getSpectrum(response, filter);
+    for (int i = 0; i < numSamples; ++i) {
+        //printf("mag[%d] = %f\n", i, std::abs(response.get(i)));
+    }
+
+    // auto x = Analyzer::getMaxAndShoulders(response, -3);
+    Analyzer::getAndPrintFeatures(response, 3, 44100);
+
+    printf("did it (noise)\n");
+}
+
+#include "SinOscillator.h"
+static void testSin()
+{
+    SinOscillatorParams<float> params;
+    SinOscillatorState<float> state;
+
+    SinOscillator<float, true>::setFrequency(params, 32.f / 44100.f);
+   // T x = SinOscillator<T, true>::run(s, p);
+
+    std::function<float()> filter = [&params, &state]() {
+        //return (float) BiquadFilter<TButter>::run(x, state, params);
+      //  // return 1000.0f * (float) BiquadFilter<TButter>::run(noise(), state, params);
+       // return (float) distribution(generator);
+        return  SinOscillator<float, true>::run(state, params);
+    };
+
+    const int numSamples = 16 * 16 * 1024;
+    FFTDataCpx response(numSamples);
+    Analyzer::getSpectrum(response, filter);
+    for (int i = 0; i < numSamples; ++i) {
+        //printf("mag[%d] = %f\n", i, std::abs(response.get(i)));
+    }
+
+    // auto x = Analyzer::getMaxAndShoulders(response, -3);
+    Analyzer::getAndPrintFeatures(response, 3, 44100);
+
+    printf("did it (sin)\n");
+}
+
 void testLowpassFilter()
 {
     _testLowpassFilter<float>();
     _testLowpassFilter<double>();
     decimate0();
     decimate1();
+   // testLFN();
+  // testButter();
+   // testNoise();
+    testSin();
 }

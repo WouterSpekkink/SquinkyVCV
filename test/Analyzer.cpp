@@ -76,12 +76,13 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
 
 std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
 {
+    assert(sensitivityDb > 0);
     std::vector<FPoint> ret;
     float lastDb = 10000000000;
     // only look at the below nyquist stuff
     for (int i = 0; i < data.size()/2; ++i) {
         const float db = (float) AudioMath::db( std::abs(data.get(i)));
-        if (std::abs(db - lastDb) >= sensitivityDb) {
+        if ((std::abs(db - lastDb) >= sensitivityDb) && (db > -80)) {
             float freq = FFT::bin2Freq(i, sampleRate, data.size());
             FPoint p(freq, db);
            // printf("feature at bin %d, db=%f raw val=%f\n", i, db, std::abs(data.get(i)));
@@ -97,22 +98,22 @@ void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, 
     auto features = getFeatures(data, sensitivityDb, sampleRate);
     printf("there are %d features\n", (int)features.size());
     for (int i = 0; i < features.size(); ++i) {
-        printf("feature: freq=%f, db=%f\n", features[i].freq, features[i].gain);
+        printf("feature: freq=%f, db=%f\n", features[i].freq, features[i].gainDb);
     }
 }
 
 void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func)
 {
     /**
-     * testSignal is the time domain sweep
-     * testOutput if the time domain output of "func"
-     * testSpecrum is the FFT of testSignal
-     * spectrum is the FFT of testOutput
+    * testSignal is the time domain sweep
+    * testOutput if the time domain output of "func"
+    * testSpecrum is the FFT of testSignal
+    * spectrum is the FFT of testOutput
 
-     */
+    */
     // First set up a test signal 
     const int numSamples = out.size();
-  //  std::vector<float> testSignal(numSamples);
+    //  std::vector<float> testSignal(numSamples);
     FFTDataReal testSignal(numSamples);
     generateSweep(44100, testSignal.data(), numSamples, 20, 20000);
 
@@ -127,16 +128,15 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
     FFTDataCpx spectrum(numSamples);
     FFT::forward(&spectrum, testOutput);
 
-   
-    // then divide by test
+
+    // take the forward FFT of the test signal
     FFTDataCpx testSpectrum(numSamples);
     FFT::forward(&testSpectrum, testSignal);
 
     for (int i = 0; i < numSamples; ++i) {
-
-        const cpx x =  (std::abs(testSpectrum.get(i)) == 0) ? 0 :
-            spectrum.get(i) / testSpectrum.get(i);
-        out.set(i, x);
+            const cpx x = (std::abs(testSpectrum.get(i)) == 0) ? 0 :
+                spectrum.get(i) / testSpectrum.get(i);
+            out.set(i, x);
     }
 
 #if 0
@@ -150,6 +150,41 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
     }
 #endif
 }
+
+
+static double hamming(int iSample, int totalSamples)
+{
+    const double a0 = .53836;
+    double theta = AudioMath::Pi * 2.0 * double(iSample) / double(totalSamples - 1);
+    return a0 + (1.0 - a0) * std::cos(theta);
+}
+
+void Analyzer::getSpectrum(FFTDataCpx& out, std::function<float()> func)
+{
+ 
+    const int numSamples = out.size();
+
+    // Run the test signal though func, capture output in fft real
+    FFTDataReal testOutput(numSamples);
+    for (int i = 0; i < out.size(); ++i) {
+        const float y = float(func() * hamming(i, out.size()));
+        testOutput.set(i, y);
+    }
+
+    FFT::forward(&out, testOutput);
+
+#if 0
+    for (int i = 0; i < numSamples; ++i) {
+        printf("%d, sig=%f out=%f mag(sig)=%f mag(out)=%f rsp=%f\n",
+            i, testSignal.get(i), testOutput.get(i),
+            std::abs(testSpectrum.get(i)),
+            std::abs(spectrum.get(i)),
+            std::abs(out.get(i))
+        );
+    }
+#endif
+}
+
 
 
 void Analyzer::generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq)

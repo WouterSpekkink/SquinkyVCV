@@ -76,6 +76,7 @@ public:
 
     void setSampleRate(float rate)
     {
+
         //reciprocalSampleRate = 1 / rate;
         reciprocalSampleRate = engineGetSampleTime();
         init();
@@ -116,6 +117,7 @@ public:
      */
     void step();
 
+
 private:
     float reciprocalSampleRate = 0;
 
@@ -126,17 +128,14 @@ private:
 #else
     GraphicEq geq;
 #endif
-    BiquadParams<float, 2> lpfParams;
-    BiquadState<float, 2> lpfState;
+
+    using TButter = double;
+    BiquadParams<TButter, 2> lpfParams;
+    BiquadState<TButter, 2> lpfState;
     float baseFrequency = 1;
     float lastBaseFrequencyParamValue = -100;
-
- //   static std::function<double(double)> makeFunc_Exp(double xMin, double xMax, double yMin, double yMax);
     
     std::function<double(double)> rangeFunc;
-
-
-
 
     float noise()
     {
@@ -157,6 +156,7 @@ private:
 template <class TBase>
 inline void LFN<TBase>::init()
 {
+    printf("called init\n");
     assert(reciprocalSampleRate > 0);
 
     // map knob range from .1 Hz to 2.0 Hz
@@ -165,16 +165,20 @@ inline void LFN<TBase>::init()
  
     // decimation must be 100hz (what our eq is designed at)
     // divided by base.
-    const float decimationDivider = 100.0 / baseFrequency;
+    const float decimationDivider = float(100.0 / baseFrequency);
     decimator.setDecimationRate(decimationDivider);
 
     // Imaging filter fc = 3.2khz / decimation-divider
     // fc/fs = 3200 * (reciprocal sr) / decimation-divider.
     const float lpFc = 3200 * reciprocalSampleRate / decimationDivider; 
-    ButterworthFilterDesigner<float>::designThreePoleLowpass(
+    ButterworthFilterDesigner<TButter>::designThreePoleLowpass(
         lpfParams, lpFc);
 
-    printf("\n**** setting lpf to %f, used to be %f\n", lpFc, float(1.0 / (44 * 100.0))); 
+    printf("\n**** base=%f divisor=%f lpf to %f (%f)\n",
+        baseFrequency,
+        decimationDivider,
+        lpFc,
+        lpFc * (1/ reciprocalSampleRate));
         //
        // lpfParams, float(1.0 / (44 * 100.0)));
  
@@ -183,9 +187,10 @@ inline void LFN<TBase>::init()
 template <class TBase>
 inline void LFN<TBase>::step()
 {
+    // TODO: this will pop. consider doing something better.
     if (lastBaseFrequencyParamValue != TBase::params[FREQ_RANGE_PARAM].value) {
         lastBaseFrequencyParamValue = TBase::params[FREQ_RANGE_PARAM].value;
-        baseFrequency = rangeFunc(lastBaseFrequencyParamValue);
+        baseFrequency = float(rangeFunc(lastBaseFrequencyParamValue));
         init();
     }
     const int numEqStages = geq.getNumStages();
@@ -195,21 +200,21 @@ inline void LFN<TBase>::step()
         geq.setGain(i, gain);
     }
 
-
+#if 0 // normal way (with decimator)
     bool needsData;
-    float x = decimator.clock(needsData);
+    TButter x = decimator.clock(needsData);
    // printf("need = %d\n", needsData);
  //   x = LowpassFilter<float>::run(x, lpfState, lpfParams);
-    x = BiquadFilter<float>::run(x, lpfState, lpfParams);
+    x = BiquadFilter<TButter>::run(x, lpfState, lpfParams);
     if (needsData) {
-        float z = noise();
-        z = geq.run(z);
+        const float z = geq.run(noise());
         decimator.acceptData(z);
     }
+#else
+    TButter x = BiquadFilter<TButter>::run(noise(), lpfState, lpfParams);
+#endif
 
-    //x = geq.run(x);
-
-    TBase::outputs[OUTPUT].value = x;
+    TBase::outputs[OUTPUT].value = (float) x;
  
 }
 
