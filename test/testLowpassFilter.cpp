@@ -105,7 +105,7 @@ static void testLFN()
         return ret;
     };
 
-    const int numSamples =  1024;
+    const int numSamples =  64 * 64 * 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
     for (int i = 0; i < numSamples; ++i) {
@@ -118,19 +118,15 @@ static void testLFN()
     printf("did it (LFN)\n");
 }
 
-static float noise()
-{
-    float x = (float) rand() / float(RAND_MAX);
-    x -= .5;
-    x *= 10;
-    return x;
-}
+
 
 
 #include <random>
 
 static std::default_random_engine generator(12345);
 std::normal_distribution<double> distribution(-1.0, 1.0);
+
+#if 0
 static float noise2()
 {
     static bool b = false;
@@ -143,6 +139,7 @@ static float noise2()
     return last;
   
 }
+#endif
 
 template <typename TButter>
 static void testButter(float fc)
@@ -152,19 +149,19 @@ static void testButter(float fc)
     std::default_random_engine generator(seed);
     std::normal_distribution<double> distribution(-1.0, 1.0);
 
-    BiquadParams<TButter, 2> params;
-    BiquadState<TButter, 2> state;
+    BiquadParams<TButter, 3> params;
+    BiquadState<TButter, 3> state;
 
     const float ff = fc / 44100.0f;
     printf("butter at fc %f is %f\n", fc, ff);
-    ButterworthFilterDesigner<TButter>::designThreePoleLowpass(params, fc / 44100.0f);
+    ButterworthFilterDesigner<TButter>::designSixPoleLowpass(params, fc / 44100.0f);
 
     std::function<float(float)> filter = [&params, &state, &distribution, &generator](float x) {
         return (float) BiquadFilter<TButter>::run(x, state, params);
        // return  (float) BiquadFilter<TButter>::run(noise2(), state, params);
     };
 
-    const int numSamples =  256;
+    const int numSamples =  16 * 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
     for (int i = 0; i < numSamples; ++i) {
@@ -176,6 +173,39 @@ static void testButter(float fc)
 
     printf("did it (butterworth)\n");
 }
+
+
+
+static void testButterWNoise(float fc)
+{
+    printf("butter w/noise\n");
+    int seed = 57;
+    std::default_random_engine generator(seed);
+    std::normal_distribution<double> distribution(-1.0, 1.0);
+
+    BiquadParams<float, 3> params;
+    BiquadState<float, 3> state;
+
+    const float ff = fc / 44100.0f;
+    printf("butter at fc %f is %f\n", fc, ff);
+    ButterworthFilterDesigner<float>::designSixPoleLowpass(params, fc / 44100.0f);
+
+    std::function<float()> filter = [&params, &state, &distribution, &generator]() {
+        return  (float) BiquadFilter<float>::run(
+            (float) distribution(generator),
+            state,
+            params);
+    };
+
+    const int numSamples =  64 * 64 * 1024;
+    FFTDataCpx response(numSamples);
+    Analyzer::getSpectrum(response, filter);
+
+    Analyzer::getAndPrintFeatures(response, 6, 44100);
+
+    printf("did it (butterworth w/noise)\n");
+}
+
 
 static void testButter()
 {
@@ -246,7 +276,8 @@ void testLowpassFilter()
     decimate0();
     decimate1();
    // testLFN();
-  // testButter();
+    testButter();
+  //  testButterWNoise(64);
    // testNoise();
-    testSin();
+   // testSin();
 }

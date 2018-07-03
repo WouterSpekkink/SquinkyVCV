@@ -9,6 +9,7 @@
 #include "BiquadState.h"
 #include "BiquadFilter.h"
 #include "ObjectCache.h"
+#include <random>
 
 #define _GEQ2
 
@@ -130,20 +131,25 @@ private:
 #endif
 
     using TButter = double;
+#if 1
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
+#else
+    BiquadParams<TButter, 3> lpfParams;
+    BiquadState<TButter, 3> lpfState;
+#endif
     float baseFrequency = 1;
     float lastBaseFrequencyParamValue = -100;
+
+    std::default_random_engine generator{57};  // 12345
+    std::normal_distribution<double> distribution{-1.0, 1.0};
+    float noise()
+    {
+        return  (float) distribution(generator);
+    }
     
     std::function<double(double)> rangeFunc;
 
-    float noise()
-    {
-        float x = (float) rand() / float(RAND_MAX);
-        x -= .5;
-        x *= 10;
-        return x;
-    }
 };
 
 

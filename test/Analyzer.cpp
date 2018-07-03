@@ -74,15 +74,18 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
     return std::make_tuple(iShoulderLow, maxBin, iShoulderHigh);
 }
 
+
+// TODO: pass in cutoff
 std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
 {
+    const float dbMinCutoff = -80;
     assert(sensitivityDb > 0);
     std::vector<FPoint> ret;
     float lastDb = 10000000000;
     // only look at the below nyquist stuff
     for (int i = 0; i < data.size()/2; ++i) {
         const float db = (float) AudioMath::db( std::abs(data.get(i)));
-        if ((std::abs(db - lastDb) >= sensitivityDb) && (db > -80)) {
+        if ((std::abs(db - lastDb) >= sensitivityDb) && (db > dbMinCutoff)) {
             float freq = FFT::bin2Freq(i, sampleRate, data.size());
             FPoint p(freq, db);
            // printf("feature at bin %d, db=%f raw val=%f\n", i, db, std::abs(data.get(i)));
