@@ -54,14 +54,11 @@ class LFNLabelUpdater
 {
 public:
     void update(struct LFNWidget& widget);
-    void makeLabels(struct LFNWidget& widget);
+    void makeLabel(struct LFNWidget& widget, int index, float x, float y);
 private:
     LFNModule*  module;
     Label*  labels[5]={0,0,0,0,0};
     float baseFrequency = -1;
-   // float   values[5]={111, 111, 111, 111, 111};
-
-    
 };
 
 
@@ -86,14 +83,32 @@ struct LFNWidget : ModuleWidget
          ModuleWidget::draw(vg);
      }
 
+     void addStage(int i);
+
      LFNLabelUpdater updater;
      LFNModule&     module;
 };
 
-static const float knobX=20;
-static const float knobY=80;
+static const float knobX=42;
+static const float knobY=90;
 static const float knobDy = 50;
+static const float inputY = knobY+16;
+static const float inputX = 6;
+static const float labelX = 2;
 
+void LFNWidget::addStage(int index) {
+    const float gmin= -5;
+    const float gmax = 5;
+    const float gdef = 5;
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + index * knobDy),
+        &module, module.lfn.EQ0_PARAM, gmin, gmax, gdef));
+
+    updater.makeLabel((*this), index, labelX, knobY - 2 + index * knobDy);
+
+    addInput(Port::create<PJ301MPort>(Vec(inputX, inputY + index * knobDy),
+        Port::INPUT, &module, module.lfn.EQ0_INPUT + index));
+} 
 /**
  * Widget constructor will describe my implementation structure and
  * provide meta-data.
@@ -109,29 +124,16 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module), module(*module)
         addChild(panel);
     }
 
-    addOutput(Port::create<PJ301MPort>(Vec(50, 340), Port::OUTPUT, module, module->lfn.OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(inputX,  inputY - knobDy), Port::OUTPUT, module, module->lfn.OUTPUT));
  
-
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(knobX, knobY - 1 * knobDy), module, module->lfn.FREQ_RANGE_PARAM, -5, 5, 0));
-    addLabel(Vec(knobX+50,knobY - 1 * knobDy), "R");
+    addLabel(Vec(labelX,knobY - 1 * knobDy), "R");
  
+    for (int i=0; i<5; ++i) {
+        addStage(i);
+    }
 
-    // make all the qeq filter gains
-    // TODO: why do they go to 5?
-    const float gmin=0, gmax=5;
-    addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 0 * knobDy), module, module->lfn.EQ0_PARAM, gmin, gmax, gmax));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 1 * knobDy), module, module->lfn.EQ1_PARAM, gmin, gmax, gmax));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 2 * knobDy), module, module->lfn.EQ2_PARAM, gmin, gmax, gmax));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 3 * knobDy), module, module->lfn.EQ3_PARAM, gmin, gmax, gmax));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY + 4 * knobDy), module, module->lfn.EQ4_PARAM, gmin, gmax, gmax));
-
-    updater.makeLabels(*this);
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -139,12 +141,9 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module), module(*module)
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 }
 
-void LFNLabelUpdater::makeLabels(LFNWidget& widget)
+void LFNLabelUpdater::makeLabel(struct LFNWidget& widget, int index, float x, float y)
 {
-    printf("** need to make labels\n");
-    for (int i=0; i<5; ++i) {
-        labels[i] = widget.addLabel(Vec(knobX+40, knobY + i * knobDy), "Hz");
-    }
+    labels[index] = widget.addLabel(Vec(x, y), "Hz");
 }
 
 void LFNLabelUpdater::update(struct LFNWidget& widget)
@@ -153,17 +152,12 @@ void LFNLabelUpdater::update(struct LFNWidget& widget)
     if (baseFreq != baseFrequency) {
         baseFrequency = baseFreq;
         for (int i=0; i<5; ++i) {
-        //auto param = widget.module.lfn.EQ0_PARAM + i;
-    // float val = widget.module.params[param].value;
-    
-// TODO: don't print knob value, print freq!!
             std::stringstream str;
             str.precision(1);
             str.setf(std::ios::fixed, std::ios::floatfield);
             str << baseFreq;
             labels[i]->text = str.str();
             baseFreq *= 2.0f;
-
         }
     }
 }

@@ -53,33 +53,23 @@
  * make a range/base control. map -5 to +5 into 1/10 hz to 2 hz rate. Can use regular
  * functions, since we won't calc that often.
  *
- * Play with it some more - audition 6 pole and double version.
  */
 
 template <class TBase>
 class LFN : public TBase
 {
 public:
-#ifdef _GEQ2
+
     LFN(struct Module * module) : TBase(module)
     {
     }
     LFN() : TBase()
     {
     }
-#else
-    const int numEqStages=5;
-    LFN(struct Module * module) : TBase(module), geq(numEqStages, .6f)
-    {
-    }
-    LFN() : TBase(), geq(numEqStages, .6f)
-    {
-    }
-#endif
+
 
     void setSampleRate(float rate)
     {
-
         //reciprocalSampleRate = 1 / rate;
         reciprocalSampleRate = engineGetSampleTime();
         init();
@@ -101,6 +91,11 @@ public:
 
     enum InputIds
     {
+        EQ0_INPUT,
+        EQ1_INPUT,
+        EQ2_INPUT,
+        EQ3_INPUT,
+        EQ4_INPUT,
         NUM_INPUTS
     };
 
@@ -128,13 +123,9 @@ private:
 
     Decimator decimator;
 
-#ifdef _GEQ2
     GraphicEq2<5> geq;
-#else
-    GraphicEq geq;
-#endif
-
     using TButter = double;
+
 #if 1
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
@@ -153,7 +144,6 @@ private:
     }
     
     std::function<double(double)> rangeFunc;
-
 };
 
 
@@ -166,7 +156,6 @@ private:
 template <class TBase>
 inline void LFN<TBase>::init()
 {
-    printf("called init\n");
     assert(reciprocalSampleRate > 0);
 
     // map knob range from .1 Hz to 2.0 Hz
@@ -189,9 +178,6 @@ inline void LFN<TBase>::init()
         decimationDivider,
         lpFc,
         lpFc * (1/ reciprocalSampleRate));
-        //
-       // lpfParams, float(1.0 / (44 * 100.0)));
- 
 }
 
 template <class TBase>
@@ -213,8 +199,6 @@ inline void LFN<TBase>::step()
 #if 1 // normal way (with decimator)
     bool needsData;
     TButter x = decimator.clock(needsData);
-   // printf("need = %d\n", needsData);
- //   x = LowpassFilter<float>::run(x, lpfState, lpfParams);
     x = BiquadFilter<TButter>::run(x, lpfState, lpfParams);
     if (needsData) {
         const float z = geq.run(noise());
@@ -223,8 +207,6 @@ inline void LFN<TBase>::step()
 #else
     TButter x = BiquadFilter<TButter>::run(noise(), lpfState, lpfParams);
 #endif
-
     TBase::outputs[OUTPUT].value = (float) x;
- 
 }
 
