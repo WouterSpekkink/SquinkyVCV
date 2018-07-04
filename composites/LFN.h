@@ -52,6 +52,8 @@
  * 
  * make a range/base control. map -5 to +5 into 1/10 hz to 2 hz rate. Can use regular
  * functions, since we won't calc that often.
+ *
+ * Play with it some more - audition 6 pole and double version.
  */
 
 template <class TBase>
