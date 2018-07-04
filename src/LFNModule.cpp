@@ -58,7 +58,8 @@ public:
 private:
     LFNModule*  module;
     Label*  labels[5]={0,0,0,0,0};
-    float   values[5]={111, 111, 111, 111, 111};
+    float baseFrequency = -1;
+   // float   values[5]={111, 111, 111, 111, 111};
 
     
 };
@@ -76,6 +77,7 @@ struct LFNWidget : ModuleWidget
         label->text = str;
         label->color = color;
         addChild(label);
+        return label;
     }
 
      void draw(NVGcontext *vg) override
@@ -141,15 +143,28 @@ void LFNLabelUpdater::makeLabels(LFNWidget& widget)
 {
     printf("** need to make labels\n");
     for (int i=0; i<5; ++i) {
-        labels[0] = widget.addLabel(Vec(knobX+40, knobY + i * knobDy), "Hz");
+        labels[i] = widget.addLabel(Vec(knobX+40, knobY + i * knobDy), "Hz");
     }
 }
 
 void LFNLabelUpdater::update(struct LFNWidget& widget)
 {
-    for (int i=0; i<5; ++i) {
-        auto param = widget.module.lfn.EQ0_PARAM + i;
-        float val = widget.module.params[param].value;
+    float baseFreq = widget.module.lfn.getBaseFrequency();
+    if (baseFreq != baseFrequency) {
+        baseFrequency = baseFreq;
+        for (int i=0; i<5; ++i) {
+        //auto param = widget.module.lfn.EQ0_PARAM + i;
+    // float val = widget.module.params[param].value;
+    
+// TODO: don't print knob value, print freq!!
+            std::stringstream str;
+            str.precision(1);
+            str.setf(std::ios::fixed, std::ios::floatfield);
+            str << baseFreq;
+            labels[i]->text = str.str();
+            baseFreq *= 2.0f;
+
+        }
     }
 }
 

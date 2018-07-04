@@ -120,7 +120,9 @@ public:
      */
     void step();
 
-
+    float getBaseFrequency() const {
+        return baseFrequency;
+    }
 private:
     float reciprocalSampleRate = 0;
 
@@ -208,7 +210,7 @@ inline void LFN<TBase>::step()
         geq.setGain(i, gain);
     }
 
-#if 0 // normal way (with decimator)
+#if 1 // normal way (with decimator)
     bool needsData;
     TButter x = decimator.clock(needsData);
    // printf("need = %d\n", needsData);
