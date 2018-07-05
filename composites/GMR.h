@@ -53,7 +53,7 @@ public:
 
 private:
 
-  
+
     float reciprocalSampleRate = 0;
 
 };
@@ -63,12 +63,12 @@ private:
 template <class TBase>
 inline void GMR<TBase>::init()
 {
-  
+
 }
 
 template <class TBase>
 inline void GMR<TBase>::step()
 {
- 
+
 }
 

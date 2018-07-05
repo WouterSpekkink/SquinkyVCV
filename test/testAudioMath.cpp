@@ -144,7 +144,7 @@ static void testAudioScaler2()
     assertEQ(f(0, 5), 20);
 
     // 1/4, is the knee
-    assertEQ(f(0, -2.5), 20 *  kneeGain);
+    assertEQ(f(0, -2.5), 20 * kneeGain);
 
     // cv also come through, it trim up
     assertEQ(f(-5, 0), 0);

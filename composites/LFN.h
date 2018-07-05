@@ -17,39 +17,39 @@
  * Noise generator feeding a graphic equalizer.
  * Calculated at very low sample rate, then resampled
  * up to audio rate.
- * 
+ *
  * Below assumes 44k SR. TODO: other rates.
- * 
+ *
  * We first design the EQ around bands of 100, 200, 400, 800,
  * 1600. EQ gets noise.
- * 
- * Then output of EQ is resampled up by a factor of 100 
+ *
+ * Then output of EQ is resampled up by a factor of 100
  * to bring the first band down to 1hz.
  * or : decimation factor = 100 * (fs) / 44100.
- * 
+ *
  * A butterworth lowpass then removes the resmapling artifacts.
  * Otherwise these images bring in high frequencies that we
  * don't want.
- * 
+ *
  * Cutoff for the filter can be as low as the top of the eq,
  * which is 3.2khz. 44k/3.2k is about 10,
  * so fc/fs can be 1/1000.
- * 
+ *
  * or :   fc = (fs / 44100) / 1000;
- * 
+ *
  * (had been using  fc/fs = float(1.0 / (44 * 100.0)));)
- * 
+ *
  * Design for R = root freq (was 1 hz, above)
  * EQ first band at E (was 100 hz, above)
- * 
+ *
  * Decimation divider = E / R
- * 
+ *
  * Imaging filter fc = 3.2khz / decimation-divider
  * fc/fs = 3200 * (reciprocal sr) / decimation-divider.
- * 
+ *
  * Experiment: let's use those values and compare to what we had been using.
  * result: not too far off.
- * 
+ *
  * make a range/base control. map -5 to +5 into 1/10 hz to 2 hz rate. Can use regular
  * functions, since we won't calc that often.
  *
@@ -115,7 +115,8 @@ public:
      */
     void step();
 
-    float getBaseFrequency() const {
+    float getBaseFrequency() const
+    {
         return baseFrequency;
     }
 private:
@@ -142,15 +143,16 @@ private:
     {
         return  (float) distribution(generator);
     }
-    
+
     std::function<double(double)> rangeFunc;
+    AudioMath::SimpleScaleFun<float> gainScale = {AudioMath::makeSimpleScalerAudioTaper(0, 1)};
 };
 
 
 /**
  * re-calc everything that changes with sample
  * rate. Also everything that depends on baseFrequency.
- * 
+ *
  * TODO: break up into one time, and onBaseFreq()
  */
 template <class TBase>
@@ -160,8 +162,8 @@ inline void LFN<TBase>::init()
 
     // map knob range from .1 Hz to 2.0 Hz
     rangeFunc = AudioMath::makeFunc_Exp(-5, 5, .1, 2);
-    
- 
+
+
     // decimation must be 100hz (what our eq is designed at)
     // divided by base.
     const float decimationDivider = float(100.0 / baseFrequency);
@@ -169,7 +171,7 @@ inline void LFN<TBase>::init()
 
     // Imaging filter fc = 3.2khz / decimation-divider
     // fc/fs = 3200 * (reciprocal sr) / decimation-divider.
-    const float lpFc = 3200 * reciprocalSampleRate / decimationDivider; 
+    const float lpFc = 3200 * reciprocalSampleRate / decimationDivider;
     ButterworthFilterDesigner<TButter>::designThreePoleLowpass(
         lpfParams, lpFc);
 
@@ -177,7 +179,7 @@ inline void LFN<TBase>::init()
         baseFrequency,
         decimationDivider,
         lpFc,
-        lpFc * (1/ reciprocalSampleRate));
+        lpFc * (1 / reciprocalSampleRate));
 }
 
 template <class TBase>
@@ -190,9 +192,13 @@ inline void LFN<TBase>::step()
         init();
     }
     const int numEqStages = geq.getNumStages();
-    for (int i=0; i<numEqStages; ++i) {
+    for (int i = 0; i < numEqStages; ++i) {
         auto paramNum = i + EQ0_PARAM;
-        const float gain = TBase::params[paramNum].value;
+        auto cvNum = i + EQ0_INPUT;
+        const float gainParamKnob = TBase::params[paramNum].value;
+        const float gainParamCV = TBase::inputs[cvNum].value;
+        const float gain = gainScale(gainParamKnob, gainParamCV);
+        printf("gain[%d]=%f (%f,%f)\n", i, gain, gainParamKnob, gainParamCV);
         geq.setGain(i, gain);
     }
 
@@ -203,7 +209,7 @@ inline void LFN<TBase>::step()
     if (needsData) {
         const float z = geq.run(noise());
         decimator.acceptData(z);
-    }
+}
 #else
     TButter x = BiquadFilter<TButter>::run(noise(), lpfState, lpfParams);
 #endif

@@ -13,7 +13,7 @@ struct GMRModule : Module
 public:
     GMRModule();
     /**
-     * 
+     *
      * Overrides of Module functions
      */
     void step() override;
@@ -31,10 +31,10 @@ void GMRModule::onSampleRateChange()
 
 GMRModule::GMRModule()
     : Module(gmr.NUM_PARAMS,
-      gmr.NUM_INPUTS,
-      gmr.NUM_OUTPUTS,
-      gmr.NUM_LIGHTS),
-      gmr(this)
+    gmr.NUM_INPUTS,
+    gmr.NUM_OUTPUTS,
+    gmr.NUM_LIGHTS),
+    gmr(this)
 {
     onSampleRateChange();
     gmr.init();
@@ -82,7 +82,7 @@ GMRWidget::GMRWidget(GMRModule *module) : ModuleWidget(module)
         addChild(panel);
     }
 
-  
+
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));

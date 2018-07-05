@@ -24,18 +24,18 @@ static void test1()
     LowpassFilterState<T> state;
     LowpassFilterParams<T> params;
     LowpassFilter<T>::setCutoff(params, Fc / sampleRate);
-    
+
     std::function<float(float)> filter = [&state, &params](float x) {
         auto y = LowpassFilter<T>::run(x, state, params);
         return float(y);
     };
 
-    const int numSamples = 16*1024;
+    const int numSamples = 16 * 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
 
     auto x = Analyzer::getMaxAndShoulders(response, -3);
-  
+
     const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
     assert(std::get<1>(x) == 0);                 // low pass, peak at 0hz
     assertEQ(std::get<0>(x), -1);   // no LF shoulder
@@ -60,7 +60,7 @@ static void decimate0()
     Decimator d;
     d.setDecimationRate(2);
     d.acceptData(5);
-    bool b=true;
+    bool b = true;
     auto x = d.clock(b);
     assert(!b);
     assertEQ(x, 5);
@@ -105,7 +105,7 @@ static void testLFN()
         return ret;
     };
 
-    const int numSamples =  64 * 64 * 1024;
+    const int numSamples = 64 * 64 * 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
     for (int i = 0; i < numSamples; ++i) {
@@ -113,7 +113,7 @@ static void testLFN()
     }
 
    // auto x = Analyzer::getMaxAndShoulders(response, -3);
-   Analyzer::getAndPrintFeatures(response, 3, 44100);
+    Analyzer::getAndPrintFeatures(response, 3, 44100);
 
     printf("did it (LFN)\n");
 }
@@ -133,11 +133,11 @@ static float noise2()
     static float last = 0;
 
     b = !b;
-    if (b) { 
+    if (b) {
         last = (float) distribution(generator);
     }
     return last;
-  
+
 }
 #endif
 
@@ -161,7 +161,7 @@ static void testButter(float fc)
        // return  (float) BiquadFilter<TButter>::run(noise2(), state, params);
     };
 
-    const int numSamples =  16 * 1024;
+    const int numSamples = 16 * 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
     for (int i = 0; i < numSamples; ++i) {
@@ -197,7 +197,7 @@ static void testButterWNoise(float fc)
             params);
     };
 
-    const int numSamples =  64 * 64 * 1024;
+    const int numSamples = 64 * 64 * 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getSpectrum(response, filter);
 
@@ -224,7 +224,7 @@ static void testNoise()
     std::function<float()> filter = [&generator, &distribution]() {
         //return (float) BiquadFilter<TButter>::run(x, state, params);
        // return 1000.0f * (float) BiquadFilter<TButter>::run(noise(), state, params);
-        return (float )distribution(generator);
+        return (float) distribution(generator);
     };
 
     const int numSamples = 256;

@@ -80,7 +80,7 @@ private:
     float reciprocalSampleRate = 0;
 
     AsymRampShaperParams rampShaper;
-    std::shared_ptr<LookupTableParams<float>> exp2 =  ObjectCache<float>::getExp2();
+    std::shared_ptr<LookupTableParams<float>> exp2 = ObjectCache<float>::getExp2();
 
     // make some bootstrap scalers
     AudioMath::ScaleFun<float> scale_rate;
@@ -126,7 +126,7 @@ inline void Tremolo<TBase>::step()
 
 
     clock.setMultiplier(clockMul);
- 
+
 
     const float shape = scale_shape(
         TBase::inputs[LFO_SHAPE_INPUT].value,
@@ -160,7 +160,7 @@ inline void Tremolo<TBase>::step()
         clock.setFreeRunFreq(scaledRate * reciprocalSampleRate);
     }
 
-   
+
 
     // For now, call setup every sample. will eat a lot of cpu
     AsymRampShaper::setup(rampShaper, skew, phase);

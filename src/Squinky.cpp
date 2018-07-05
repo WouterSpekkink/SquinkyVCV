@@ -24,7 +24,7 @@ void init(rack::Plugin *p)
     p->addModel(modelThreadBoostModule);
     p->addModel(modelLFNModule);
     p->addModel(modelGMRModule);
-    
+
 #ifdef _CPU_HOG
     assert(modelCPU_HogModule);
     p->addModel(modelCPU_HogModule);
