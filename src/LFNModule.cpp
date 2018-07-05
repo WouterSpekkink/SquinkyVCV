@@ -26,7 +26,9 @@ private:
 
 void LFNModule::onSampleRateChange()
 {
-    float rate = engineGetSampleRate();
+   // engineGetSampleTime();
+   // float rate = Module::engineGetSampleRate();
+    float rate = 1.0f / engineGetSampleTime();      // TODO: what's up with this? this used to work!
     lfn.setSampleRate(rate);
 }
 

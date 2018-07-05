@@ -21,7 +21,7 @@ static void testBipolar()
 
     {
         // simple test that bipolar audio scalers use cached lookups, and they work
-        AudioMath::ScaleFun<float> f = AudioMath::makeBipolarAudioScaler(3, 4);
+        AudioMath::ScaleFun<float> f = AudioMath::makeScalerWithBipolarAudioTrim(3, 4);
         assertEQ(f(0, -5, 0), 3.);
         assertEQ(_numLookupParams, 1);
     }
@@ -31,6 +31,38 @@ static void testBipolar()
     test = ObjectCache<T>::getBipolarAudioTaper();
     assertEQ(_numLookupParams, 1);
 }
+
+template <typename T>
+static void testAudioTaper()
+{
+    assertEQ(_numLookupParams, 0);
+
+    auto test = ObjectCache<T>::getAudioTaper();
+    assertEQ(_numLookupParams, 1);
+    auto test2 = ObjectCache<T>::getAudioTaper();
+    assertEQ(_numLookupParams, 1);
+    test.reset();
+    assertEQ(_numLookupParams, 1);
+
+    test2.reset();
+    assertEQ(_numLookupParams, 0);
+
+    {
+
+        // simple test that bipolar audio scalers use cached lookups, and they work
+        AudioMath::SimpleScaleFun<float> f = AudioMath::makeSimpleScalerAudioTaper(3, 4);
+        assertEQ(f(0, -5), 3.);
+        assertEQ(_numLookupParams, 1);
+        assertEQ(f(5, 5), 4.);
+    }
+    assertEQ(_numLookupParams, 0);
+
+    // make again
+    test = ObjectCache<T>::getAudioTaper();
+    assertEQ(_numLookupParams, 1);
+}
+
+
 
 template <typename T>
 static void testSin()
@@ -49,7 +81,7 @@ static void testSin()
 
     {
      //   // simple test that bipolar audio scalers use cached lookups, and they work
-        AudioMath::ScaleFun<float> f = AudioMath::makeBipolarAudioScaler(3, 4);
+        AudioMath::ScaleFun<float> f = AudioMath::makeScalerWithBipolarAudioTrim(3, 4);
         assertEQ(f(0, -5, 0), 3.);
         assertEQ(_numLookupParams, 1);
     }
@@ -170,6 +202,7 @@ template <typename T>
 static void test()
 {
     testBipolar<T>();
+    testAudioTaper<T>();
     testSin<T>();
     testExp2<T>();
     testExp2b<T>();

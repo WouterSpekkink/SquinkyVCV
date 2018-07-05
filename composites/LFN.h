@@ -70,8 +70,8 @@ public:
 
     void setSampleRate(float rate)
     {
-        //reciprocalSampleRate = 1 / rate;
-        reciprocalSampleRate = engineGetSampleTime();
+        // TODO: just use rate everywhere.
+        reciprocalSampleRate = 1 / rate;
         init();
     }
 

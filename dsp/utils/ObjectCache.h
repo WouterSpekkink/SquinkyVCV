@@ -18,6 +18,7 @@ class ObjectCache
 {
 public:
     static std::shared_ptr<LookupTableParams<T>> getBipolarAudioTaper();
+    static std::shared_ptr<LookupTableParams<T>> getAudioTaper();
     static std::shared_ptr<LookupTableParams<T>> getSinLookup();
 
     /**
@@ -43,6 +44,7 @@ private:
      * freed when the last client reference goes away.
      */
     static std::weak_ptr<LookupTableParams<T>> bipolarAudioTaper;
+    static std::weak_ptr<LookupTableParams<T>> audioTaper;
     static std::weak_ptr<LookupTableParams<T>> sinLookupTable;
     static std::weak_ptr<LookupTableParams<T>> exp2;
     static std::weak_ptr<LookupTableParams<T>> db2Gain;
