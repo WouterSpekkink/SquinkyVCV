@@ -118,18 +118,27 @@ public:
     {
         return baseFrequency;
     }
+
+    void pollForChangeOnUIThread();
 private:
     float reciprocalSampleRate = 0;
 
     Decimator decimator;
 
     GraphicEq2<5> geq;
-    using TButter = double;
 
+    using TButter = double;         // probably overkill, but tried this
+                                    // to reduce low freq noise.
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
 
     float baseFrequency = 1;
+   
+
+   /**
+    * The last value baked by the LPF filter calculation
+    * done on the UI thread;
+    */
     float lastBaseFrequencyParamValue = -100;
 
     std::default_random_engine generator{57};  // 12345
@@ -143,6 +152,16 @@ private:
     AudioMath::SimpleScaleFun<float> gainScale = {AudioMath::makeSimpleScalerAudioTaper(0, 1)};
 };
 
+template <class TBase>
+inline void LFN<TBase>::pollForChangeOnUIThread()
+{
+    if (lastBaseFrequencyParamValue != TBase::params[FREQ_RANGE_PARAM].value) {
+        lastBaseFrequencyParamValue = TBase::params[FREQ_RANGE_PARAM].value;
+        baseFrequency = float(rangeFunc(lastBaseFrequencyParamValue));
+
+        init();         // now get the filters updated
+    }
+}
 
 /**
  * re-calc everything that changes with sample
@@ -169,17 +188,13 @@ inline void LFN<TBase>::init()
     ButterworthFilterDesigner<TButter>::designThreePoleLowpass(
         lpfParams, lpFc);
 
+    printf("calculated filter fc %f\n", lpFc);
+
 }
 
 template <class TBase>
 inline void LFN<TBase>::step()
 {
-    // TODO: this will pop. consider doing something better.
-    if (lastBaseFrequencyParamValue != TBase::params[FREQ_RANGE_PARAM].value) {
-        lastBaseFrequencyParamValue = TBase::params[FREQ_RANGE_PARAM].value;
-        baseFrequency = float(rangeFunc(lastBaseFrequencyParamValue));
-        init();
-    }
     const int numEqStages = geq.getNumStages();
     for (int i = 0; i < numEqStages; ++i) {
         auto paramNum = i + EQ0_PARAM;
@@ -191,17 +206,14 @@ inline void LFN<TBase>::step()
         geq.setGain(i, gain);
     }
 
-#if 1 // normal way (with decimator)
     bool needsData;
     TButter x = decimator.clock(needsData);
     x = BiquadFilter<TButter>::run(x, lpfState, lpfParams);
     if (needsData) {
         const float z = geq.run(noise());
         decimator.acceptData(z);
-}
-#else
-    TButter x = BiquadFilter<TButter>::run(noise(), lpfState, lpfParams);
-#endif
+    }
+
     TBase::outputs[OUTPUT].value = (float) x;
 }
 

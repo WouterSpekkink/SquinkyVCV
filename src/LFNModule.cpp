@@ -82,6 +82,7 @@ struct LFNWidget : ModuleWidget
     void draw(NVGcontext *vg) override
     {
         updater.update(*this);
+        module.lfn.pollForChangeOnUIThread();
         ModuleWidget::draw(vg);
     }
 
