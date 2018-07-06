@@ -23,11 +23,11 @@
  * We first design the EQ around bands of 100, 200, 400, 800,
  * 1600. EQ gets noise.
  *
- * Then output of EQ is resampled up by a factor of 100
+ * Then output of EQ is re-sampled up by a factor of 100
  * to bring the first band down to 1hz.
  * or : decimation factor = 100 * (fs) / 44100.
  *
- * A butterworth lowpass then removes the resmapling artifacts.
+ * A butterworth lowpass then removes the re-sampling artifacts.
  * Otherwise these images bring in high frequencies that we
  * don't want.
  *
@@ -39,8 +39,8 @@
  *
  * (had been using  fc/fs = float(1.0 / (44 * 100.0)));)
  *
- * Design for R = root freq (was 1 hz, above)
- * EQ first band at E (was 100 hz, above)
+ * Design for R = root freq (was 1 Hz, above)
+ * EQ first band at E (was 100 Hz, above)
  *
  * Decimation divider = E / R
  *
@@ -50,7 +50,7 @@
  * Experiment: let's use those values and compare to what we had been using.
  * result: not too far off.
  *
- * make a range/base control. map -5 to +5 into 1/10 hz to 2 hz rate. Can use regular
+ * make a range/base control. map -5 to +5 into 1/10 Hz to 2 Hz rate. Can use regular
  * functions, since we won't calc that often.
  *
  */
@@ -188,22 +188,28 @@ inline void LFN<TBase>::init()
     ButterworthFilterDesigner<TButter>::designThreePoleLowpass(
         lpfParams, lpFc);
 
-    printf("calculated filter fc %f\n", lpFc);
+   // printf("calculated filter fc %f\n", lpFc);
 
 }
 
 template <class TBase>
 inline void LFN<TBase>::step()
 {
-    const int numEqStages = geq.getNumStages();
-    for (int i = 0; i < numEqStages; ++i) {
-        auto paramNum = i + EQ0_PARAM;
-        auto cvNum = i + EQ0_INPUT;
-        const float gainParamKnob = TBase::params[paramNum].value;
-        const float gainParamCV = TBase::inputs[cvNum].value;
-        const float gain = gainScale(gainParamKnob, gainParamCV);
-        //printf("gain[%d]=%f (%f,%f)\n", i, gain, gainParamKnob, gainParamCV);
-        geq.setGain(i, gain);
+    // Let's only check the inputs every 4 samples. Still plenty fast, but
+    // get the CPU usage down really far.
+    static int count = 0;
+    if (count++ > 4) {
+        count = 0;
+        const int numEqStages = geq.getNumStages();
+        for (int i = 0; i < numEqStages; ++i) {
+            auto paramNum = i + EQ0_PARAM;
+            auto cvNum = i + EQ0_INPUT;
+            const float gainParamKnob = TBase::params[paramNum].value;
+            const float gainParamCV = TBase::inputs[cvNum].value;
+            const float gain = gainScale(gainParamKnob, gainParamCV);
+            //printf("gain[%d]=%f (%f,%f)\n", i, gain, gainParamKnob, gainParamCV);
+            geq.setGain(i, gain);
+        }
     }
 
     bool needsData;
