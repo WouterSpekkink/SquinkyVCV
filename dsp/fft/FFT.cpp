@@ -49,7 +49,6 @@ bool FFT::forward(FFTDataCpx* out, const FFTDataReal& in)
     return true;
 }
 
-
 bool FFT::inverse(FFTDataReal* out, const FFTDataCpx& in)
 {
     if (out->buffer.size() != in.buffer.size()) {
@@ -189,10 +188,11 @@ static float getPeak(const FFTDataReal& data)
     return peak;
 }
 
-void FFT::normalize(FFTDataReal* data)
+void FFT::normalize(FFTDataReal* data, float maxValue)
 {
+    assert(maxValue > 0);
     const float peak = getPeak(*data);
-    const float correction = 1.0f / peak;
+    const float correction = maxValue / peak;
     for (int i = 0; i < data->size(); ++i) {
         float x = data->get(i);
         x *= correction;

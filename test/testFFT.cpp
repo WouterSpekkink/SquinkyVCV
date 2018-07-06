@@ -176,12 +176,11 @@ static void testNoiseRTSub(int bins)
     FFT::makeNoiseSpectrum(dataCpx.get(), ColoredNoiseSpec());
 
     FFT::inverse(dataReal.get(), *dataCpx);
-    FFT::normalize(dataReal.get());
+    FFT::normalize(dataReal.get(), 2);
 
     const float peak = getPeak(*dataReal);
 
-    assertClose(peak, 1.0f, .001);
-
+    assertClose( peak, 2.0f , .001);
 }
 
 static void testNoiseRT()
