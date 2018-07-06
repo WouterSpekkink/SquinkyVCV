@@ -67,7 +67,6 @@ public:
     {
     }
 
-
     void setSampleRate(float rate)
     {
         // TODO: just use rate everywhere.
@@ -127,13 +126,9 @@ private:
     GraphicEq2<5> geq;
     using TButter = double;
 
-#if 1
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
-#else
-    BiquadParams<TButter, 3> lpfParams;
-    BiquadState<TButter, 3> lpfState;
-#endif
+
     float baseFrequency = 1;
     float lastBaseFrequencyParamValue = -100;
 
@@ -163,7 +158,6 @@ inline void LFN<TBase>::init()
     // map knob range from .1 Hz to 2.0 Hz
     rangeFunc = AudioMath::makeFunc_Exp(-5, 5, .1, 2);
 
-
     // decimation must be 100hz (what our eq is designed at)
     // divided by base.
     const float decimationDivider = float(100.0 / baseFrequency);
@@ -175,11 +169,6 @@ inline void LFN<TBase>::init()
     ButterworthFilterDesigner<TButter>::designThreePoleLowpass(
         lpfParams, lpFc);
 
-    printf("\n**** base=%f divisor=%f lpf to %f (%f)\n",
-        baseFrequency,
-        decimationDivider,
-        lpFc,
-        lpFc * (1 / reciprocalSampleRate));
 }
 
 template <class TBase>
@@ -198,7 +187,7 @@ inline void LFN<TBase>::step()
         const float gainParamKnob = TBase::params[paramNum].value;
         const float gainParamCV = TBase::inputs[cvNum].value;
         const float gain = gainScale(gainParamKnob, gainParamCV);
-        printf("gain[%d]=%f (%f,%f)\n", i, gain, gainParamKnob, gainParamCV);
+        //printf("gain[%d]=%f (%f,%f)\n", i, gain, gainParamKnob, gainParamCV);
         geq.setGain(i, gain);
     }
 
