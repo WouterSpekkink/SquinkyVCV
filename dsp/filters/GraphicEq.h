@@ -2,7 +2,7 @@
 
 #include "StateVariableFilter.h"
 
-
+// Unfinished single stage eq
 class GraphicEq
 {
 public:
@@ -92,6 +92,7 @@ inline float TwoStageBandpass::run(float input)
 
 /**
  * Octave EQ using dual bandpass sections
+ * Currently hard-wired to 100 Hz.
  */
 template <int NumStages>
 class GraphicEq2

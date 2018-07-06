@@ -149,7 +149,6 @@ inline void StateVariableFilterParams<T>::setFreq(T fc)
 template <typename T>
 inline void StateVariableFilterParams<T>::setFreqAccurate(T fc)
 {
-
     fcGain = T(2) * std::sin( T(AudioMath::Pi) * fc);
 }
 
