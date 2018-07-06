@@ -28,8 +28,8 @@ void LFNModule::onSampleRateChange()
 {
    // engineGetSampleTime();
    // float rate = Module::engineGetSampleRate();
-    float rate = 1.0f / engineGetSampleTime();      // TODO: what's up with this? this used to work!
-    lfn.setSampleRate(rate);
+   // float rate = 1.0f / engineGetSampleTime();      // TODO: what's up with this? this used to work!
+    lfn.setSampleTime(engineGetSampleTime());
 }
 
 LFNModule::LFNModule()
@@ -93,7 +93,7 @@ struct LFNWidget : ModuleWidget
 };
 
 static const float knobX = 42;
-static const float knobY = 90;
+static const float knobY = 100;
 static const float knobDy = 50;
 static const float inputY = knobY + 16;
 static const float inputX = 6;
@@ -124,15 +124,19 @@ LFNWidget::LFNWidget(LFNModule *module) : ModuleWidget(module), module(*module)
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
+        panel->setBackground(SVG::load(assetPlugin(plugin, "res/lfn_panel.svg")));
         addChild(panel);
     }
 
-    addOutput(Port::create<PJ301MPort>(Vec(inputX, inputY - knobDy), Port::OUTPUT, module, module->lfn.OUTPUT));
-
+    addOutput(Port::create<PJ301MPort>(
+        Vec(59, inputY - knobDy -1), Port::OUTPUT, module, module->lfn.OUTPUT));
+    addLabel(
+        Vec(54 , inputY - knobDy - 18), "out", COLOR_WHITE);
+ 
     addParam(ParamWidget::create<Rogan1PSBlue>(
-        Vec(knobX, knobY - 1 * knobDy), module, module->lfn.FREQ_RANGE_PARAM, -5, 5, 0));
-    addLabel(Vec(labelX, knobY - 1 * knobDy), "R");
+        Vec(10, knobY - 1 * knobDy), module, module->lfn.FREQ_RANGE_PARAM, -5, 5, 0));
+    
+   // addLabel(Vec(59, knobY - 1 * knobDy), "R");
 
     for (int i = 0; i < 5; ++i) {
         addStage(i);

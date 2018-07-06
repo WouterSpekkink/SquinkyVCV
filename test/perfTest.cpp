@@ -232,7 +232,7 @@ static void testLFN()
 {
     LFN<TestComposite> lfn;
 
-    lfn.setSampleRate(44100);
+    lfn.setSampleTime(1.0f / 44100.f);
     lfn.init();
 
     MeasureTime<float>::run(overheadOutOnly, "lfn", [&lfn]() {

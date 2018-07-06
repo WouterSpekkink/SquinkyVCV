@@ -11,11 +11,9 @@
 #include "ObjectCache.h"
 #include <random>
 
-#define _GEQ2
-
 /**
  * Noise generator feeding a graphic equalizer.
- * Calculated at very low sample rate, then resampled
+ * Calculated at very low sample rate, then re-sampled
  * up to audio rate.
  *
  * Below assumes 44k SR. TODO: other rates.
@@ -67,14 +65,18 @@ public:
     {
     }
 
-    void setSampleRate(float rate)
+    void setSampleTime(float time)
     {
-        // TODO: just use rate everywhere.
-        reciprocalSampleRate = 1 / rate;
-        init();
+        reciprocalSampleRate = time;
+        updateLPF();
     }
 
-    // must be called after setSampleRate
+    /**
+    * re-calc everything that changes with sample
+    * rate. Also everything that depends on baseFrequency.
+    *
+    * Only needs to be called once.
+    */
     void init();
 
     enum ParamIds
@@ -119,7 +121,12 @@ public:
         return baseFrequency;
     }
 
+    /**
+     * This lets the butterworth get re-calculated on the UI thread.
+     * We can't do it on the audio thread, because it calls malloc.
+     */
     void pollForChangeOnUIThread();
+
 private:
     float reciprocalSampleRate = 0;
 
@@ -132,21 +139,29 @@ private:
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
 
+    /**
+     * Frequency, in Hz, of the lowest band in the graphic EQ
+     */
     float baseFrequency = 1;
-   
 
    /**
     * The last value baked by the LPF filter calculation
-    * done on the UI thread;
+    * done on the UI thread.
     */
     float lastBaseFrequencyParamValue = -100;
 
-    std::default_random_engine generator{57};  // 12345
+    std::default_random_engine generator{57};
     std::normal_distribution<double> distribution{-1.0, 1.0};
     float noise()
     {
         return  (float) distribution(generator);
     }
+
+    /**
+     * Must be called after baseFrequency is updated.
+     * re-calculates the butterworth lowpass.
+     */
+    void updateLPF();
 
     std::function<double(double)> rangeFunc;
     AudioMath::SimpleScaleFun<float> gainScale = {AudioMath::makeSimpleScalerAudioTaper(0, 1)};
@@ -159,37 +174,33 @@ inline void LFN<TBase>::pollForChangeOnUIThread()
         lastBaseFrequencyParamValue = TBase::params[FREQ_RANGE_PARAM].value;
         baseFrequency = float(rangeFunc(lastBaseFrequencyParamValue));
 
-        init();         // now get the filters updated
+        updateLPF();         // now get the filters updated
     }
 }
 
-/**
- * re-calc everything that changes with sample
- * rate. Also everything that depends on baseFrequency.
- *
- * TODO: break up into one time, and onBaseFreq()
- */
 template <class TBase>
 inline void LFN<TBase>::init()
 {
-    assert(reciprocalSampleRate > 0);
-
     // map knob range from .1 Hz to 2.0 Hz
     rangeFunc = AudioMath::makeFunc_Exp(-5, 5, .1, 2);
+    updateLPF(); 
+}
 
-    // decimation must be 100hz (what our eq is designed at)
+template <class TBase>
+inline void LFN<TBase>::updateLPF()
+{
+    assert(reciprocalSampleRate > 0);
+    // decimation must be 100hz (what our EQ is designed at)
     // divided by base.
     const float decimationDivider = float(100.0 / baseFrequency);
     decimator.setDecimationRate(decimationDivider);
 
+    // calculate lpFc ( Fc / sr)
     // Imaging filter fc = 3.2khz / decimation-divider
     // fc/fs = 3200 * (reciprocal sr) / decimation-divider.
     const float lpFc = 3200 * reciprocalSampleRate / decimationDivider;
     ButterworthFilterDesigner<TButter>::designThreePoleLowpass(
         lpfParams, lpFc);
-
-   // printf("calculated filter fc %f\n", lpFc);
-
 }
 
 template <class TBase>
@@ -207,7 +218,6 @@ inline void LFN<TBase>::step()
             const float gainParamKnob = TBase::params[paramNum].value;
             const float gainParamCV = TBase::inputs[cvNum].value;
             const float gain = gainScale(gainParamKnob, gainParamCV);
-            //printf("gain[%d]=%f (%f,%f)\n", i, gain, gainParamKnob, gainParamCV);
             geq.setGain(i, gain);
         }
     }

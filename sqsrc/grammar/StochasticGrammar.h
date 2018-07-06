@@ -530,7 +530,7 @@ inline bool ProductionRule::isGrammarValid(const ProductionRule * rules, int num
  * just a collection of pre-made grammars
  *
  * 0: simple test
- * 1: mixed dur, with some trips
+ * 1: mixed duration, with some trips
  * 2: some syncopation, no trips
  */
 class StochasticGrammarDictionary
