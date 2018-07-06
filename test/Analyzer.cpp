@@ -100,7 +100,7 @@ void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, 
 {
     auto features = getFeatures(data, sensitivityDb, sampleRate);
     printf("there are %d features\n", (int)features.size());
-    for (int i = 0; i < features.size(); ++i) {
+    for (int i = 0; i < (int) features.size(); ++i) {
         printf("feature: freq=%f, db=%f\n", features[i].freq, features[i].gainDb);
     }
 }
