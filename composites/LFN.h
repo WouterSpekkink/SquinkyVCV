@@ -50,7 +50,6 @@
  *
  * make a range/base control. map -5 to +5 into 1/10 Hz to 2 Hz rate. Can use regular
  * functions, since we won't calc that often.
- *
  */
 
 template <class TBase>
@@ -134,8 +133,12 @@ private:
 
     GraphicEq2<5> geq;
 
-    using TButter = double;         // probably overkill, but tried this
-                                    // to reduce low freq noise.
+    /**
+     * Template type for butterworth reconstruction filter
+     * Tried double for best low frequency performance. It's
+     * probably overkill, but calculates plenty fast.
+     */
+    using TButter = double;                                 
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
 
@@ -163,8 +166,19 @@ private:
      */
     void updateLPF();
 
-    std::function<double(double)> rangeFunc;
-    AudioMath::SimpleScaleFun<float> gainScale = {AudioMath::makeSimpleScalerAudioTaper(0, 1)};
+    /**
+     * scaling function for the range / base frequency knob
+     * map knob range from .1 Hz to 2.0 Hz
+     */
+    std::function<double(double)> rangeFunc = 
+        { AudioMath::makeFunc_Exp(-5, 5, .1, 2) };
+
+    /**
+     * Audio taper for the EQ gains. Arbitrary max value selected
+     * to give "good" output level.
+     */
+    AudioMath::SimpleScaleFun<float> gainScale = 
+        { AudioMath::makeSimpleScalerAudioTaper(0, 35) };
 };
 
 template <class TBase>
@@ -181,8 +195,6 @@ inline void LFN<TBase>::pollForChangeOnUIThread()
 template <class TBase>
 inline void LFN<TBase>::init()
 {
-    // map knob range from .1 Hz to 2.0 Hz
-    rangeFunc = AudioMath::makeFunc_Exp(-5, 5, .1, 2);
     updateLPF(); 
 }
 

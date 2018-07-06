@@ -103,7 +103,7 @@ void LFNWidget::addStage(int index)
 {
     const float gmin = -5;
     const float gmax = 5;
-    const float gdef = 5;
+    const float gdef = 0;
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(knobX, knobY + index * knobDy),
         &module, module.lfn.EQ0_PARAM + index, gmin, gmax, gdef));
