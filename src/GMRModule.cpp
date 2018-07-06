@@ -3,6 +3,7 @@
 #include "Squinky.hpp"
 #include "WidgetComposite.h"
 
+#ifdef _GMR
 #include "GMR.h"
 
 
@@ -94,4 +95,6 @@ Model *modelGMRModule = Model::create<GMRModule,
     GMRWidget>("Squinky Labs",
     "squinkylabs-GMR",
     "GMR", EFFECT_TAG, LFO_TAG);
+
+    #endif
 

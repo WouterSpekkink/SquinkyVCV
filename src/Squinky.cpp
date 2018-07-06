@@ -23,7 +23,9 @@ void init(rack::Plugin *p)
     p->addModel(modelTremoloModule);
     p->addModel(modelThreadBoostModule);
     p->addModel(modelLFNModule);
+#ifdef _GMR
     p->addModel(modelGMRModule);
+#endif
 
 #ifdef _CPU_HOG
     assert(modelCPU_HogModule);
