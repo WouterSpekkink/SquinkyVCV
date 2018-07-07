@@ -37,10 +37,7 @@ static void test0()
 
 static const int numRules = fullRuleTableSize;
 static Random r;
-
-
 typedef GKEY(*INITFN)();
-
 static ProductionRule rules[numRules];
 
 
@@ -67,8 +64,9 @@ private:
 };
 
 
-// simplest possible grammar.
-
+/**
+ * simplest possible grammar.
+ */
 static GKEY init0()
 {
     printf("called init0\n");
@@ -82,8 +80,65 @@ static GKEY init0()
     return sg_w2;
 }
 
-INITFN x = init0;
-static void testSub(INITFN f)
+/**
+ * Simple grammar with a rule but no random.
+ */
+static GKEY init1()
+{
+
+    {
+        // start with w2 duration
+        ProductionRule& r = rules[sg_w2];
+
+        // break into w,w prob 100
+        r.entries[0].probability = 1.0f;
+        r.entries[0].code = sg_ww;
+    }
+
+    {
+        // now need rule for w hole
+        printf("in init1 making 100 for %d\n", sg_w);
+        ProductionRule& r = rules[sg_w];
+        r.entries[0].probability = 1.0f;
+        r.entries[1].code = sg_invalid;
+    }
+    printf("leave init 1. rule 1 p0 = %f\n", rules[sg_w2].entries[0].probability);
+    return sg_w2;
+}
+
+
+/**
+ * Simple grammar with randomness initializer
+ */
+static GKEY init2()
+{
+    printf("in init2 making 50/50 for %d\n", sg_w2);
+    {
+        // start with w2 duration
+        ProductionRule& r = rules[sg_w2];
+
+        // break into w,w prob 50
+
+        r.entries[0].probability = .5f;
+        r.entries[0].code = sg_ww;
+        r.entries[1].probability = 1.0f;
+        r.entries[1].code = sg_invalid;		// always terminate
+    }
+
+    {
+        // now need rule for w hole
+        printf("in init1 making 100 for %d\n", sg_w);
+        ProductionRule& r = rules[sg_w];
+        r.entries[1].probability = 1.0f;
+        r.entries[1].code = sg_invalid;		// always terminate
+    }
+    printf("leave init 1. rule 1 p0 = %f\n", rules[sg_w2].entries[0].probability);
+
+    return sg_w2;
+}
+
+
+static void testGrammarSub(INITFN f)
 {
     GKEY init = f();
 
@@ -91,7 +146,7 @@ static void testSub(INITFN f)
     bool b = ProductionRule::isGrammarValid(rules, numRules, init);
     assert(b);
 
-    printf("test sub finisjed validating grammar\n");
+    printf("test sub finished validating grammar\n");
 
     Random r;
     TestEvaluator es(r);
@@ -102,17 +157,10 @@ static void testSub(INITFN f)
     assert(es.getNumSymbols() > 0);
 }
 
-
-
-void gt0()
-{
-    printf("gt0\n");
-    testSub(init0);
-}
-
-
 void testStochasticGrammar()
 {
     test0();
-    gt0();
+    testGrammarSub(init0);
+    testGrammarSub(init1);
+    testGrammarSub(init2);
 }

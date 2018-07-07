@@ -158,7 +158,7 @@ public:
     void makeTerminal()
     {
         entries[0].code = sg_invalid;
-        entries[0].probability = 255;
+        entries[0].probability = 1.0f;
     }
 
     /* the data */
