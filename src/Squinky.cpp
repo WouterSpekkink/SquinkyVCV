@@ -23,6 +23,7 @@ void init(rack::Plugin *p)
     p->addModel(modelTremoloModule);
     p->addModel(modelThreadBoostModule);
     p->addModel(modelLFNModule);
+    p->addModel(modelCHBModule);
 #ifdef _GMR
     p->addModel(modelGMRModule);
 #endif

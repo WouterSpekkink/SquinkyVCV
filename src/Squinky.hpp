@@ -9,6 +9,7 @@ extern Model *modelColoredNoiseModule;
 extern Model *modelTremoloModule;
 extern Model *modelThreadBoostModule;
 extern Model *modelLFNModule;
+extern Model *modelCHBModule;
 #ifdef _GMR
 extern Model *modelGMRModule;
 #endif
