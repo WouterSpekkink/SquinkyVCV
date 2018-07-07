@@ -1,6 +1,14 @@
 
 #include "StochasticGrammar.h"
 
+
+float Random::get()
+{
+    assert(false);
+    return 0;
+}
+
+
 /***************************************************************************************************************
  *
  * ProductionRuleKeys
@@ -208,3 +216,166 @@ int ProductionRuleKeys::getDuration(GKEY key)
     return ret;
 
 }
+
+
+/***************************************************************************************************************
+*
+* ProductionRule
+*
+***************************************************************************************************************/
+
+
+// generate production, return code for what happened
+int ProductionRule::_evaluateRule(const ProductionRule& rule, float random)
+{
+    assert(random >= 0 && random <= 1);
+    assert(false);   // the rest is for 1..256
+                     //int rand = r.get() & 0xff;
+    int rand = (int) (random * 256);
+    //printf("evaluateRule called with rand is %d\n", rand);
+
+    int i = 0;
+    for (bool done2 = false; !done2; ++i) {
+        assert(i < numEntries);
+        //printf("prob[%d] is %d\n", i,  rule.entries[i].probability);
+        if (rule.entries[i].probability >= rand) {
+            GKEY code = rule.entries[i].code;
+            //printf("rule fired on code abs val=%d\n", code);
+            return code;
+        }
+    }
+    assert(false);	// no rule fired
+    return 0;
+}
+
+void ProductionRule::evaluate(EvaluationState& es, int ruleToEval)
+{
+    //printf("\n evaluate called on rule #%d\n", ruleToEval);
+    const ProductionRule& rule = es.rules[ruleToEval];
+
+#ifdef _MSC_VER
+    assert(rule._isValid(ruleToEval));
+#endif
+    GKEY result = _evaluateRule(rule, es.r.get());
+    if (result == sg_invalid)		// request to terminate recursion
+    {
+        GKEY code = ruleToEval;		// our "real" terminal code is our table index
+                                    //printf("production rule #%d terminated\n", ruleToEval);
+                                    //printf("rule terminated! execute code %s\n",  ProductionRuleKeys::toString(code));
+        es.writeSymbol(code);
+    } else {
+        //printf("production rule #%d expanded to %d\n", ruleToEval, result);
+
+        // need to expand,then eval all of the expanded codes
+
+        GKEY buffer[ProductionRuleKeys::bufferSize];
+        ProductionRuleKeys::breakDown(result, buffer);
+        for (GKEY * p = buffer; *p != sg_invalid; ++p) {
+            //printf("expanding rule #%d with %d\n", ruleToEval, *p);
+            evaluate(es, *p);
+        }
+        //printf("done expanding %d\n", ruleToEval);
+    }
+}
+
+// is the data self consistent, and appropriate for index
+#ifdef _MSC_VER
+bool ProductionRule::_isValid(int index) const
+{
+    if (index == sg_invalid) {
+        printf("rule not allowed in first slot\n");
+        return false;
+    }
+
+
+    if (entries[0] == ProductionRuleEntry()) {
+        printf("rule at index %d is ininitizlied. bad graph (%s)\n",
+            index,
+            ProductionRuleKeys::toString(index));
+        return false;
+    }
+
+    int last = -1;
+    bool foundTerminator = false;
+    for (int i = 0; !foundTerminator; ++i) {
+        if (i >= numEntries) {
+            printf("entries not terminated index=%d 'i' is too big: %d\n", index, i);
+            return false;
+        }
+        const ProductionRuleEntry& e = entries[i];
+        if (e.probability <= last)			// probabilities grow
+        {
+            printf("probability not growing is %d was %d\n", e.probability, last);
+            return false;
+        }
+        if (e.probability == 0xff) {
+            foundTerminator = true;					// must have a 255 to end it
+            if (e.code == index) {
+                printf("rule terminates on self: recursion not allowed\n");
+                return false;
+            }
+        }
+
+        if (e.code < sg_invalid || e.code > sg_last) {
+            printf("rule[%d] entry[%d] had invalid code: %d\n", index, i, e.code);
+            return false;
+        }
+
+        // if we are terminating recursion, then by definition our duration is correct
+        if (e.code != sg_invalid) {
+            // otherwise, make sure the entry has the right duration
+            int entryDuration = ProductionRuleKeys::getDuration(e.code);
+            int ruleDuration = ProductionRuleKeys::getDuration(index);
+            if (entryDuration != ruleDuration) {
+                printf("production rule[%d] (name %s) duration mismatch (time not conserved) rule dur = %d entry dur %d\n",
+                    index, ProductionRuleKeys::toString(index), ruleDuration, entryDuration);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+#endif
+
+#ifdef _MSC_VER
+bool ProductionRule::isGrammarValid(const ProductionRule * rules, int numRules, GKEY firstRule)
+{
+    //printf("is grammar valid, numRules = %d first = %d\n", numRules, firstRule);
+    if (firstRule < sg_first) {
+        printf("first rule index (%d) bad\n", firstRule);
+        return false;
+    }
+    if (numRules != (sg_last + 1)) {
+        printf("bad number of rules\n");
+        return false;
+    }
+
+    const ProductionRule& r = rules[firstRule];
+
+    if (!r._isValid(firstRule)) {
+        return false;
+    }
+
+    // now, make sure every entry goes to something real
+    bool foundTerminator = false;
+    for (int i = 0; !foundTerminator; ++i) {
+        const ProductionRuleEntry& e = r.entries[i];
+        if (e.probability == 0xff)
+            foundTerminator = true;					// must have a 255 to end it	
+        GKEY _newKey = e.code;
+        if (_newKey != sg_invalid) {
+            GKEY outKeys[4];
+            ProductionRuleKeys::breakDown(_newKey, outKeys);
+            for (GKEY * p = outKeys; *p != sg_invalid; ++p) {
+                if (!isGrammarValid(rules, numRules, *p)) {
+                    printf("followed rules to bad one\n");
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+#endif
+
