@@ -1,13 +1,13 @@
-#ifndef STOCHASTIC_GRAMMAR
-#define  STOCHASTIC_GRAMMAR
+
+#pragma once
 
 #include <assert.h>
 #include <stdio.h>
-//#include "Random.h"
 
 /***********************************************
  ********** rhythmic grouping codes *************
 ************************************************/
+
 typedef unsigned short GKEY;
 
 /* Rules for keys - super important!
@@ -15,11 +15,11 @@ typedef unsigned short GKEY;
  * There are two kinds of keys: terminal keys and non-terminal
  *
  * Terminal keys either directly generate themselves, or may be divided if there is a
- *  specific production rule to divide them. As an example, sg_q (quarter note) is a terminal key.
- *  It will always generate itself unless a production rule divides it.
+ * specific production rule to divide them. As an example, sg_q (quarter note) is a terminal key.
+ * It will always generate itself unless a production rule divides it.
  *
  * On the other hand sg_w2 is a non-terminal representing all the time in two bars of 4/4.
- *  sg_w2 will NEVER generate itself. Lacking a specific rule, it will auto generate two whole notes
+ * sg_w2 will NEVER generate itself. Lacking a specific rule, it will auto generate two whole notes
  *
  * programmer must be aware of the difference in two places:
  *		when making production rules for a specific grammar
@@ -29,9 +29,9 @@ typedef unsigned short GKEY;
 
 const GKEY sg_invalid = 0;		// either uninitialized rule, or return value that stops recursion.
                                 // Note that this means table of production rules must have a dummy entry up front
-const GKEY sg_w2 = 1;		// duration of two whole notes
-const GKEY sg_w = 2;		// whole
-const GKEY sg_ww = 3;		// w,w
+const GKEY sg_w2 = 1;		    // duration of two whole notes
+const GKEY sg_w = 2;		    // whole
+const GKEY sg_ww = 3;		    // w,w
 const GKEY sg_h = 4;
 const GKEY sg_hh = 5;
 const GKEY sg_q = 6;
@@ -39,7 +39,7 @@ const GKEY sg_qq = 7;
 const GKEY sg_e = 8;
 const GKEY sg_ee = 9;
 
-//
+// triplets
 const GKEY sg_e3e3e3 = 10;		// three trip eights
 const GKEY sg_e3 = 11;			//  trip eight
 
@@ -47,7 +47,9 @@ const GKEY sg_sx = 12;
 const GKEY sg_sxsx = 13;
 
 // crazy stuff for syncopation (unequal measure divisions)
-const GKEY sg_68 = 14;		// the time duration of 7/8
+// Note that there are not "tuples", they are just straight durations
+// of a group of notes.
+const GKEY sg_68 = 14;		// the time duration of 6/8
 const GKEY sg_78 = 15;		// the time duration of 7/8
 const GKEY sg_98 = 16;		// the time duration of 9/8
 const GKEY sg_798 = 17;		// 7/8 + 9/8 = 2w
@@ -60,19 +62,17 @@ const GKEY sg_de = 20;		// dotted eighth
 // odd groupings
 const GKEY sg_hdq = 21;		// half + dotted Q
 const GKEY sg_qhe = 22;		// q,h,e
-const GKEY sg_hq = 23;	// h,q
-const GKEY sg_qh = 24;	// h,q
+const GKEY sg_hq = 23;	    // h,q
+const GKEY sg_qh = 24;	    // h,q
 const GKEY sg_q78 = 25;		// q + 7x8
-const GKEY sg_qe68 = 26;		// q+e+6x8
-
-
-
+const GKEY sg_qe68 = 26;	// q+e+6x8
 
 const GKEY sg_first = 1;		// first valid one
 const GKEY sg_last = 26;
 
 const int fullRuleTableSize = sg_last + 1;
 
+// Do we really want to use something this coarse?
 const int PPQ = 24;
 
 /* class ProductionRuleKeys
@@ -83,13 +83,20 @@ class ProductionRuleKeys
 public:
     static const int bufferSize = 6;	// size of a buffer that must be passed to breakDown
 
-    // turn a key into a 0 terminated list of keys for individual notes
-    // if called with a terminal key, just returns itself
+    /**
+     * Turn a key into a 0 terminated list of keys for individual notes.
+     * If called with a terminal key, just returns itself.
+     */
     static void breakDown(GKEY key, GKEY * outKeys);
 
-    // get the duration in clocks for a "simple" key (like q, not q+q)
+    /**
+     * get the duration in clocks for a key
+     */
     static int getDuration(GKEY key);
 
+    /**
+     * Get a human readable string representation
+     */
     static const char * toString(GKEY key);
 };
 
@@ -104,7 +111,7 @@ public:
     ProductionRuleEntry() : probability(0), code(sg_invalid)
     {
     }
-    unsigned char probability;	// 1..256
+    float probability;	// 0 to 1
     GKEY code;			// what to do if this one fires
 };
 
@@ -200,6 +207,3 @@ private:
     static void initRule3(ProductionRule * rules);
 };
 
-
-
-#endif

@@ -295,7 +295,7 @@ bool ProductionRule::_isValid(int index) const
         return false;
     }
 
-    int last = -1;
+    float last = -1;
     bool foundTerminator = false;
     for (int i = 0; !foundTerminator; ++i) {
         if (i >= numEntries) {
@@ -305,10 +305,10 @@ bool ProductionRule::_isValid(int index) const
         const ProductionRuleEntry& e = entries[i];
         if (e.probability <= last)			// probabilities grow
         {
-            printf("probability not growing is %d was %d\n", e.probability, last);
+            printf("probability not growing is %f was %f\n", e.probability, last);
             return false;
         }
-        if (e.probability == 0xff) {
+        if (e.probability == 1.0f) {
             foundTerminator = true;					// must have a 255 to end it
             if (e.code == index) {
                 printf("rule terminates on self: recursion not allowed\n");
@@ -332,6 +332,7 @@ bool ProductionRule::_isValid(int index) const
                 return false;
             }
         }
+        last = e.probability;
     }
     return true;
 }
