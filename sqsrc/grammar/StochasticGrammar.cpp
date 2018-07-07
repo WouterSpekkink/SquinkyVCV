@@ -303,6 +303,10 @@ bool ProductionRule::_isValid(int index) const
             return false;
         }
         const ProductionRuleEntry& e = entries[i];
+        if (e.probability > 1.0f) {
+            printf("probability %f > 1 \n", e.probability);
+            return false;
+        }
         if (e.probability <= last)			// probabilities grow
         {
             printf("probability not growing is %f was %f\n", e.probability, last);
@@ -361,7 +365,7 @@ bool ProductionRule::isGrammarValid(const ProductionRule * rules, int numRules, 
     bool foundTerminator = false;
     for (int i = 0; !foundTerminator; ++i) {
         const ProductionRuleEntry& e = r.entries[i];
-        if (e.probability == 0xff)
+        if (e.probability == 1.0f)
             foundTerminator = true;					// must have a 255 to end it	
         GKEY _newKey = e.code;
         if (_newKey != sg_invalid) {
