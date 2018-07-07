@@ -1,11 +1,14 @@
 
 #include "StochasticGrammar.h"
+#include <random>
 
 
+// eventually get rid of this global random generator
+std::default_random_engine generator{57};
+std::uniform_real_distribution<float> distribution{0, 1.0};
 float Random::get()
 {
-    assert(false);
-    return 0;
+    return  distribution(generator);
 }
 
 
@@ -229,16 +232,12 @@ int ProductionRuleKeys::getDuration(GKEY key)
 int ProductionRule::_evaluateRule(const ProductionRule& rule, float random)
 {
     assert(random >= 0 && random <= 1);
-    assert(false);   // the rest is for 1..256
-                     //int rand = r.get() & 0xff;
-    int rand = (int) (random * 256);
-    //printf("evaluateRule called with rand is %d\n", rand);
 
     int i = 0;
     for (bool done2 = false; !done2; ++i) {
         assert(i < numEntries);
         //printf("prob[%d] is %d\n", i,  rule.entries[i].probability);
-        if (rule.entries[i].probability >= rand) {
+        if (rule.entries[i].probability >= random) {
             GKEY code = rule.entries[i].code;
             //printf("rule fired on code abs val=%d\n", code);
             return code;
@@ -305,6 +304,10 @@ bool ProductionRule::_isValid(int index) const
         const ProductionRuleEntry& e = entries[i];
         if (e.probability > 1.0f) {
             printf("probability %f > 1 \n", e.probability);
+            return false;
+        }
+        if (e.probability == 0.f) {
+            printf("zero probability in rule\n");
             return false;
         }
         if (e.probability <= last)			// probabilities grow
