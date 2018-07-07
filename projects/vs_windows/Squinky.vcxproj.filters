@@ -377,5 +377,11 @@
     <ClInclude Include="..\..\composites\LFN.h">
       <Filter>Header Files\composites</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\sqsrc\clock\GenerativeTriggerGenerator.h">
+      <Filter>Header Files\sqsrc\clock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\clock\TriggerSequencer.h">
+      <Filter>Header Files\sqsrc\clock</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

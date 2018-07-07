@@ -98,6 +98,8 @@
     <ClInclude Include="..\..\dsp\utils\LookupTableFactory.h" />
     <ClInclude Include="..\..\dsp\utils\ObjectCache.h" />
     <ClInclude Include="..\..\sqsrc\clock\ClockMult.h" />
+    <ClInclude Include="..\..\sqsrc\clock\GenerativeTriggerGenerator.h" />
+    <ClInclude Include="..\..\sqsrc\clock\TriggerSequencer.h" />
     <ClInclude Include="..\..\sqsrc\grammar\StochasticGrammar.h" />
     <ClInclude Include="..\..\sqsrc\thread\ThreadClient.h" />
     <ClInclude Include="..\..\sqsrc\thread\ThreadPriority.h" />
