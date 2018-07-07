@@ -88,6 +88,9 @@
     <Filter Include="Header Files\sqsrc\grammar">
       <UniqueIdentifier>{c8db16de-4e6f-4c6d-bd7a-aeb75e464495}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\sqsrc\grammar">
+      <UniqueIdentifier>{d8e54a08-bbcc-4495-8f95-cd2178b57811}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -215,6 +218,9 @@
     </ClCompile>
     <ClCompile Include="..\..\test\testLowpassFilter.cpp">
       <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sqsrc\grammar\StochasticGrammar.cpp">
+      <Filter>Source Files\sqsrc\grammar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
