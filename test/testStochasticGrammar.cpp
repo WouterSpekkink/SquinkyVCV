@@ -415,6 +415,22 @@ static void ts4()
     }
 }
 
+/*******************************************************************************
+ ** StochasticGrammarDictionary
+ */
+
+void gdt1()
+{
+    printf("--gdt1--\n");
+    assert(StochasticGrammarDictionary::getNumGrammars() > 0);
+    for (int i = 0; i< StochasticGrammarDictionary::getNumGrammars(); ++i) {
+        printf("-gdt1 test grammar %d\n", i);
+        StochasticGrammarDictionary::Grammar g = StochasticGrammarDictionary::getGrammar(i);
+        bool b = ProductionRule::isGrammarValid(g.rules, g.numRules, g.firstRule);
+        assert(b);
+    }
+}
+
 /********************************************************************************************
 * GenerativeTriggerGenerator
 **********************************************************************************************/
@@ -500,6 +516,8 @@ void testStochasticGrammar()
     ts2();
     ts3();
     ts4();
+
+    gdt1();
 
     gtg0();
     gtg1();
