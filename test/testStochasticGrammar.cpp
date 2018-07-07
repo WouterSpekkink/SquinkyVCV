@@ -1,10 +1,17 @@
 
+#include "GenerativeTriggerGenerator.h"
 #include "StochasticGrammar.h"
 #include "TriggerSequencer.h"
 
 #include <string>
 #include <vector>
+#include <set>
 
+
+static const int numRules = fullRuleTableSize;
+static Random r;
+typedef GKEY(*INITFN)();
+static ProductionRule rules[numRules];
 
 // Test basic integrity of key data
 static void test0()
@@ -53,15 +60,69 @@ void testAllKeys()
     }
 }
 
+
+
 /**************************************************************************************
  * Make some simple grammars and test them
  **************************************************************************************/
 
 
-static const int numRules = fullRuleTableSize;
-static Random r;
-typedef GKEY(*INITFN)();
-static ProductionRule rules[numRules];
+void gdt0()
+{
+    printf("gdt0\n");
+    {
+        printf("gdt0a\n");
+        static ProductionRule rules[numRules];
+        bool b = ProductionRule::isGrammarValid(rules, numRules, sg_invalid);
+        assert(!b);
+    }
+    {
+        // throw in a positive case
+        printf("gdt0b\n");
+        static ProductionRule rules[numRules];
+        ProductionRule& r = rules[sg_w];
+        r.entries[0].probability = 1.0f;
+        r.entries[0].code = sg_invalid;
+
+        bool b = ProductionRule::isGrammarValid(rules, numRules, sg_w);
+        assert(b);
+    }
+    {
+        // terminal code wrong
+        printf("gdt0c\n");
+        static ProductionRule rules[numRules];
+        ProductionRule& r = rules[sg_w];
+        r.entries[0].probability = 1.0f;
+        r.entries[0].code = sg_q;
+
+        bool b = ProductionRule::isGrammarValid(rules, numRules, sg_w);
+        assert(!b);
+    }
+    {
+        // bad order of proability
+        printf("gdt0c\n");
+        static ProductionRule rules[numRules];
+        ProductionRule& r = rules[sg_w];
+        r.entries[0].probability = 1.0f;
+        r.entries[0].code = sg_q;
+
+        bool b = ProductionRule::isGrammarValid(rules, numRules, sg_w);
+        assert(!b);
+    }
+    {
+        // rule branches to nowhere
+        printf("gdt0d\n");
+
+        static ProductionRule rules[numRules];
+
+        // break w2 into w,w prob 100
+        ProductionRule& r = rules[sg_w2];
+        r.entries[0].probability = 1.0f;
+        r.entries[0].code = sg_ww;
+        bool b = ProductionRule::isGrammarValid(rules, numRules, sg_w);
+        assert(!b);
+    }
+}
 
 
 class TestEvaluator : public ProductionRule::EvaluationState
@@ -185,7 +246,6 @@ static void testGrammarSub(INITFN f)
  * TriggerSequencer
  **********************************************************************************************************/
 
-
  // test event at zero fires at zero
 static void ts0()
 {
@@ -244,7 +304,7 @@ static void ts2()
     bool firstTime = true;
     // first time through, 4 clocks of nothing. then clock, 0,0,0
     for (int i = 0; i< 4; ++i) {
-        printf("--- loop ----\n");
+       // printf("--- loop ----\n");
 
         ts.clock();
         if (firstTime) {
@@ -290,7 +350,7 @@ static void ts3()
 
     bool firstLoop = true;
     for (int i = 0; i< 4; ++i) {
-        printf("--- loop ----\n");
+        //printf("--- loop ----\n");
 
         // 1
 
@@ -354,9 +414,75 @@ static void ts4()
         }
     }
 }
-/********************************************************************************************
 
+/********************************************************************************************
+* GenerativeTriggerGenerator
 **********************************************************************************************/
+
+// test that we get some clocks and some not
+static void gtg0()
+{
+    printf("gtg0\n");
+    GKEY key = init1();
+    Random r;
+    GenerativeTriggerGenerator gtg(r, rules, numRules, key);
+    bool yes = false;
+    bool no = false;
+    for (int i = 0; i<100000; ++i) {
+        if (gtg.clock())
+            yes = true;
+        else
+            no = true;
+
+        if (yes && no) {
+            //printf("clocked at %d\n", i);
+            return;
+        }
+    }
+    assert(false);
+
+}
+
+
+// test that we get everything in even quarter notes
+static void gtg1()
+{
+    printf("gtg1\n");
+    GKEY key = init1();
+    std::set<int> counts;
+
+    Random r;
+    GenerativeTriggerGenerator gtg(r, rules, numRules, key);
+
+    int ct = 0;
+    for (int i = 0; i<10000; ++i) {
+        bool b = gtg.clock();
+        if (b) {
+            //printf("clocked at %d\n", ct);
+            counts.insert(ct);
+            ct = 0;
+        }
+        ct++;
+    }
+    //counts.insert(50);
+    assert(!counts.empty());
+    for (std::set<int>::iterator it = counts.begin(); it != counts.end(); ++it) {
+        int c = *it;
+        printf("got count %d\n", c);
+
+
+        if ((c % PPQ) != 0) {
+            printf("PPQ=%d, c modePPQ =%d\n", PPQ, (c % PPQ));
+            printf("2ppq = %d, 4ppq=%d\n", 2 * PPQ, 4 * PPQ);
+            assert(false);
+        }
+        //assert(false);		// finish me
+    }
+
+}
+
+
+
 
 
 
@@ -364,6 +490,8 @@ void testStochasticGrammar()
 {
     test0();
     testAllKeys();
+    gdt0();
+
     testGrammarSub(init0);
     testGrammarSub(init1);
     testGrammarSub(init2);
@@ -372,4 +500,8 @@ void testStochasticGrammar()
     ts2();
     ts3();
     ts4();
+
+    gtg0();
+    gtg1();
+
 }
