@@ -30,6 +30,28 @@ static void test0()
     }
 }
 
+// test all the gkeys
+void testAllKeys()
+{
+    const int siz = ProductionRuleKeys::bufferSize;
+    GKEY buffer[siz];
+
+    for (GKEY gk = sg_first; gk <= sg_last; ++gk) {
+        printf("testing key %d\n", gk);
+        printf("to string: %s\n", ProductionRuleKeys::toString(gk));
+        const int dur = ProductionRuleKeys::getDuration(gk);
+        ProductionRuleKeys::breakDown(gk, buffer);
+        int sum = 0;
+        for (GKEY * p = buffer; *p != sg_invalid; ++p) {
+            printf("adding to sum %d\n", ProductionRuleKeys::getDuration(*p));
+            sum += ProductionRuleKeys::getDuration(*p);
+
+        }
+        printf("dur = %d sum = %d (should be the same)\n", dur, sum);
+        assert(dur == sum);
+    }
+}
+
 /**************************************************************************************
  * Make some simple grammars and test them
  **************************************************************************************/
@@ -160,6 +182,7 @@ static void testGrammarSub(INITFN f)
 void testStochasticGrammar()
 {
     test0();
+    testAllKeys();
     testGrammarSub(init0);
     testGrammarSub(init1);
     testGrammarSub(init2);
