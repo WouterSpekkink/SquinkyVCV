@@ -18,6 +18,21 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getBipolarAudioTaper()
 }
 
 template <typename T>
+std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getAudioTaper()
+{
+
+    std::shared_ptr< LookupTableParams<T>> ret = audioTaper.lock();
+    if (!ret) {
+        ret = std::make_shared<LookupTableParams<T>>();
+        LookupTableFactory<T>::makeAudioTaper(*ret);
+        audioTaper = ret;
+    }
+    return ret;
+
+    return nullptr;
+}
+
+template <typename T>
 std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getSinLookup()
 {
     std::shared_ptr< LookupTableParams<T>> ret = sinLookupTable.lock();
@@ -53,7 +68,7 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getDb2Gain()
         ret = std::make_shared<LookupTableParams<T>>();
         LookupTable<T>::init(*ret, 32, -80, 20, [](double x) {
             return AudioMath::gainFromDb(x);
-        });
+            });
         db2Gain = ret;
     }
     return ret;
@@ -66,7 +81,7 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getTanh5()
     std::shared_ptr< LookupTableParams<T>> ret = tanh5.lock();
     if (!ret) {
         ret = std::make_shared<LookupTableParams<T>>();
-        LookupTable<T>::init(*ret, 256, -5, 5,  [](double x) {
+        LookupTable<T>::init(*ret, 256, -5, 5, [](double x) {
             return std::tanh(x);
             });
         tanh5 = ret;
@@ -77,6 +92,9 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getTanh5()
 // The weak pointer that hold our singletons.
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::bipolarAudioTaper;
+
+template <typename T>
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::audioTaper;
 
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::sinLookupTable;

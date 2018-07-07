@@ -28,6 +28,10 @@ extern void testFinalLeaks();
 extern void testClockMult();
 extern void testTremolo();
 extern void testGateTrigger();
+extern void testAnalyzer();
+extern void testFilter();
+extern void testStochasticGrammar();
+extern void testLowpassFilter();
 
 int main(int argc, char ** argv)
 {
@@ -65,8 +69,16 @@ int main(int argc, char ** argv)
     testStateVariable();
 
     testFFT();
+    testAnalyzer();
     testFFTCrossFader();
-    testThread(extended);
+    if (extended) {
+        testThread(extended);
+    }
+
+    testLowpassFilter();
+    testFilter();
+    
+    testStochasticGrammar();
 
     // after testing all the components, test composites.
     testTremolo();
@@ -77,6 +89,8 @@ int main(int argc, char ** argv)
     if (runPerf) {
         perfTest();
     }
+
+
 
     testFinalLeaks();
 

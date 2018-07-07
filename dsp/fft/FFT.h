@@ -1,8 +1,9 @@
 #pragma once
 
-class FFTDataCpx;
-class FFTDataReal;
+//class FFTDataCpx;
+//class FFTDataReal;
 
+#include "FFTData.h"
 
 class ColoredNoiseSpec
 {

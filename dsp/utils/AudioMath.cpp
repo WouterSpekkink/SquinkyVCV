@@ -62,7 +62,7 @@ std::function<double(double)> AudioMath::makeFunc_AudioTaper(double dbAtten)
     };
 }
 
-AudioMath::ScaleFun<float> AudioMath::makeBipolarAudioScaler(float y0, float y1)
+AudioMath::ScaleFun<float> AudioMath::makeScalerWithBipolarAudioTrim(float y0, float y1)
 {
     // Use a cached singleton for the lookup table - don't need to have unique copies
     std::shared_ptr<LookupTableParams<float>> lookup = ObjectCache<float>::getBipolarAudioTaper();
@@ -78,6 +78,32 @@ AudioMath::ScaleFun<float> AudioMath::makeBipolarAudioScaler(float y0, float y1)
         float x = cv * mappedTrim + knob;
         x = std::max<float>(-5.0f, x);
         x = std::min(5.0f, x);
+        return a * x + b;
+    };
+}
+
+AudioMath::SimpleScaleFun<float> AudioMath::makeSimpleScalerAudioTaper(float y0, float y1)
+{
+    // Use a cached singleton for the lookup table - don't need to have unique copies
+    std::shared_ptr<LookupTableParams<float>> lookup = ObjectCache<float>::getAudioTaper();
+    const float x0 = 0;
+    const float x1 = 1;
+    const float a = (y1 - y0) / (x1 - x0);
+    const float b = y0 - a * x0;
+
+    return [a, b, lookup](float cv, float knob) {
+        // get the clipped sum of the inputs
+        float x = cv + knob;
+        x = std::max<float>(-5.0f, x);
+        x = std::min(5.0f, x);
+
+        // adjust to 0..1 and map
+        x += 5.f;
+        x /= 10.f;
+        assert(x >= 0 && x <= 1);
+        x = LookupTable<float>::lookup(*lookup, x);
+
+        // scale to output
         return a * x + b;
     };
 }

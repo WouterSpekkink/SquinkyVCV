@@ -219,6 +219,16 @@ static void testBipolarSimpleLookup()
 
 
 template <typename T>
+static void testAudioTaperSimpleLookup()
+{
+    LookupTableParams<T> lookup;
+    LookupTableFactory<T>::makeAudioTaper(lookup);
+
+    assertClose(LookupTable<T>::lookup(lookup, 0), 0, .01);
+    assertClose(LookupTable<T>::lookup(lookup, 1), 1, .01);
+}
+
+template <typename T>
 static void testBipolarTolerance()
 {
     LookupTableParams<T> lookup;
@@ -245,6 +255,31 @@ static void testBipolarTolerance()
     }
 }
 
+
+template <typename T>
+static void testAudioTaperTolerance()
+{
+    LookupTableParams<T> lookup;
+    LookupTableFactory<T>::makeAudioTaper(lookup);
+    const double toleratedError = 1 - AudioMath::gainFromDb(-.1);// let's go for one db.
+    assert(toleratedError > 0);
+
+    auto refFuncPos = AudioMath::makeFunc_AudioTaper(LookupTableFactory<T>::audioTaperKnee());
+
+#if 0
+    auto refFuncNeg = [refFuncPos](double x) {
+        assert(x <= 0);
+        return -refFuncPos(-x);
+    };
+#endif
+
+    for (double x = 0; x < 1; x += .001) {
+        const T test = LookupTable<T>::lookup(lookup, (T) x);
+        T ref = (T) refFuncPos(x);
+        assertClose(test, ref, toleratedError);
+    }
+}
+
 template<typename T>
 static void test()
 {
@@ -261,6 +296,8 @@ static void test()
     testExpTolerance<T>(1);
     testBipolarSimpleLookup<T>();
     testBipolarTolerance<T>();
+    testAudioTaperSimpleLookup<T>();
+    testAudioTaperTolerance<T>();
 }
 
 void testLookupTable()

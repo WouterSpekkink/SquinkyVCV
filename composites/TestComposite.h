@@ -62,4 +62,9 @@ public:
     std::vector<Output> outputs;
     std::vector<Param> params;
     std::vector<Light> lights;
+
+    float engineGetSampleTime()
+    {
+        return 1.0f / 44100.0f;
+    }
 };
