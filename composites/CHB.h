@@ -1,6 +1,9 @@
 
 #pragma once
+
+#include "poly.h"
 #include "ObjectCache.h"
+
 
 /**
  */
@@ -52,6 +55,7 @@ private:
 
 
     float reciprocalSampleRate = 0;
+    Poly<11> poly;
 
 };
 

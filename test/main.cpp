@@ -32,6 +32,7 @@ extern void testAnalyzer();
 extern void testFilter();
 extern void testStochasticGrammar();
 extern void testLowpassFilter();
+extern void testPoly();
 
 int main(int argc, char ** argv)
 {
@@ -64,6 +65,9 @@ int main(int argc, char ** argv)
     testSaw();
     testClockMult();
 
+
+    testPoly();
+
     testSinOscillator();
     testHilbert();
     testStateVariable();
@@ -89,7 +93,6 @@ int main(int argc, char ** argv)
     if (runPerf) {
         perfTest();
     }
-
 
 
     testFinalLeaks();

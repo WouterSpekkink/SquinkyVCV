@@ -222,6 +222,9 @@
     <ClCompile Include="..\..\sqsrc\grammar\StochasticGrammar.cpp">
       <Filter>Source Files\sqsrc\grammar</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\testPoly.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
@@ -382,6 +385,9 @@
     </ClInclude>
     <ClInclude Include="..\..\sqsrc\clock\TriggerSequencer.h">
       <Filter>Header Files\sqsrc\clock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\utils\poly.h">
+      <Filter>Header Files\dsp\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
