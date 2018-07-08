@@ -87,10 +87,9 @@ public:
     }
 };
 
-
 /**
  * Simple producer / consumer for test data.
- * Serves up a precalculated list of random numbers.
+ * Serves up a pre-calculated list of random numbers.
  */
 template <typename T>
 class TestBuffers
@@ -126,7 +125,6 @@ private:
     static T destData[size];
 };
 
-
 template <typename T>
 T TestBuffers<T>::sourceData[size];
 
@@ -138,13 +136,3 @@ size_t TestBuffers<T>::sourceIndex = 0;
 
 template <typename T>
 size_t TestBuffers<T>::destIndex = 512;
-
-
-/**
- * Simple timer implementation for running inside Visual Studio
- */
-
-
-
-
-

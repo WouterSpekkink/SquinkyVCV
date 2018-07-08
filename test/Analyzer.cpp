@@ -1,5 +1,6 @@
 #include <assert.h>
 
+#include "asserts.h"
 #include "Analyzer.h"
 #include "AudioMath.h"
 #include "FFT.h"
@@ -10,17 +11,33 @@
 
 int Analyzer::getMax(const FFTDataCpx& data)
 {
+    return getMaxExcluding(data, std::set<int>());
+}
+
+int Analyzer::getMaxExcluding(const FFTDataCpx& data, int exclusion)
+{
+    std::set<int> exclusions;
+    exclusions.insert(exclusion);
+    return getMaxExcluding(data, exclusions);
+}
+
+int Analyzer::getMaxExcluding(const FFTDataCpx& data, std::set<int> exclusions)
+{
     int maxBin = -1;
     float maxMag = 0;
     for (int i = 0; i < data.size(); ++i) {
-        const float mag = std::abs(data.get(i));
-        if (mag > maxMag) {
-            maxMag = mag;
-            maxBin = i;
+        if (exclusions.find(i) == exclusions.end()) {
+            const float mag = std::abs(data.get(i));
+            if (mag > maxMag) {
+                maxMag = mag;
+                maxBin = i;
+            }
         }
     }
     return maxBin;
 }
+
+static int getMaxExcluding(const FFTDataCpx&, int excludeBin);
 
 float Analyzer::getSlope(const FFTDataCpx& response, float fTest, float sampleRate)
 {
@@ -30,8 +47,6 @@ float Analyzer::getSlope(const FFTDataCpx& response, float fTest, float sampleRa
     const float mag1 = response.getAbs(bin1);
     const float mag2 = response.getAbs(bin2);
     return float(AudioMath::db(mag2) - AudioMath::db(mag1)) / 2;
-
-
 }
 
 std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, float atten)
@@ -72,6 +87,15 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
    // printf("out of loop, imax=%d, shoulders=%d,%d\n", maxBin, iShoulderLow, iShoulderHigh);
 
     return std::make_tuple(iShoulderLow, maxBin, iShoulderHigh);
+}
+
+std::tuple<float, float, float> Analyzer::getMaxAndShouldersFreq(const FFTDataCpx& data, float atten, float sampleRate)
+{
+    auto stats = getMaxAndShoulders(data, atten);
+    return  std::make_tuple(FFT::bin2Freq(std::get<0>(stats), sampleRate, data.size()),
+        FFT::bin2Freq(std::get<1>(stats), sampleRate, data.size()),
+        FFT::bin2Freq(std::get<2>(stats), sampleRate, data.size())
+    );
 }
 
 
@@ -162,7 +186,7 @@ static double hamming(int iSample, int totalSamples)
     return a0 + (1.0 - a0) * std::cos(theta);
 }
 
-void Analyzer::getSpectrum(FFTDataCpx& out, std::function<float()> func)
+void Analyzer::getSpectrum(FFTDataCpx& out, bool useWindow, std::function<float()> func)
 {
  
     const int numSamples = out.size();
@@ -170,7 +194,8 @@ void Analyzer::getSpectrum(FFTDataCpx& out, std::function<float()> func)
     // Run the test signal though func, capture output in fft real
     FFTDataReal testOutput(numSamples);
     for (int i = 0; i < out.size(); ++i) {
-        const float y = float(func() * hamming(i, out.size()));
+        const float w = useWindow ? (float) hamming(i, out.size()) : 1;
+        const float y = float(func() * w);
         testOutput.set(i, y);
     }
 
@@ -211,4 +236,38 @@ void Analyzer::generateSweep(float sampleRate, float* out, int numSamples, float
        // ::printf("out[%d] = %f f=%f\n", i, val, freq);
         out[i] = (float) val;
     }
+}
+
+float Analyzer::makeEvenPeriod(float desiredFreq, float sampleRate, int numSamples)
+{
+    float desiredPeriodSamples = sampleRate / desiredFreq;
+    float periodsPerFrame = numSamples / desiredPeriodSamples;
+
+   
+     //printf("desiredFreq = %f, desired period/ samp = %f, periods per frame = %f\n", desiredFreq, desiredPeriodSamples, periodsPerFrame);
+
+      
+     float evenPeriodsPerFrame = std::floor(periodsPerFrame);
+
+    float period = (float) numSamples / evenPeriodsPerFrame;
+    //printf("period = %f\n", period);
+    float freq = sampleRate / period;
+    //printf("freq = %f\n", freq);
+    return (freq);
+}
+
+void Analyzer::assertSingleFreq(const FFTDataCpx& spectrum, float expectedFreq, float sampleRate)
+{
+    assert(expectedFreq < (sampleRate / 2));
+    int maxBin = Analyzer::getMax(spectrum);
+    float maxFreq = FFT::bin2Freq(maxBin, sampleRate, spectrum.size());
+
+    int nextMaxBin = Analyzer::getMaxExcluding(spectrum, maxBin);
+    float maxPower = std::abs(spectrum.get(maxBin));
+    float nextMaxPower = std::abs(spectrum.get(nextMaxBin));
+
+    float spuriousDb = (float) AudioMath::db(nextMaxPower / maxPower);
+
+    assertClose(maxFreq, expectedFreq, 1);
+    assertLE(spuriousDb, 70);
 }

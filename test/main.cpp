@@ -67,13 +67,18 @@ int main(int argc, char ** argv)
 
 
     testPoly();
+   
 
     testSinOscillator();
     testHilbert();
-    testStateVariable();
+   
 
     testFFT();
     testAnalyzer();
+
+    printf("skipping lots of tests\n");
+#if 0
+    testStateVariable();
     testFFTCrossFader();
     if (extended) {
         testThread(extended);
@@ -89,7 +94,7 @@ int main(int argc, char ** argv)
     testColoredNoise();
     testFrequencyShifter();
     testVocalAnimator();
-
+#endif
     if (runPerf) {
         perfTest();
     }

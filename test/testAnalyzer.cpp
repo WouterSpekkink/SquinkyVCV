@@ -2,11 +2,15 @@
 #include <assert.h>
 #include <vector>
 
+
 #include "Analyzer.h"
 #include "asserts.h"
 #include "AudioMath.h"
+
 #include "FFTData.h"
+#include "SinOscillator.h"
 #include "MeasureTime.h"
+
 
 static void ana1()
 {
@@ -63,10 +67,35 @@ static void ana7()
         assertClose(std::abs(x.get(i)), 1, .0001);
     }
 }
+
+
+// test that we get a good spectrum from synchronous sin
+static void testSyncSin()
+{
+    float desiredFreq = 500.0f;
+    int numSamples = 16 * 1024;
+    const float sampleRate = 44100.0f;
+    float actualFreq = Analyzer::makeEvenPeriod(desiredFreq, sampleRate, numSamples);
+
+    SinOscillatorParams<float> sinParams;
+    SinOscillatorState<float> sinState;
+    SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
+
+    FFTDataCpx spectrum(numSamples);
+    Analyzer::getSpectrum(spectrum, false, [&sinState, &sinParams]() {
+        return SinOscillator<float, false>::run(sinState, sinParams);
+        });
+
+    Analyzer::assertSingleFreq(spectrum, actualFreq, sampleRate);
+}
+
+
+
 void testAnalyzer()
 {
     ana1();
     ana2();
     ana3();
     ana7();
+    testSyncSin();
 }
