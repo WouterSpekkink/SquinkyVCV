@@ -38,23 +38,51 @@ static void testSyncSin()
     SinOscillatorState<float> sinState;
     SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
 
-    FFTDataCpx fftData(numSamples);
-    Analyzer::getSpectrum(fftData, false, [&sinState, &sinParams]() {
+    FFTDataCpx spectrum(numSamples);
+    Analyzer::getSpectrum(spectrum, false, [&sinState, &sinParams]() {
         return SinOscillator<float, false>::run(sinState, sinParams);
         });
 
-    auto data = Analyzer::getMaxAndShouldersFreq(fftData, -3, sampleRate);
-    printf("max = %f shoulders=%f,%f\n", std::get<1>(data), std::get<0>(data), std::get<2>(data));
+    Analyzer::assertSingleFreq(spectrum, actualFreq, sampleRate);
 
-    assertClose(std::get<1>(data), actualFreq, 1);
-    assertClose(std::get<0>(data), actualFreq, 5);
-    assertClose(std::get<2>(data), actualFreq, 5);
 }
 
+static void testPureTerm(int term)
+{
+    float desiredFreq = 500.0f;
+    int numSamples = 16 * 1024;
+    const float sampleRate = 44100.0f;
+    float actualFreq = Analyzer::makeEvenPeriod(desiredFreq, sampleRate, numSamples);
+
+    SinOscillatorParams<float> sinParams;
+    SinOscillatorState<float> sinState;
+    SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
+
+    Poly<11> poly;
+    poly.setGain(term, 1);
+
+    FFTDataCpx spectrum(numSamples);
+    Analyzer::getSpectrum(spectrum, false, [&sinState, &sinParams, &poly]() {
+        float sin = SinOscillator<float, false>::run(sinState, sinParams);
+        const float x = poly.run(sin);
+        return x;
+        });
+
+    const int order = term + 1;
+    Analyzer::assertSingleFreq(spectrum, actualFreq * order, sampleRate);
+}
+
+static void testTerms()
+{
+    for (int i = 0; i < 10; ++i) {
+        testPureTerm(i);
+   }    
+}
 
 void testPoly()
 {
     test0();
     test1();
+    testTerms();
 
 }
