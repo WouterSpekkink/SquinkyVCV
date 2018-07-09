@@ -3,6 +3,8 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <functional>
+#include "AudioMath.h"
 
 /***********************************************
  ********** rhythmic grouping codes *************
@@ -120,13 +122,6 @@ inline bool operator == (const ProductionRuleEntry& a, const ProductionRuleEntry
     return a.probability == b.probability && a.code == b.code;
 }
 
-// TODO: get rid of this
-class Random
-{
-public:
-    float get();
-};
-
 /* class ProductionRule
  * A production rule encapsulates every way that a starting symbol
  * can produce others.
@@ -140,12 +135,12 @@ public:
     class EvaluationState
     {
     public:
-        EvaluationState(Random& xr) : r(xr)
+        EvaluationState(AudioMath::RandomUniformFunc xr) : r(xr)
         {
         }
         const ProductionRule * rules;
         int numRules;
-        Random& r;		//random number generator to use 
+        AudioMath::RandomUniformFunc r;		//random number generator to use 
         virtual void writeSymbol(GKEY)
         {
         }

@@ -2,7 +2,7 @@
 #include "StochasticGrammar.h"
 #include <random>
 
-
+#if 0
 // eventually get rid of this global random generator
 std::default_random_engine generator{57};
 std::uniform_real_distribution<float> distribution{0, 1.0};
@@ -10,6 +10,7 @@ float Random::get()
 {
     return  distribution(generator);
 }
+#endif
 
 
 /***************************************************************************************************************
@@ -255,7 +256,7 @@ void ProductionRule::evaluate(EvaluationState& es, int ruleToEval)
 #ifdef _MSC_VER
     assert(rule._isValid(ruleToEval));
 #endif
-    GKEY result = _evaluateRule(rule, es.r.get());
+    GKEY result = _evaluateRule(rule, es.r());
     if (result == sg_invalid)		// request to terminate recursion
     {
         GKEY code = ruleToEval;		// our "real" terminal code is our table index

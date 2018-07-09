@@ -10,7 +10,7 @@
 class GTGEvaluator : public ProductionRule::EvaluationState
 {
 public:
-    GTGEvaluator(Random& xr, TriggerSequencer::Event * buf) :
+    GTGEvaluator(AudioMath::RandomUniformFunc xr, TriggerSequencer::Event * buf) :
         ProductionRule::EvaluationState(xr),
         _buf(buf),
         _delay(0)
@@ -46,7 +46,7 @@ private:
 class GenerativeTriggerGenerator
 {
 public:
-    GenerativeTriggerGenerator(Random& r, const ProductionRule * rules, int numRules, GKEY initialState) :
+    GenerativeTriggerGenerator(AudioMath::RandomUniformFunc r, const ProductionRule * rules, int numRules, GKEY initialState) :
         _r(r),
         _rules(rules),
         _numRules(numRules),
@@ -86,7 +86,7 @@ private:
     TriggerSequencer * _seq;
     TriggerSequencer::Event _data[33];
     const ProductionRule * _rules;
-    Random& _r;
+    AudioMath::RandomUniformFunc _r;
     int _numRules;
     GKEY _initKey;
     //

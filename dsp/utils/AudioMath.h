@@ -115,8 +115,6 @@ public:
      */
     static SimpleScaleFun<float> makeSimpleScalerAudioTaper(float y0, float y1);
 
-
-
     template <typename T>
     static std::pair<T, T> getMinMax(const T* data, int numSamples)
     {
@@ -128,4 +126,11 @@ public:
         }
         return std::pair<T, T>(min, max);
     }
+
+    /**
+     * A random number generator function. uniform random 0..1
+     */
+    using RandomUniformFunc = std::function<float(void)>;
+
+    static RandomUniformFunc random();
 };

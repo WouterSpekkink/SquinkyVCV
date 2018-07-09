@@ -1,9 +1,11 @@
 #include <assert.h>
 #include <memory>
+#include <random>
 
 #include "AudioMath.h"
 #include "LookupTable.h"
 #include "ObjectCache.h"
+
 
 const double AudioMath::Pi = 3.1415926535897932384626433832795028841971;
 const double AudioMath::Pi_2 = 1.5707963267948966192313216916397514420986;
@@ -107,6 +109,17 @@ AudioMath::SimpleScaleFun<float> AudioMath::makeSimpleScalerAudioTaper(float y0,
         return a * x + b;
     };
 }
+
+// TODO: move this to audio math
+AudioMath::RandomUniformFunc AudioMath::random()
+{
+    return []() {
+        std::default_random_engine generator{57};
+        std::uniform_real_distribution<float> distribution{0, 1.0};
+        return  distribution(generator);
+    };
+}
+
 
  // declare some test variables here
 int _numLookupParams = 0;

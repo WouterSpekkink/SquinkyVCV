@@ -6,12 +6,15 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <random>
 
 
 static const int numRules = fullRuleTableSize;
-static Random r;
+
 typedef GKEY(*INITFN)();
 static ProductionRule rules[numRules];
+
+
 
 // Test basic integrity of key data
 static void test0()
@@ -129,7 +132,7 @@ void gdt0()
 class TestEvaluator : public ProductionRule::EvaluationState
 {
 public:
-    TestEvaluator(Random& xr) : ProductionRule::EvaluationState(xr)
+    TestEvaluator(AudioMath::RandomUniformFunc xr) : ProductionRule::EvaluationState(xr)
     {
     }
     virtual void writeSymbol(GKEY key)
@@ -233,8 +236,7 @@ static void testGrammarSub(INITFN f)
 
     printf("test sub finished validating grammar\n");
 
-    Random r;
-    TestEvaluator es(r);
+    TestEvaluator es(AudioMath::random());
     es.rules = rules;
     es.numRules = numRules;
     ProductionRule::evaluate(es, init);
@@ -444,8 +446,7 @@ static void gtg0()
 {
     printf("gtg0\n");
     GKEY key = init1();
-    Random r;
-    GenerativeTriggerGenerator gtg(r, rules, numRules, key);
+    GenerativeTriggerGenerator gtg(AudioMath::random(), rules, numRules, key);
     bool yes = false;
     bool no = false;
     for (int i = 0; i<100000; ++i) {
@@ -471,8 +472,7 @@ static void gtg1()
     GKEY key = init1();
     std::set<int> counts;
 
-    Random r;
-    GenerativeTriggerGenerator gtg(r, rules, numRules, key);
+    GenerativeTriggerGenerator gtg(AudioMath::random(), rules, numRules, key);
 
     int ct = 0;
     for (int i = 0; i<10000; ++i) {
