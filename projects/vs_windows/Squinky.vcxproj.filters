@@ -389,5 +389,8 @@
     <ClInclude Include="..\..\dsp\utils\poly.h">
       <Filter>Header Files\dsp\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\composites\CHB.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

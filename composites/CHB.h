@@ -31,11 +31,19 @@ public:
 
     enum ParamIds
     {
+        PARAM_H0,
+        PARAM_H1,
+        PARAM_H2,
+        PARAM_H3,
+        PARAM_H4,
+        PARAM_H5,
+
         NUM_PARAMS
     };
 
     enum InputIds
     {
+        CV_INPUT,
         NUM_INPUTS
     };
 
@@ -93,6 +101,10 @@ inline void CHB<TBase>::internalUpdate()
 template <class TBase>
 inline void CHB<TBase>::step()
 {
+    for (int i = 0; i < 6; ++i) {
+        float val = TBase::params[i + PARAM_H0].value;
+        poly.setGain(i, val);
+    }
     float input = SinOscillator<float, false>::run(sinState, sinParams);
     float output = poly.run(input);
     TBase::outputs[OUTPUT].value = output;

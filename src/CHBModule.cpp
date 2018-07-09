@@ -64,9 +64,8 @@ struct CHBWidget : ModuleWidget
         label->color = color;
         addChild(label);
     }
-    //void addClockSection(TremoloModule *module);
-    //void addIOSection(TremoloModule *module);
-    //void addMainSection(TremoloModule *module);
+    
+   
 };
 
 
@@ -84,6 +83,25 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
         addChild(panel);
     }
+
+    const float knobX = 25;
+    const float knobY= 70;
+    const float knobDY = 45;
+
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY), module, module->chb.PARAM_H0, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 1 * knobDY), module, module->chb.PARAM_H1, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 2 * knobDY), module, module->chb.PARAM_H2, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 3 * knobDY), module, module->chb.PARAM_H3, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(knobX, knobY + 4 * knobDY), module, module->chb.PARAM_H4, 0.0f, 1.0f, 1.0f));
+   
+    addOutput(Port::create<PJ301MPort>(
+        Vec(40, 300), Port::OUTPUT, module, module->chb.OUTPUT));
+ 
 
 
     // screws
