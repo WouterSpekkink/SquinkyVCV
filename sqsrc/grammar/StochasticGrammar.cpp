@@ -345,7 +345,7 @@ bool ProductionRule::_isValid(int index) const
 }
 #endif
 
-#ifdef _MSC_VER
+#ifdef _DEBUG
 bool ProductionRule::isGrammarValid(const ProductionRule * rules, int numRules, GKEY firstRule)
 {
     //printf("is grammar valid, numRules = %d first = %d\n", numRules, firstRule);

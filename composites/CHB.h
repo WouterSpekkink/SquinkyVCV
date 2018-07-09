@@ -3,6 +3,7 @@
 
 #include "poly.h"
 #include "ObjectCache.h"
+#include "SinOscillator.h"
 
 
 /**
@@ -17,13 +18,16 @@ public:
     CHB() : TBase()
     {
     }
+
     void setSampleTime(float time)
     {
         reciprocalSampleRate = time;
+        internalUpdate();
     }
 
     // must be called after setSampleRate
     void init();
+    
 
     enum ParamIds
     {
@@ -55,7 +59,19 @@ private:
 
 
     float reciprocalSampleRate = 0;
-    Poly<11> poly;
+
+    /** 
+     * The waveshaper this is the heart of this module
+     */
+    Poly<11> poly;  
+
+    /**
+     * Internal sine wave oscillator to drive the waveshaper
+     */        
+    SinOscillatorParams<float> sinParams;
+    SinOscillatorState<float> sinState;
+
+    void internalUpdate();
 
 };
 
@@ -64,12 +80,21 @@ private:
 template <class TBase>
 inline void CHB<TBase>::init()
 {
+    internalUpdate();
+}
 
+template <class TBase>
+inline void CHB<TBase>::internalUpdate()
+{
+    // for now, just run at 500 hz
+    SinOscillator<float, false>::setFrequency(sinParams, 500 * reciprocalSampleRate);
 }
 
 template <class TBase>
 inline void CHB<TBase>::step()
 {
-
+    float input = SinOscillator<float, false>::run(sinState, sinParams);
+    float output = poly.run(input);
+    TBase::outputs[OUTPUT].value = output;
 }
 

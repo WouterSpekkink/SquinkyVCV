@@ -167,11 +167,12 @@ public:
     ProductionRuleEntry entries[numEntries];
 
     static void evaluate(EvaluationState& es, int ruleToEval);
-
+#ifdef _DEBUG
     static bool isGrammarValid(const ProductionRule * rules, int numRules, GKEY firstRule);
+#endif
 private:
     static int _evaluateRule(const ProductionRule& rule, float random);
-#ifdef _MSC_VER
+#ifdef _DEBUG
     bool _isValid(int index) const;
 #endif
 };

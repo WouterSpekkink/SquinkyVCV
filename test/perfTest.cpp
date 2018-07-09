@@ -17,6 +17,7 @@
 #include "VocalFilter.h"
 #include "LFN.h"
 #include "GMR.h"
+#include "CHB.h"
 
 using Shifter = FrequencyShifter<TestComposite>;
 using Animator = VocalAnimator<TestComposite>;
@@ -108,7 +109,9 @@ double overheadOutOnly = 0;
 
 static void setup()
 {
-
+#ifdef _DEBUG
+    assert(false);  // don't run this in debug
+#endif
     double d = .1;
     const double scale = 1.0 / RAND_MAX;
     overheadInOut = MeasureTime<float>::run(0.0, "test1 (do nothing i/o)", [&d, scale]() {
@@ -243,6 +246,18 @@ static void testLFN()
         }, 1);
 }
 
+static void testCHB()
+{
+    CHB<TestComposite> chb;
+
+    chb.setSampleTime(1.0f / 44100.f);
+    chb.init();
+
+    MeasureTime<float>::run(overheadOutOnly, "chb", [&chb]() {
+        chb.step();
+        return chb.outputs[LFN<TestComposite>::OUTPUT].value;
+        }, 1);
+}
 static void testGMR()
 {
     GMR<TestComposite> gmr;
@@ -301,6 +316,7 @@ void perfTest()
     testAttenuverters();
     testExpRange();
 #endif
+    testCHB();
     testLFN();
     testGMR();
     testVocalFilter();

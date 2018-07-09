@@ -66,7 +66,7 @@ void testAllKeys()
  * Make some simple grammars and test them
  **************************************************************************************/
 
-
+#ifdef _DEBUG
 void gdt0()
 {
     printf("gdt0\n");
@@ -123,6 +123,7 @@ void gdt0()
         assert(!b);
     }
 }
+#endif
 
 
 class TestEvaluator : public ProductionRule::EvaluationState
@@ -221,7 +222,7 @@ static GKEY init2()
     return sg_w2;
 }
 
-
+#ifdef _DEBUG
 static void testGrammarSub(INITFN f)
 {
     GKEY init = f();
@@ -240,6 +241,7 @@ static void testGrammarSub(INITFN f)
 
     assert(es.getNumSymbols() > 0);
 }
+#endif
 
 
 /*********************************************************************************************************
@@ -419,6 +421,7 @@ static void ts4()
  ** StochasticGrammarDictionary
  */
 
+#ifdef _DEBUG
 void gdt1()
 {
     printf("--gdt1--\n");
@@ -430,6 +433,7 @@ void gdt1()
         assert(b);
     }
 }
+#endif
 
 /********************************************************************************************
 * GenerativeTriggerGenerator
@@ -506,18 +510,22 @@ void testStochasticGrammar()
 {
     test0();
     testAllKeys();
-    gdt0();
 
+#ifdef _DEBUG
+    gdt0();
     testGrammarSub(init0);
     testGrammarSub(init1);
     testGrammarSub(init2);
+#endif
     ts0();
     ts1();
     ts2();
     ts3();
     ts4();
 
+#ifdef _DEBUG
     gdt1();
+#endif
 
     gtg0();
     gtg1();
