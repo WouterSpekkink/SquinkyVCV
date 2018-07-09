@@ -76,8 +76,8 @@ int main(int argc, char ** argv)
     testFFT();
     testAnalyzer();
 
-    printf("skipping lots of tests\n");
-#if 0
+   // printf("skipping lots of tests\n");
+#if 1
     testStateVariable();
     testFFTCrossFader();
     if (extended) {

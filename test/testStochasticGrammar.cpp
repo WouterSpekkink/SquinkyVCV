@@ -8,7 +8,6 @@
 #include <set>
 #include <random>
 
-
 static const int numRules = fullRuleTableSize;
 
 typedef GKEY(*INITFN)();
@@ -32,8 +31,6 @@ static void test0()
         assert(!s.empty());
         assert(s.length() < 256);
 
-       // printf("key: %s\n", s.c_str());
-
         int dur = ProductionRuleKeys::getDuration(key);
         assert(dur > 0);
         assert(dur <= PPQ * 8);
@@ -48,17 +45,17 @@ void testAllKeys()
     GKEY buffer[siz];
 
     for (GKEY gk = sg_first; gk <= sg_last; ++gk) {
-        printf("testing key %d\n", gk);
-        printf("to string: %s\n", ProductionRuleKeys::toString(gk));
+       // printf("testing key %d\n", gk);
+       // printf("to string: %s\n", ProductionRuleKeys::toString(gk));
         const int dur = ProductionRuleKeys::getDuration(gk);
         ProductionRuleKeys::breakDown(gk, buffer);
         int sum = 0;
         for (GKEY * p = buffer; *p != sg_invalid; ++p) {
-            printf("adding to sum %d\n", ProductionRuleKeys::getDuration(*p));
+           // printf("adding to sum %d\n", ProductionRuleKeys::getDuration(*p));
             sum += ProductionRuleKeys::getDuration(*p);
 
         }
-        printf("dur = %d sum = %d (should be the same)\n", dur, sum);
+       // printf("dur = %d sum = %d (should be the same)\n", dur, sum);
         assert(dur == sum);
     }
 }
@@ -72,16 +69,13 @@ void testAllKeys()
 #ifdef _DEBUG
 void gdt0()
 {
-    printf("gdt0\n");
     {
-        printf("gdt0a\n");
         static ProductionRule rules[numRules];
         bool b = ProductionRule::isGrammarValid(rules, numRules, sg_invalid);
         assert(!b);
     }
     {
         // throw in a positive case
-        printf("gdt0b\n");
         static ProductionRule rules[numRules];
         ProductionRule& r = rules[sg_w];
         r.entries[0].probability = 1.0f;
@@ -92,7 +86,6 @@ void gdt0()
     }
     {
         // terminal code wrong
-        printf("gdt0c\n");
         static ProductionRule rules[numRules];
         ProductionRule& r = rules[sg_w];
         r.entries[0].probability = 1.0f;
@@ -102,8 +95,7 @@ void gdt0()
         assert(!b);
     }
     {
-        // bad order of proability
-        printf("gdt0c\n");
+        // bad order of probability
         static ProductionRule rules[numRules];
         ProductionRule& r = rules[sg_w];
         r.entries[0].probability = 1.0f;
@@ -114,8 +106,6 @@ void gdt0()
     }
     {
         // rule branches to nowhere
-        printf("gdt0d\n");
-
         static ProductionRule rules[numRules];
 
         // break w2 into w,w prob 100
@@ -142,9 +132,9 @@ public:
 
     int getNumSymbols()
     {
-        printf("final keys: ");
-        for (size_t i = 0; i< keys.size(); ++i) printf("%s, ", ProductionRuleKeys::toString(keys[i]));
-        printf("\n");
+        //printf("final keys: ");
+       // for (size_t i = 0; i< keys.size(); ++i) printf("%s, ", ProductionRuleKeys::toString(keys[i]));
+       // printf("\n");
         return (int) keys.size();
     }
 private:
@@ -157,7 +147,7 @@ private:
  */
 static GKEY init0()
 {
-    printf("called init0\n");
+   // printf("called init0\n");
     // This rule always generate sg-w2 (two whole notes tied together)
     ProductionRule& r = rules[sg_w2];
 
@@ -185,12 +175,12 @@ static GKEY init1()
 
     {
         // now need rule for w hole
-        printf("in init1 making 100 for %d\n", sg_w);
+        //printf("in init1 making 100 for %d\n", sg_w);
         ProductionRule& r = rules[sg_w];
         r.entries[0].probability = 1.0f;
         r.entries[1].code = sg_invalid;
     }
-    printf("leave init 1. rule 1 p0 = %f\n", rules[sg_w2].entries[0].probability);
+    //printf("leave init 1. rule 1 p0 = %f\n", rules[sg_w2].entries[0].probability);
     return sg_w2;
 }
 
@@ -200,7 +190,6 @@ static GKEY init1()
  */
 static GKEY init2()
 {
-    printf("in init2 making 50/50 for %d\n", sg_w2);
     {
         // start with w2 duration
         ProductionRule& r = rules[sg_w2];
@@ -215,12 +204,10 @@ static GKEY init2()
 
     {
         // now need rule for w hole
-        printf("in init1 making 100 for %d\n", sg_w);
         ProductionRule& r = rules[sg_w];
         r.entries[1].probability = 1.0f;
         r.entries[1].code = sg_invalid;		// always terminate
     }
-    printf("leave init 1. rule 1 p0 = %f\n", rules[sg_w2].entries[0].probability);
 
     return sg_w2;
 }
@@ -233,8 +220,6 @@ static void testGrammarSub(INITFN f)
 
     bool b = ProductionRule::isGrammarValid(rules, numRules, init);
     assert(b);
-
-    printf("test sub finished validating grammar\n");
 
     TestEvaluator es(AudioMath::random());
     es.rules = rules;
@@ -253,7 +238,6 @@ static void testGrammarSub(INITFN f)
  // test event at zero fires at zero
 static void ts0()
 {
-    printf("ts0b\n");
     TriggerSequencer::Event seq[] =
     {
         {TriggerSequencer::TRIGGER, 0},
@@ -272,7 +256,6 @@ static void ts0()
 // test trigger at 1 happens at 1
 static void ts1()
 {
-    printf("ts1\n");
     TriggerSequencer::Event seq[] =
     {
         {TriggerSequencer::TRIGGER, 1},
@@ -297,7 +280,6 @@ static void ts1()
 // 4 clock loop: delay 4, trigger, end
 static void ts2()
 {
-    printf("ts2\n");
     TriggerSequencer::Event seq[] =
     {
         {TriggerSequencer::TRIGGER, 4},
@@ -308,29 +290,24 @@ static void ts2()
     bool firstTime = true;
     // first time through, 4 clocks of nothing. then clock, 0,0,0
     for (int i = 0; i< 4; ++i) {
-       // printf("--- loop ----\n");
-
         ts.clock();
         if (firstTime) {
             assert(!ts.getTrigger()); assert(!ts.getEnd());
             firstTime = false;
         } else {
-            printf("second time around, t=%d e=%d\n", ts.getTrigger(), ts.getEnd());
+            //printf("second time around, t=%d e=%d\n", ts.getTrigger(), ts.getEnd());
+
             // second time around we finally see the trigger
 
             assert(ts.getTrigger());
 
-
             // second time around, need to clock the end of the last time
             assert(ts.getEnd());
             ts.reset(seq);				// start it up again
-
-            printf("e\n");
             assert(!ts.getTrigger());	// resetting should not set us up for a trigger
         }
         ts.clock(); assert(!ts.getTrigger()); assert(!ts.getEnd());
         ts.clock(); assert(!ts.getTrigger()); assert(!ts.getEnd());
-
 
         ts.clock(); assert(!ts.getTrigger());
         //	assert(ts.getEnd());
@@ -343,7 +320,6 @@ static void ts2()
 // 4 clock loop: trigger, delay 4 end
 static void ts3()
 {
-    printf("ts3\n");
     TriggerSequencer::Event seq[] =
     {
         {TriggerSequencer::TRIGGER, 0},
@@ -368,8 +344,6 @@ static void ts3()
             // second time around, need to clock the end of the last time
             assert(ts.getEnd());
             ts.reset(seq);				// start it up again
-
-            printf("e\n");
             assert(ts.getTrigger());	// resetting should have set us up for a trigger
         }
         // 2
@@ -386,8 +360,6 @@ static void ts3()
 // test trigger seq with straight ahead 4/4 as generated by a grammar
 static void ts4()
 {
-    printf("ts4\n");
-
     TriggerSequencer::Event seq[] =
     {
         {TriggerSequencer::TRIGGER, 0},
@@ -426,10 +398,8 @@ static void ts4()
 #ifdef _DEBUG
 void gdt1()
 {
-    printf("--gdt1--\n");
     assert(StochasticGrammarDictionary::getNumGrammars() > 0);
     for (int i = 0; i< StochasticGrammarDictionary::getNumGrammars(); ++i) {
-        printf("-gdt1 test grammar %d\n", i);
         StochasticGrammarDictionary::Grammar g = StochasticGrammarDictionary::getGrammar(i);
         bool b = ProductionRule::isGrammarValid(g.rules, g.numRules, g.firstRule);
         assert(b);
@@ -444,7 +414,6 @@ void gdt1()
 // test that we get some clocks and some not
 static void gtg0()
 {
-    printf("gtg0\n");
     GKEY key = init1();
     GenerativeTriggerGenerator gtg(AudioMath::random(), rules, numRules, key);
     bool yes = false;
@@ -468,7 +437,6 @@ static void gtg0()
 // test that we get everything in even quarter notes
 static void gtg1()
 {
-    printf("gtg1\n");
     GKEY key = init1();
     std::set<int> counts;
 
@@ -488,17 +456,13 @@ static void gtg1()
     assert(!counts.empty());
     for (std::set<int>::iterator it = counts.begin(); it != counts.end(); ++it) {
         int c = *it;
-        printf("got count %d\n", c);
-
 
         if ((c % PPQ) != 0) {
-            printf("PPQ=%d, c modePPQ =%d\n", PPQ, (c % PPQ));
-            printf("2ppq = %d, 4ppq=%d\n", 2 * PPQ, 4 * PPQ);
+            //printf("PPQ=%d, c modePPQ =%d\n", PPQ, (c % PPQ));
+            //printf("2ppq = %d, 4ppq=%d\n", 2 * PPQ, 4 * PPQ);
             assert(false);
         }
-        //assert(false);		// finish me
     }
-
 }
 
 
