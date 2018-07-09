@@ -71,7 +71,7 @@ private:
     /** 
      * The waveshaper this is the heart of this module
      */
-    Poly<11> poly;  
+    Poly<double, 11> poly;  
 
     /**
      * Internal sine wave oscillator to drive the waveshaper
@@ -95,7 +95,7 @@ template <class TBase>
 inline void CHB<TBase>::internalUpdate()
 {
     // for now, just run at 500 hz
-    SinOscillator<float, false>::setFrequency(sinParams, 500 * reciprocalSampleRate);
+    SinOscillator<float, false>::setFrequency(sinParams, 150 * reciprocalSampleRate);
 }
 
 template <class TBase>

@@ -6,7 +6,7 @@
 
 static void test0()
 {
-    Poly<11> poly;
+    Poly<float, 11> poly;
     float x = poly.run(0);
     assertEQ(x, 0);
 
@@ -20,31 +20,10 @@ static void test0()
 
 static void test1()
 {
-    Poly<11> poly;
+    Poly<float, 11> poly;
     poly.setGain(0, 1);
     float x = poly.run(1);
     assertNE(x, 0);
-}
-
-// test that we get a good spectrum from synchronous sin
-static void testSyncSin()
-{
-    float desiredFreq = 500.0f;
-    int numSamples = 16 * 1024;
-    const float sampleRate = 44100.0f;
-    float actualFreq = Analyzer::makeEvenPeriod(desiredFreq, sampleRate, numSamples);
-
-    SinOscillatorParams<float> sinParams;
-    SinOscillatorState<float> sinState;
-    SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
-
-    FFTDataCpx spectrum(numSamples);
-    Analyzer::getSpectrum(spectrum, false, [&sinState, &sinParams]() {
-        return SinOscillator<float, false>::run(sinState, sinParams);
-        });
-
-    Analyzer::assertSingleFreq(spectrum, actualFreq, sampleRate);
-
 }
 
 static void testPureTerm(int term)
@@ -58,7 +37,7 @@ static void testPureTerm(int term)
     SinOscillatorState<float> sinState;
     SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
 
-    Poly<11> poly;
+    Poly<double, 11> poly;
     poly.setGain(term, 1);
 
     FFTDataCpx spectrum(numSamples);
