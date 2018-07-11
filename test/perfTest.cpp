@@ -267,7 +267,7 @@ static void testGMR()
 
     MeasureTime<float>::run(overheadOutOnly, "gmr", [&gmr]() {
         gmr.step();
-        return gmr.outputs[GMR<TestComposite>::OUTPUT].value;
+        return gmr.outputs[GMR<TestComposite>::TRIGGER_OUTPUT].value;
         }, 1);
 }
 

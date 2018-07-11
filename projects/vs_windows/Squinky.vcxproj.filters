@@ -392,5 +392,8 @@
     <ClInclude Include="..\..\composites\CHB.h">
       <Filter>Header Files\composites</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\TriggerOutput.h">
+      <Filter>Header Files\sqsrc\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
