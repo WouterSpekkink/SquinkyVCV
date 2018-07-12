@@ -31,6 +31,7 @@ extern void testGateTrigger();
 extern void testAnalyzer();
 extern void testFilter();
 extern void testStochasticGrammar();
+extern void testGMR();
 extern void testLowpassFilter();
 extern void testPoly();
 
@@ -88,6 +89,7 @@ int main(int argc, char ** argv)
     testFilter();
     
     testStochasticGrammar();
+    testGMR();
 
     // after testing all the components, test composites.
     testTremolo();
