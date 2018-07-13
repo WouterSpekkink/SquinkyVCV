@@ -77,7 +77,7 @@ template <class TBase>
 inline void GMR<TBase>::step()
 {
     bool outClock = false;
-    bool inClock = TBase::inputs[CLOCK_INPUT].value;
+    float inClock = TBase::inputs[CLOCK_INPUT].value;
     inputClockProcessing.go(inClock);
     if (inputClockProcessing.trigger()) {
         outClock = gtg->clock();

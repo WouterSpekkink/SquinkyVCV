@@ -64,8 +64,6 @@ struct CHBWidget : ModuleWidget
         label->color = color;
         addChild(label);
     }
-    
-   
 };
 
 
@@ -76,11 +74,11 @@ struct CHBWidget : ModuleWidget
  */
 CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 {
-    box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+    box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
+        panel->setBackground(SVG::load(assetPlugin(plugin, "res/chb_panel.svg")));
         addChild(panel);
     }
 

@@ -32,8 +32,8 @@ public:
         return (_counter > 0) ? cGateOutHi : cGateOutLow;     // TODO: 0..10 for gates/trig/clock?
     }
 private:
-    const int _duration;
-    int _counter;
     GateTrigger _gateProcessor;
+    int _counter;
+    const int _duration;
 };
 

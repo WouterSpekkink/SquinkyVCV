@@ -17,7 +17,7 @@ public:
     {
     }
 
-    virtual void writeSymbol(GKEY key)
+    void writeSymbol(GKEY key) override
     {
         // first: write out a trigger at "current delay"
         _buf->evt = TriggerSequencer::TRIGGER;
@@ -85,8 +85,8 @@ public:
 private:
     TriggerSequencer * _seq;
     TriggerSequencer::Event _data[33];
-    const ProductionRule * _rules;
     AudioMath::RandomUniformFunc _r;
+    const ProductionRule * _rules;
     int _numRules;
     GKEY _initKey;
     //

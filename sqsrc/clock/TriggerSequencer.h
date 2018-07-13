@@ -47,16 +47,13 @@ public:
     }		// did sequencer end after last clock?
 
 
-// checks that a sequence is valid
+    // checks that a sequence is valid
     static bool isValid(const Event * data);
 private:
-    //const Event * const events;
     const Event * curEvent;
-    short delay;
-    //
     bool trigger;
+    short delay;
 
-    //
     void processClocks();
 };
 

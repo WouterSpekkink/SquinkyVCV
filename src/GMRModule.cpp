@@ -62,9 +62,6 @@ struct GMRWidget : ModuleWidget
         label->color = color;
         addChild(label);
     }
-    //void addClockSection(TremoloModule *module);
-    //void addIOSection(TremoloModule *module);
-    //void addMainSection(TremoloModule *module);
 };
 
 
@@ -83,6 +80,11 @@ GMRWidget::GMRWidget(GMRModule *module) : ModuleWidget(module)
         addChild(panel);
     }
 
+    addInput(Port::create<PJ301MPort>(
+        Vec(40, 200), Port::INPUT, module, module->gmr.CLOCK_INPUT));
+    addOutput(Port::create<PJ301MPort>(
+        Vec(40, 300), Port::OUTPUT, module, module->gmr.TRIGGER_OUTPUT));
+ 
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
