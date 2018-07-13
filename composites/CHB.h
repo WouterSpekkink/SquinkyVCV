@@ -44,6 +44,7 @@ public:
     enum InputIds
     {
         CV_INPUT,
+        ENV_INPUT,
         NUM_INPUTS
     };
 

@@ -73,7 +73,7 @@ struct CHBWidget : ModuleWidget
  * This is not shared by all modules in the DLL, just one
  */
 CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
-{
+{ 
     box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
         SVGPanel *panel = new SVGPanel();
@@ -81,10 +81,19 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/chb_panel.svg")));
         addChild(panel);
     }
+    printf("\nbox size = %f, %f\n", box.size.x, box.size.y);
 
+    const float row1=30;
+    addInput(Port::create<PJ301MPort>(
+        Vec(20, row1), Port::INPUT, module, module->chb.CV_INPUT));
+    addInput(Port::create<PJ301MPort>(
+        Vec(70, row1), Port::INPUT, module, module->chb.ENV_INPUT));
+ 
     const float knobX = 25;
     const float knobY= 70;
     const float knobDY = 45;
+
+
 
     addParam(ParamWidget::create<Rogan1PSBlue>(
         Vec(knobX, knobY), module, module->chb.PARAM_H0, 0.0f, 1.0f, 1.0f));
