@@ -89,6 +89,10 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addInput(Port::create<PJ301MPort>(
         Vec(70, row1), Port::INPUT, module, module->chb.ENV_INPUT));
  
+
+    addParam(ParamWidget::create<Rogan1PSBlue>(
+        Vec(150, 100), module, module->chb.PARAM_PITCH, -5.0f, 5.0f, 0));
+
     const float knobX = 25;
     const float knobY= 70;
     const float knobDY = 45;
