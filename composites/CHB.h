@@ -32,12 +32,18 @@ public:
     enum ParamIds
     {
         PARAM_PITCH,
+        PARAM_EXTGAIN,
         PARAM_H0,
         PARAM_H1,
         PARAM_H2,
         PARAM_H3,
         PARAM_H4,
         PARAM_H5,
+        PARAM_H6,
+        PARAM_H7,
+        PARAM_H8,
+        PARAM_H9,
+        PARAM_H10,
 
         NUM_PARAMS
     };

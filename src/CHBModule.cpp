@@ -64,8 +64,53 @@ struct CHBWidget : ModuleWidget
         label->color = color;
         addChild(label);
     }
+
+    void addHarmonics(CHBModule *module, const Vec& pos);
+    void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
 };
 
+
+/*
+    const float knobX = 25;
+    const float knobY= 70;
+    const float knobDY = 45;
+    */
+inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
+{
+    addHarmonicsRow(module, 0, pos);
+    Vec pos2 = pos;
+    pos2.y += 40;
+    addHarmonicsRow(module, 1, pos2);
+}
+inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& pos)
+{
+    int firstParam = 0;
+    int lastParam = 0;
+    switch (row) {
+        case 0:
+            firstParam = module->chb.PARAM_H0;
+            lastParam = module->chb.PARAM_H5;
+            break;
+        case 1:
+            firstParam = module->chb.PARAM_H6;
+            lastParam = module->chb.PARAM_H10;
+            break;
+        default:
+            assert(false);
+    }
+   
+  //  printf("%d, %d, %d\n", row, firstParam, lastParam); fflush(stdout);
+   // return;
+    for (int param = firstParam; param <= lastParam; ++param) {
+        Vec p;
+        p.x = pos.x + (param - firstParam) * 30;
+        p.y = pos.y;
+
+        printf("create trimpot %d\n", param); fflush(stdout);
+        addParam(ParamWidget::create<Trimpot>(
+            p, module, param, 0.0f, 1.0f, 1.0f));
+    }
+}
 
 /**
  * Widget constructor will describe my implementation structure and
@@ -81,7 +126,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/chb_panel.svg")));
         addChild(panel);
     }
-    printf("\nbox size = %f, %f\n", box.size.x, box.size.y);
+    
 
     const float row1=30;
     addInput(Port::create<PJ301MPort>(
@@ -90,26 +135,24 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
         Vec(70, row1), Port::INPUT, module, module->chb.ENV_INPUT));
  
 
-    addParam(ParamWidget::create<Rogan1PSBlue>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(150, 100), module, module->chb.PARAM_PITCH, -5.0f, 5.0f, 0));
 
-    const float knobX = 25;
-    const float knobY= 70;
-    const float knobDY = 45;
 
 
-
-    addParam(ParamWidget::create<Rogan1PSBlue>(
+    addHarmonics(module, Vec(25, 220));
+#if 0
+    addParam(ParamWidget::create<Trimpot>(
         Vec(knobX, knobY), module, module->chb.PARAM_H0, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(knobX, knobY + 1 * knobDY), module, module->chb.PARAM_H1, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(knobX, knobY + 2 * knobDY), module, module->chb.PARAM_H2, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(knobX, knobY + 3 * knobDY), module, module->chb.PARAM_H3, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Rogan1PSBlue>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(knobX, knobY + 4 * knobDY), module, module->chb.PARAM_H4, 0.0f, 1.0f, 1.0f));
-   
+   #endif
     addOutput(Port::create<PJ301MPort>(
         Vec(40, 300), Port::OUTPUT, module, module->chb.OUTPUT));
  
