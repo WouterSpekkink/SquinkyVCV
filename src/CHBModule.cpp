@@ -129,32 +129,27 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     
 
     const float row1=30;
+    const float label1 = row1+30;
     addInput(Port::create<PJ301MPort>(
         Vec(20, row1), Port::INPUT, module, module->chb.CV_INPUT));
+    addLabel(Vec(15, label1), "CV");
+
     addInput(Port::create<PJ301MPort>(
         Vec(70, row1), Port::INPUT, module, module->chb.ENV_INPUT));
+    addLabel(Vec(65, label1), "EG");
  
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(150, 100), module, module->chb.PARAM_PITCH, -5.0f, 5.0f, 0));
+    addLabel(Vec(140, 120), "Pitch");
 
 
 
     addHarmonics(module, Vec(25, 220));
-#if 0
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(knobX, knobY), module, module->chb.PARAM_H0, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(knobX, knobY + 1 * knobDY), module, module->chb.PARAM_H1, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(knobX, knobY + 2 * knobDY), module, module->chb.PARAM_H2, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(knobX, knobY + 3 * knobDY), module, module->chb.PARAM_H3, 0.0f, 1.0f, 1.0f));
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(knobX, knobY + 4 * knobDY), module, module->chb.PARAM_H4, 0.0f, 1.0f, 1.0f));
-   #endif
+
     addOutput(Port::create<PJ301MPort>(
         Vec(40, 300), Port::OUTPUT, module, module->chb.OUTPUT));
+    addLabel(Vec(35, 320), "Out");
  
 
 
