@@ -27,9 +27,9 @@ private:
 void CHBModule::onSampleRateChange()
 {
     //float rate = engineGetSampleRate();
-   // gmr.setSampleRate(rate);
-   float sampleTime = engineGetSampleTime();
-   chb.setSampleTime(sampleTime);
+    // gmr.setSampleRate(rate);
+    float sampleTime = engineGetSampleTime();
+    chb.setSampleTime(sampleTime);
 }
 
 CHBModule::CHBModule()
@@ -98,7 +98,7 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
         default:
             assert(false);
     }
-   
+
   //  printf("%d, %d, %d\n", row, firstParam, lastParam); fflush(stdout);
    // return;
     for (int param = firstParam; param <= lastParam; ++param) {
@@ -116,7 +116,7 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
  * This is not shared by all modules in the DLL, just one
  */
 CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
-{ 
+{
     box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
         SVGPanel *panel = new SVGPanel();
@@ -124,10 +124,10 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/chb_panel.svg")));
         addChild(panel);
     }
-    
 
-    const float row1=30;
-    const float label1 = row1+25;
+
+    const float row1 = 30;
+    const float label1 = row1 + 25;
     addInput(Port::create<PJ301MPort>(
         Vec(20, row1), Port::INPUT, module, module->chb.CV_INPUT));
     addLabel(Vec(15, label1), "CV");
@@ -141,11 +141,11 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addLabel(Vec(115, label1), "In");
 
 
-	addParam(ParamWidget::create<CKSS>(
+    addParam(ParamWidget::create<CKSS>(
         Vec(170, row1), module, module->chb.PARAM_WRAP, 0.0f, 1.0f, 1.0f));
     addLabel(Vec(160, label1), "wrap");
-    addLabel(Vec(160, label1-46), "clip");
- 
+    addLabel(Vec(160, label1 - 46), "clip");
+
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(150, 100), module, module->chb.PARAM_PITCH, -5.0f, 5.0f, 0));
@@ -161,7 +161,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addOutput(Port::create<PJ301MPort>(
         Vec(40, 300), Port::OUTPUT, module, module->chb.OUTPUT));
     addLabel(Vec(35, 325), "Out");
- 
+
 
 
     // screws
