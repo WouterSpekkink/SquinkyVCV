@@ -105,8 +105,6 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
         Vec p;
         p.x = pos.x + (param - firstParam) * 30;
         p.y = pos.y;
-
-        printf("create trimpot %d\n", param); fflush(stdout);
         addParam(ParamWidget::create<Trimpot>(
             p, module, param, 0.0f, 1.0f, 1.0f));
     }
@@ -137,12 +135,19 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addInput(Port::create<PJ301MPort>(
         Vec(70, row1), Port::INPUT, module, module->chb.ENV_INPUT));
     addLabel(Vec(65, label1), "EG");
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(120, row1), Port::INPUT, module, module->chb.AUDIO_INPUT));
+    addLabel(Vec(115, label1), "In");
  
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(150, 100), module, module->chb.PARAM_PITCH, -5.0f, 5.0f, 0));
     addLabel(Vec(140, 120), "Pitch");
 
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(100, 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
+    addLabel(Vec(95, 120), "Gain");
 
 
     addHarmonics(module, Vec(25, 220));

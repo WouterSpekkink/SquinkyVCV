@@ -52,6 +52,7 @@ public:
     {
         CV_INPUT,
         ENV_INPUT,
+        AUDIO_INPUT,
         NUM_INPUTS
     };
 
@@ -127,7 +128,7 @@ inline void CHB<TBase>::step()
 
    // printf("pitch = %f freq = %f gain = %f\n", pitch, frequency, gain);
 
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 11; ++i) {
         float val = TBase::params[i + PARAM_H0].value;
         poly.setGain(i, val);
     }
