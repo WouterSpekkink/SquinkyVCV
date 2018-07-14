@@ -129,7 +129,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     
 
     const float row1=30;
-    const float label1 = row1+30;
+    const float label1 = row1+25;
     addInput(Port::create<PJ301MPort>(
         Vec(20, row1), Port::INPUT, module, module->chb.CV_INPUT));
     addLabel(Vec(15, label1), "CV");
@@ -149,7 +149,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
     addOutput(Port::create<PJ301MPort>(
         Vec(40, 300), Port::OUTPUT, module, module->chb.OUTPUT));
-    addLabel(Vec(35, 320), "Out");
+    addLabel(Vec(35, 325), "Out");
  
 
 
