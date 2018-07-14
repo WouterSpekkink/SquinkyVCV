@@ -139,6 +139,12 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addInput(Port::create<PJ301MPort>(
         Vec(120, row1), Port::INPUT, module, module->chb.AUDIO_INPUT));
     addLabel(Vec(115, label1), "In");
+
+
+	addParam(ParamWidget::create<CKSS>(
+        Vec(170, row1), module, module->chb.PARAM_WRAP, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(160, label1), "wrap");
+    addLabel(Vec(160, label1-46), "clip");
  
 
     addParam(ParamWidget::create<Trimpot>(

@@ -33,6 +33,7 @@ public:
     {
         PARAM_PITCH,
         PARAM_EXTGAIN,
+        PARAM_WRAP,
         PARAM_H0,
         PARAM_H1,
         PARAM_H2,
