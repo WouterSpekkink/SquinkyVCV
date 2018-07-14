@@ -134,12 +134,31 @@ inline float CHB<TBase>::getInput()
     float frequency = LookupTable<float>::lookup(*pitchExp, pitch) * reciprocalSampleRate;
     SinOscillator<float, false>::setFrequency(sinParams, frequency);
 
-    // Get the gain from the inputs.
-    float gain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
-    gain *= 0.1f;
+    // Get the gain from the envelope generator in
+    float EGgain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
+    EGgain *= 0.1f;
+
+    const bool isExternalAudio = TBase::inputs[AUDIO_INPUT].active;
+
+    const float gainKnobValue = TBase::params[PARAM_EXTGAIN].value;
+    float knobGain = 1;
+    if (isExternalAudio) {
+        knobGain = gainKnobValue;           // TODO: taper
+    } else {
+        // if using internal sin, never attenuate
+        if (gainKnobValue > 0) {
+            knobGain = 1 + gainKnobValue;
+        }
+    }
+
 
     // printf("pitch = %f freq = %f gain = %f\n", pitch, frequency, gain);
-    return gain * SinOscillator<float, false>::run(sinState, sinParams);
+    float input = EGgain * knobGain * (isExternalAudio ?
+        TBase::inputs[AUDIO_INPUT].value :
+        SinOscillator<float, false>::run(sinState, sinParams));
+    input = std::max(input, -1.f);
+    input = std::min(input, 1.f);
+    return input;
 }
 
 template <class TBase>

@@ -152,6 +152,33 @@ static void testAudioScaler2()
     assertEQ(f(-2.5, 0), 20 * kneeGain);
 }
 
+
+
+static void testFold()
+{
+    float last = 0;
+    const float deltaX = 0.05f;
+    for (float x = 0; x < 15; x += deltaX) {
+        float y = AudioMath::fold(x);
+        float absChange = std::abs(y - last);
+        last = y;
+        assertLE(absChange, deltaX + .0001f);
+    }
+}
+
+
+static void testFoldNegative()
+{
+    float last = 0;
+    const float deltaX = 0.05f;
+    for (float x = 0; x > -15; x -= deltaX) {
+        float y = AudioMath::fold(x);
+        float absChange = std::abs(y - last);
+        last = y;
+        assertLE(absChange, deltaX + .0001f);
+    }
+}
+
 void testAudioMath()
 {
     test0();
@@ -163,4 +190,6 @@ void testAudioMath()
     testBipolarAudioScaler();
     testAudioScaler();
     testAudioScaler2();
+    testFold();
+    testFoldNegative();
 }

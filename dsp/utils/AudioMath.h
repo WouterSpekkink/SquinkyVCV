@@ -133,4 +133,24 @@ public:
     using RandomUniformFunc = std::function<float(void)>;
 
     static RandomUniformFunc random();
+
+
+    /**
+     * Folds numbers between +1 and -1
+     */
+    static inline float fold(float x)
+    {
+        float fold;
+        const float bias = (x < 0) ? -1.f : 1.f;
+        int phase = int((x + bias) / 2.f);
+        bool isEven = !(phase & 1);
+        //  printf(" wrap(%f) phase=%d, isEven=%d", x, phase, isEven);
+        if (isEven) {
+            fold = x - 2.f * phase;
+        } else {
+            fold = -x + 2.f * phase;
+        }
+        // printf(" y=%f\n", wrap);
+        return fold;
+    }
 };
