@@ -33,7 +33,7 @@ public:
     {
         PARAM_PITCH,
         PARAM_EXTGAIN,
-        PARAM_WRAP,
+        PARAM_FOLD,
         PARAM_H0,
         PARAM_H1,
         PARAM_H2,
@@ -151,13 +151,18 @@ inline float CHB<TBase>::getInput()
         }
     }
 
-
     // printf("pitch = %f freq = %f gain = %f\n", pitch, frequency, gain);
     float input = EGgain * knobGain * (isExternalAudio ?
         TBase::inputs[AUDIO_INPUT].value :
         SinOscillator<float, false>::run(sinState, sinParams));
-    input = std::max(input, -1.f);
-    input = std::min(input, 1.f);
+
+    // Now clip or fold to keep in -1...+1
+    if (TBase::params[PARAM_FOLD].value > .5) {
+        input = AudioMath::fold(input);
+    } else {
+        input = std::max(input, -1.f);
+        input = std::min(input, 1.f);
+    }
     return input;
 }
 

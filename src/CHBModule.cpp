@@ -142,9 +142,9 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
 
     addParam(ParamWidget::create<CKSS>(
-        Vec(170, row1), module, module->chb.PARAM_WRAP, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(160, label1), "wrap");
-    addLabel(Vec(160, label1 - 46), "clip");
+        Vec(170, row1), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(160, label1-46), "fold");
+    addLabel(Vec(160, label1), "clip");
 
 
     addParam(ParamWidget::create<Trimpot>(
