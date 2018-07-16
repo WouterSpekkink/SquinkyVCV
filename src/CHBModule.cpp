@@ -110,6 +110,36 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
     }
 }
 
+
+/**
+ */
+struct SQPush : SVGButton
+{
+    SQPush()
+    {
+        setSVGs(
+            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
+            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
+        );
+    }
+
+    void onDragEnd(EventDragEnd &e) override
+    {
+        SVGButton::onDragEnd(e);
+        if (clickHandler) {
+            clickHandler();
+        }
+    }
+
+    void onClick( std::function<void(void)> callback)
+    {
+        clickHandler = callback;
+    }
+
+    std::function<void(void)> clickHandler;
+};
+
+
 /**
  * Widget constructor will describe my implementation structure and
  * provide meta-data.
@@ -154,6 +184,33 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addParam(ParamWidget::create<Trimpot>(
         Vec(100, 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
     addLabel(Vec(95, 120), "Gain");
+
+    //auto sw = new BefacoSwitch();
+    auto sw = new SQPush();
+   // sw->box.size = Vec();
+    sw->box.pos = Vec(20, 120);
+    sw->onClick( [this, module]() {
+        printf("on click\n"); fflush(stdout);
+        auto paramNum = module->chb.PARAM_H0;
+
+        for (auto p : this->params) {
+            printf("id = %d\n", p->paramId);
+            if (paramNum == p->paramId) {
+                printf("found it\n");
+                p->setValue(0);
+            }
+
+        }
+        #if 0
+        module->params[param].value = 0;
+	    module->params[param].onChange(EventChange());
+
+
+        module->params[param+1].value = 0;
+        module->params[param+2].value = 0;
+        #endif
+    });
+    addChild(sw);
 
 
     addHarmonics(module, Vec(25, 220));
