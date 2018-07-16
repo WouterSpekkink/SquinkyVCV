@@ -67,6 +67,7 @@ struct CHBWidget : ModuleWidget
 
     void addHarmonics(CHBModule *module, const Vec& pos);
     void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
+    void resetMe();
 };
 
 
@@ -107,6 +108,16 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
         p.y = pos.y;
         addParam(ParamWidget::create<Trimpot>(
             p, module, param, 0.0f, 1.0f, 1.0f));
+    }
+}
+
+void CHBWidget::resetMe()
+{
+    printf("on click\n"); fflush(stdout);
+   // auto paramNum =CHB<WidgetComposite>::PARAM_H0;
+
+    for (auto p : this->params) {
+        p->setValue(p->defaultValue);
     }
 }
 
@@ -190,6 +201,8 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
    // sw->box.size = Vec();
     sw->box.pos = Vec(20, 120);
     sw->onClick( [this, module]() {
+        this->resetMe();
+#if 0
         printf("on click\n"); fflush(stdout);
         auto paramNum = module->chb.PARAM_H0;
 
@@ -199,16 +212,9 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
                 printf("found it\n");
                 p->setValue(0);
             }
-
-        }
-        #if 0
-        module->params[param].value = 0;
-	    module->params[param].onChange(EventChange());
+#endif
 
 
-        module->params[param+1].value = 0;
-        module->params[param+2].value = 0;
-        #endif
     });
     addChild(sw);
 
