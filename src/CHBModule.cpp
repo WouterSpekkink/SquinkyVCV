@@ -195,28 +195,32 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addParam(ParamWidget::create<Trimpot>(
         Vec(100, 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
     addLabel(Vec(95, 120), "Gain");
-
-    //auto sw = new BefacoSwitch();
+#if 0
     auto sw = new SQPush();
    // sw->box.size = Vec();
     sw->box.pos = Vec(20, 120);
     sw->onClick( [this, module]() {
         this->resetMe();
-#if 0
-        printf("on click\n"); fflush(stdout);
-        auto paramNum = module->chb.PARAM_H0;
 
-        for (auto p : this->params) {
-            printf("id = %d\n", p->paramId);
-            if (paramNum == p->paramId) {
-                printf("found it\n");
-                p->setValue(0);
-            }
-#endif
 
 
     });
     addChild(sw);
+    #endif
+
+    // NOW the three harmonic macro controls
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(50, 150), module, module->chb.PARAM_SLOPE, -5.0f, 5.0f, 0.0f));
+    addLabel(Vec(45, 180), "slope");
+
+     addParam(ParamWidget::create<Trimpot>(
+        Vec(100, 150), module, module->chb.PARAM_MAG_EVEN, -5.0f, 5.0f, 0.0f));
+    addLabel(Vec(95, 180), "even");
+
+     addParam(ParamWidget::create<Trimpot>(
+        Vec(150, 150), module, module->chb.PARAM_MAG_ODD, -5.0f, 5.0f, 0.0f));
+    addLabel(Vec(145, 180), "odd");
+
 
 
     addHarmonics(module, Vec(25, 220));
