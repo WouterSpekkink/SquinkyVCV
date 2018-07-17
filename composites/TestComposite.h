@@ -67,4 +67,8 @@ public:
     {
         return 1.0f / 44100.0f;
     }
+
+    virtual void step()
+    {
+    }
 };

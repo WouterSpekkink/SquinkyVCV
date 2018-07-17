@@ -44,6 +44,9 @@ int main(int argc, char ** argv)
         if (arg == "--ext") {
             extended = true;
         }
+        else if (arg == "--perf") {
+            runPerf = true;
+        }
     }
 #ifdef _PERF
     runPerf = true;

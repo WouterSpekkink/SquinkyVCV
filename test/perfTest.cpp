@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 
+#include "EvenVCO.h"
 #include "AudioMath.h"
 #include "BiquadParams.h"
 #include "BiquadFilter.h"
@@ -18,6 +19,7 @@
 #include "LFN.h"
 #include "GMR.h"
 #include "CHB.h"
+
 
 using Shifter = FrequencyShifter<TestComposite>;
 using Animator = VocalAnimator<TestComposite>;
@@ -110,7 +112,7 @@ double overheadOutOnly = 0;
 static void setup()
 {
 #ifdef _DEBUG
-    assert(false);  // don't run this in debug
+//    assert(false);  // don't run this in debug
 #endif
     double d = .1;
     const double scale = 1.0 / RAND_MAX;
@@ -246,6 +248,20 @@ static void testLFN()
         }, 1);
 }
 
+static void testEven()
+{
+    EvenVCO<TestComposite> lfn;
+
+  //  lfn.setSampleTime(1.0f / 44100.f);
+ //   lfn.setSampleRate();
+  //  lfn.init();
+
+    MeasureTime<float>::run(overheadOutOnly, "Even", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
+        }, 1);
+}
+
 static void testCHB()
 {
     CHB<TestComposite> chb;
@@ -258,6 +274,7 @@ static void testCHB()
         return chb.outputs[LFN<TestComposite>::OUTPUT].value;
         }, 1);
 }
+
 static void testGMR()
 {
     GMR<TestComposite> gmr;
@@ -316,15 +333,20 @@ void perfTest()
     testAttenuverters();
     testExpRange();
 #endif
+    testEven();
+
     testCHB();
     testLFN();
     testGMR();
+#if 0
+    
     testVocalFilter();
     testAnimator();
     testShifter();
 
     testColors();
     testTremolo();
+#endif
 
    // test1();
 #if 0
