@@ -1,3 +1,14 @@
+/**
+ * This is the minblep.cpp from VCVRack.
+ * Moved here to make it easier to build.
+ * TODO: don't do this - build from normal folder.
+ */
+
+// Need to make this compile in MS tools for unit tests
+#if defined(_MSC_VER)
+#define __attribute__(x)
+#endif
+
 #include "dsp/minblep.hpp"
 
 

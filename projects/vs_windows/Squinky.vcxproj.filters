@@ -91,8 +91,11 @@
     <Filter Include="Source Files\sqsrc\grammar">
       <UniqueIdentifier>{d8e54a08-bbcc-4495-8f95-cd2178b57811}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\dsp\third-party\Befaco">
-      <UniqueIdentifier>{449edf79-f84a-48c0-8edc-3ca4a61719ca}</UniqueIdentifier>
+    <Filter Include="Header Files\dsp\third-party\src">
+      <UniqueIdentifier>{726b598f-f9ad-4df3-9db8-7cb86dc1cd03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dsp\third-party\src">
+      <UniqueIdentifier>{bcce7e7a-2123-42c9-8557-a31f6444e05e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -231,8 +234,8 @@
     <ClCompile Include="..\..\test\testGMR.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\dsp\minblep.cpp">
-      <Filter>Source Files\dsp\third-party</Filter>
+    <ClCompile Include="..\..\dsp\third-party\src\minblep.cpp">
+      <Filter>Source Files\dsp\third-party\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -404,8 +407,8 @@
     <ClInclude Include="..\..\sqsrc\util\TriggerOutput.h">
       <Filter>Header Files\sqsrc\util</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dsp\third-party\Befaco\EvenVCO.h">
-      <Filter>Header Files\dsp\third-party\Befaco</Filter>
+    <ClInclude Include="..\..\dsp\third-party\src\EvenVCO.h">
+      <Filter>Header Files\dsp\third-party\src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

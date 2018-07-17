@@ -1,5 +1,9 @@
-//#include "Befaco.hpp"
+/**
+ * This file contains a modified version of EvenVCO.cpp, from the
+ * Befaco repo. See LICENSE-dist.txt for full license info.
+ */
 
+// Need to make this compile in MS tools for unit tests
 #if defined(_MSC_VER)
 #define __attribute__(x)
 #endif
