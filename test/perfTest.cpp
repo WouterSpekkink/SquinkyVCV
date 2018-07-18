@@ -264,6 +264,13 @@ static void testFun()
 {
     FunVCOComposite<TestComposite> lfn;
 
+    for (int i = 0; i < lfn.NUM_OUTPUTS; ++i) {
+        lfn.outputs[i].active = false;
+    }
+
+
+    lfn.setSampleRate(44100.f);
+
     //  lfn.setSampleTime(1.0f / 44100.f);
     //   lfn.setSampleRate();
     //  lfn.init();

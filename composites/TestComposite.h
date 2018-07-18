@@ -32,7 +32,9 @@ public:
         {
             value = (brightness > 0.f) ? brightness * brightness : 0.f;
         }
-        void setBrightnessSmooth(float brightness);
+        void setBrightnessSmooth(float brightness)
+        {
+        }
     };
 
     struct Input

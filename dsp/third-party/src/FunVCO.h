@@ -1,15 +1,26 @@
 #pragma once
 
 
-const float M_PI = (float) AudioMath::Pi;
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#pragma warning (disable: 4244)
+
+#define M_PI 3.14159265358979323846264338327950288
 
 #include "dsp/decimator.hpp"
 
 
+extern float sawTable[2048];
+extern float triTable[2048];
 
+/**
+ * CPU = 554, all outputs hooked up.
+ *  392 no inputs hooked up
+ */
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator
 {
+    float sampleTime = 0;
     bool analog = false;
     bool soft = false;
     float lastSyncValue = 0.0f;
@@ -35,6 +46,14 @@ struct VoltageControlledOscillator
     float sawBuffer[OVERSAMPLE] = {};
     float sqrBuffer[OVERSAMPLE] = {};
 
+    // TODO: what is the range of the one in VCV?
+    std::default_random_engine generator{99};
+    std::normal_distribution<double> distribution{-1.0, 1.0};
+    float noise()
+    {
+        return  (float) distribution(generator);
+    }
+
     void setPitch(float pitchKnob, float pitchCv)
     {
         // Compute frequency
@@ -59,11 +78,12 @@ struct VoltageControlledOscillator
 
     void process(float deltaTime, float syncValue)
     {
+        assert(sampleTime > 0);
         if (analog) {
             // Adjust pitch slew
             if (++pitchSlewIndex > 32) {
                 const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
-                pitchSlew += (randomNormal() - pitchSlew / pitchSlewTau) * engineGetSampleTime();
+                pitchSlew += (noise() - pitchSlew / pitchSlewTau) *sampleTime;
                 pitchSlewIndex = 0;
             }
         }
@@ -164,3 +184,5 @@ struct VoltageControlledOscillator
         return sinf(2 * M_PI * phase);
     }
 };
+
+#pragma warning(pop)
