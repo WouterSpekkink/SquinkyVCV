@@ -129,7 +129,7 @@ public:
 private:
     float reciprocalSampleRate = 0;
 
-    Decimator decimator;
+    ::Decimator decimator;
 
     GraphicEq2<5> geq;
 

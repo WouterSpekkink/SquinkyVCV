@@ -8,6 +8,9 @@
 #define __attribute__(x)
 #endif
 
+#pragma warning (push)
+#pragma warning ( disable: 4244 )
+
 #include "dsp/minblep.hpp"
 #include "dsp/filter.hpp"
 #include "AudioMath.h"
@@ -122,7 +125,7 @@ void EvenVCO<TBase>::step() {
 
 	// Pulse width
 	float pw = TBase::params[PWM_PARAM].value + TBase::inputs[PWM_INPUT].value / 5.0;
-	const float minPw = 0.05;
+	const float minPw = 0.05f;
 	pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
 
 	// Advance phase
@@ -241,3 +244,5 @@ struct EvenVCOWidget : ModuleWidget {
 
 Model *modelEvenVCO = Model::create<EvenVCO, EvenVCOWidget>("Befaco", "EvenVCO", "EvenVCO", OSCILLATOR_TAG);
 #endif
+
+#pragma warning (pop)

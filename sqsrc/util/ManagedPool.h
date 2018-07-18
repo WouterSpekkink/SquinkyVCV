@@ -38,7 +38,7 @@ private:
      * this ring buffer is where the raw T* are kept.
      * client pops and pushes here
      */
-    RingBuffer<T*, SIZE> ringBuffer;
+    SqRingBuffer<T*, SIZE> ringBuffer;
     std::vector< std::unique_ptr<T>> lifetimeManager;
 };
 

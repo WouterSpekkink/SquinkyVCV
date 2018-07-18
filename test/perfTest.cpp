@@ -19,6 +19,7 @@
 #include "LFN.h"
 #include "GMR.h"
 #include "CHB.h"
+#include "FunVCOComposite.h"
 
 
 using Shifter = FrequencyShifter<TestComposite>;
@@ -252,9 +253,6 @@ static void testEven()
 {
     EvenVCO<TestComposite> lfn;
 
-  //  lfn.setSampleTime(1.0f / 44100.f);
- //   lfn.setSampleRate();
-  //  lfn.init();
 
     MeasureTime<float>::run(overheadOutOnly, "Even", [&lfn]() {
         lfn.step();
@@ -262,6 +260,19 @@ static void testEven()
         }, 1);
 }
 
+static void testFun()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    //  lfn.setSampleTime(1.0f / 44100.f);
+    //   lfn.setSampleRate();
+    //  lfn.init();
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
+        }, 1);
+}
 static void testCHB()
 {
     CHB<TestComposite> chb;
@@ -334,6 +345,7 @@ void perfTest()
     testExpRange();
 #endif
     testEven();
+    testFun();
 
     testCHB();
     testLFN();
