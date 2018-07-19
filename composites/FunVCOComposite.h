@@ -56,17 +56,22 @@ private:
 template <class TBase>
 inline void FunVCOComposite<TBase>::step()
 {
+
+
     oscillator.analog = TBase::params[MODE_PARAM].value > 0.0f;
     oscillator.soft = TBase::params[SYNC_PARAM].value <= 0.0f;
+
 
     float pitchFine = 3.0f * quadraticBipolar(TBase::params[FINE_PARAM].value);
     float pitchCv = 12.0f * TBase::inputs[PITCH_INPUT].value;
     if (TBase::inputs[FM_INPUT].active) {
         pitchCv += quadraticBipolar(TBase::params[FM_PARAM].value) * 12.0f * TBase::inputs[FM_INPUT].value;
     }
+
     oscillator.setPitch(TBase::params[FREQ_PARAM].value, pitchFine + pitchCv);
     oscillator.setPulseWidth(TBase::params[PW_PARAM].value + TBase::params[PWM_PARAM].value * TBase::inputs[PW_INPUT].value / 10.0f);
     oscillator.syncEnabled = TBase::inputs[SYNC_INPUT].active;
+
 
     oscillator.process(TBase::engineGetSampleTime(), TBase::inputs[SYNC_INPUT].value);
 

@@ -15,7 +15,18 @@ extern float triTable[2048];
 
 /**
  * CPU = 554, all outputs hooked up.
- *  392 no inputs hooked up
+ * 392 no output hooked up
+ * 91 no outputs hooked up, short circuit sin
+ * 89 no outputs hooked up, short circuit sin, sq
+ * 48 all the above, and smarter phase advance 
+ * 47 all the above, saw turned off
+ * 41 all the above, tri turned off
+ * 38 no exp
+ * 37 remove outer pitch proc
+ * 28 remove all outer proc
+ * 14 fake oversample down to 4
+ * 41 (back to no crazy stuff
+ * 16 gut the do nothing part of high sample rate inner loop
  */
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator
@@ -30,6 +41,15 @@ struct VoltageControlledOscillator
     float pitch;
     bool syncEnabled = false;
     bool syncDirection = false;
+
+    /**
+     * flags to help decide not to do redundant work
+     */
+    bool sinEnabled = false;
+    bool sqEnabled = false;
+    bool sawEnabled = false;
+    bool triEnabled = false;
+
 
     rack::Decimator<OVERSAMPLE, QUALITY> sinDecimator;
     rack::Decimator<OVERSAMPLE, QUALITY> triDecimator;
@@ -68,7 +88,7 @@ struct VoltageControlledOscillator
         }
         pitch += pitchCv;
         // Note C4
-        freq = 261.626f * powf(2.0f, pitch / 12.0f);
+         freq = 261.626f * powf(2.0f, pitch / 12.0f);
     }
     void setPulseWidth(float pulseWidth)
     {
@@ -89,7 +109,7 @@ struct VoltageControlledOscillator
         }
 
         // Advance phase
-        float deltaPhase = clamp(freq * deltaTime, 1e-6, 0.5f);
+        float deltaPhaseOver = clamp(freq * deltaTime, 1e-6, 0.5f) * (1.0f / OVERSAMPLE);
 
         // Detect sync
         int syncIndex = -1; // Index in the oversample loop where sync occurs [0, OVERSAMPLE)
@@ -107,59 +127,89 @@ struct VoltageControlledOscillator
         }
 
         if (syncDirection)
-            deltaPhase *= -1.0f;
+            deltaPhaseOver *= -1.0f;
 
-        sqrFilter.setCutoff(40.0f * deltaTime);
+        // this does a divide
+        if (sqEnabled) {
+            sqrFilter.setCutoff(40.0f * deltaTime);
+        }
+
 
         for (int i = 0; i < OVERSAMPLE; i++) {
-            if (syncIndex == i) {
-                if (soft) {
-                    syncDirection = !syncDirection;
-                    deltaPhase *= -1.0f;
+
+           // if (syncEnabled) {
+                if (syncIndex == i) {
+                    if (soft) {
+                        syncDirection = !syncDirection;
+                        deltaPhaseOver *= -1.0f;
+                    } else {
+                        // phase = syncCrossing * deltaPhase / OVERSAMPLE;
+                        phase = 0.0f;
+                    }
+                }
+           // }
+
+            if (sinEnabled) {
+                if (analog) {
+                    // Quadratic approximation of sine, slightly richer harmonics
+                    if (phase < 0.5f)
+                        sinBuffer[i] = 1.f - 16.f * powf(phase - 0.25f, 2);
+                    else
+                        sinBuffer[i] = -1.f + 16.f * powf(phase - 0.75f, 2);
+                    sinBuffer[i] *= 1.08f;
                 } else {
-                    // phase = syncCrossing * deltaPhase / OVERSAMPLE;
-                    phase = 0.0f;
+                    sinBuffer[i] = sinf(2.f*M_PI * phase);
                 }
             }
 
-            if (analog) {
-                // Quadratic approximation of sine, slightly richer harmonics
-                if (phase < 0.5f)
-                    sinBuffer[i] = 1.f - 16.f * powf(phase - 0.25f, 2);
-                else
-                    sinBuffer[i] = -1.f + 16.f * powf(phase - 0.75f, 2);
-                sinBuffer[i] *= 1.08f;
-            } else {
-                sinBuffer[i] = sinf(2.f*M_PI * phase);
-            }
-            if (analog) {
-                triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
-            } else {
-                if (phase < 0.25f)
-                    triBuffer[i] = 4.f * phase;
-                else if (phase < 0.75f)
-                    triBuffer[i] = 2.f - 4.f * phase;
-                else
-                    triBuffer[i] = -4.f + 4.f * phase;
-            }
-            if (analog) {
-                sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
-            } else {
-                if (phase < 0.5f)
-                    sawBuffer[i] = 2.f * phase;
-                else
-                    sawBuffer[i] = -2.f + 2.f * phase;
-            }
-            sqrBuffer[i] = (phase < pw) ? 1.f : -1.f;
-            if (analog) {
-                // Simply filter here
-                sqrFilter.process(sqrBuffer[i]);
-                sqrBuffer[i] = 0.71f * sqrFilter.highpass();
+  
+            if (triEnabled) {
+                if (analog) {
+                    triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
+                } else {
+                    if (phase < 0.25f)
+                        triBuffer[i] = 4.f * phase;
+                    else if (phase < 0.75f)
+                        triBuffer[i] = 2.f - 4.f * phase;
+                    else
+                        triBuffer[i] = -4.f + 4.f * phase;
+                }
             }
 
-            // Advance phase
-            phase += deltaPhase / OVERSAMPLE;
-            phase = eucmod(phase, 1.0f);
+            if (sawEnabled) {
+                if (analog) {
+                    sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
+                } else {
+                    if (phase < 0.5f)
+                        sawBuffer[i] = 2.f * phase;
+                    else
+                        sawBuffer[i] = -2.f + 2.f * phase;
+                }
+            }
+     
+
+            if (sqEnabled) {
+                sqrBuffer[i] = (phase < pw) ? 1.f : -1.f;
+                if (analog) {
+                    // Simply filter here
+                    sqrFilter.process(sqrBuffer[i]);
+                    sqrBuffer[i] = 0.71f * sqrFilter.highpass();
+                }
+            }
+
+            // don't divide by oversample every time.
+            // don't do that expensive mod (TODO: is this correct
+
+            // Advance phase ( I think this could be a normal phase advance
+            //  phase += deltaPhase / OVERSAMPLE;
+           // phase = eucmod(phase, 1.0f);
+            phase += deltaPhaseOver;
+            while (phase > 1.0f) {
+                phase -= 1.0f;
+            }
+            while (phase < 0) {
+                phase += 1.0f;
+            }
         }
     }
 
