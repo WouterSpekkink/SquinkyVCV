@@ -7,6 +7,13 @@ template <class TBase>
 class FunVCOComposite : public TBase
 {
 public:
+    FunVCOComposite()
+    {
+        
+    }
+	FunVCOComposite(struct Module * module) : TBase(module)
+    {
+    }
     enum ParamIds
     {
         MODE_PARAM,

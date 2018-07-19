@@ -7,7 +7,9 @@
 
 #define M_PI 3.14159265358979323846264338327950288
 
+#include "dsp/filter.hpp"
 #include "dsp/decimator.hpp"
+#include <random>
 
 
 extern float sawTable[2048];

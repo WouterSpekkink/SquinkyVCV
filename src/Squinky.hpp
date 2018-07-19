@@ -18,6 +18,8 @@ extern Model *modelGMRModule;
 #ifdef _CPU_HOG
 extern Model *modelCPU_HogModule;
 #endif
+extern Model *modelEVModule;
+extern Model *modelFunVModule;
 
 
 

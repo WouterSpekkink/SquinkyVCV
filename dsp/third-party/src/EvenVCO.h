@@ -29,6 +29,12 @@ using namespace rack;
  */
 template <class TBase>
 struct EvenVCO : TBase {
+	EvenVCO(struct Module * module) : TBase(module)
+    {
+    }
+	EvenVCO();
+
+
 	enum ParamIds {
 		OCTAVE_PARAM,
 		TUNE_PARAM,
@@ -50,6 +56,9 @@ struct EvenVCO : TBase {
 		SAW_OUTPUT,
 		SQUARE_OUTPUT,
 		NUM_OUTPUTS
+	};
+	enum LightIds {
+		NUM_LIGHTS
 	};
 
 	float phase = 0.0;
@@ -81,7 +90,7 @@ struct EvenVCO : TBase {
 
 	//RCFilter triFilter;
 
-	EvenVCO();
+
 	void step() override;
 };
 
