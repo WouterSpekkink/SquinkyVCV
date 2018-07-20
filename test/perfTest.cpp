@@ -256,7 +256,23 @@ static void testEven()
 
     MeasureTime<float>::run(overheadOutOnly, "Even", [&lfn]() {
         lfn.step();
-        return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
+        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenEven()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, even only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
         }, 1);
 }
 
@@ -277,7 +293,7 @@ static void testFun()
 
     MeasureTime<float>::run(overheadOutOnly, "Fun", [&lfn]() {
         lfn.step();
-        return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
+        return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value;
         }, 1);
 }
 static void testCHB()
@@ -352,6 +368,7 @@ void perfTest()
     testExpRange();
 #endif
     testEven();
+    testEvenEven();
     testFun();
 
     testCHB();
