@@ -97,7 +97,7 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
 		addInput(Port::create<PJ301MPort>(Vec(8, 120), Port::INPUT, module, module->vco.PITCH1_INPUT));
 		addInput(Port::create<PJ301MPort>(Vec(19, 157), Port::INPUT, module, module->vco.PITCH2_INPUT));
 		addInput(Port::create<PJ301MPort>(Vec(48, 183), Port::INPUT, module, module->vco.FM_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(86, 189), Port::INPUT, module, module->vco.SYNC_INPUT));
+	//	addInput(Port::create<PJ301MPort>(Vec(86, 189), Port::INPUT, module, module->vco.SYNC_INPUT));
 
 		addInput(Port::create<PJ301MPort>(Vec(72, 236), Port::INPUT, module, module->vco.PWM_INPUT));
 

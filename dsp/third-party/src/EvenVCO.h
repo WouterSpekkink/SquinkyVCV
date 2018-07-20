@@ -46,7 +46,6 @@ struct EvenVCO : TBase {
 		PITCH1_INPUT,
 		PITCH2_INPUT,
 		FM_INPUT,
-		SYNC_INPUT,
 		PWM_INPUT,
 		NUM_INPUTS
 	};
@@ -63,12 +62,9 @@ struct EvenVCO : TBase {
 	};
 
 	float phase = 0.0;
-	/** The value of the last sync input */
-	float sync = 0.0;
 	/** The outputs */
-#ifdef _TRI
 	float tri = 0.0;
-#endif
+
 	/** Whether we are past the pulse width already */
 	bool halfPhase = false;
 
@@ -141,6 +137,8 @@ void EvenVCO<TBase>::step() {
 	if (oldPhase < 0.5 && phase >= 0.5) {
        // printf("doing blep\n");
 		float crossing = -(phase - 0.5) / deltaPhase;
+
+		// TODO: can we turn this off?
 		triSquareMinBLEP.jump(crossing, 2.0);
 		if (doEven) {
 			doubleSawMinBLEP.jump(crossing, -2.0);
@@ -168,41 +166,43 @@ void EvenVCO<TBase>::step() {
 		phase -= 1.0;
 		float crossing = -phase / deltaPhase;
 		triSquareMinBLEP.jump(crossing, -2.0);
-#ifdef _EVEN
-		doubleSawMinBLEP.jump(crossing, -2.0);
-#endif
-#ifdef _SQ
-		squareMinBLEP.jump(crossing, -2.0);
-		sawMinBLEP.jump(crossing, -2.0);
-#endif
+		if (doEven) {
+			doubleSawMinBLEP.jump(crossing, -2.0);
+		}
+		if (doSq) {
+			squareMinBLEP.jump(crossing, -2.0);
+		}
+		if (doSaw) {
+			sawMinBLEP.jump(crossing, -2.0);
+		}
 		halfPhase = false;
 	}
 
 	// Outputs
-#ifdef _TRI
-	float triSquare = (phase < 0.5) ? -1.0 : 1.0;
-	triSquare += triSquareMinBLEP.shift();
+	if (doTri) {
+		float triSquare = (phase < 0.5) ? -1.0 : 1.0;
+		triSquare += triSquareMinBLEP.shift();
 
-	// Integrate square for triangle
-	tri += 4.0 * triSquare * freq * TBase::engineGetSampleTime();
-	tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
-#endif
+		// Integrate square for triangle
+		tri += 4.0 * triSquare * freq * TBase::engineGetSampleTime();
+		tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
+	}
 
-#ifdef _SIN
-	float sine = -cosf(2*AudioMath::Pi * phase);
-#else
-    float sine = 0;
-#endif
-	float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
-#ifdef _EVEN
-	doubleSaw += doubleSawMinBLEP.shift();
-	float even = 0.55 * (doubleSaw + 1.27 * sine);
-#endif
-#ifdef _SAW
-	float saw = -1.0 + 2.0*phase;
-	saw += sawMinBLEP.shift();
-#endif
-
+	float sine;
+	float even = 0;
+	float saw = 0;
+	if (doSin || doEven) {
+		sine = -cosf(2*AudioMath::Pi * phase);
+	}
+	if (doEven) {
+		float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
+		doubleSaw += doubleSawMinBLEP.shift();
+		even = 0.55 * (doubleSaw + 1.27 * sine);
+	}
+	if (doSaw) {
+		saw = -1.0 + 2.0*phase;
+		saw += sawMinBLEP.shift();
+	}
 	if (doSq) {
 		float square = (phase < pw) ? -1.0 : 1.0;
 		square += squareMinBLEP.shift();
@@ -212,21 +212,10 @@ void EvenVCO<TBase>::step() {
 	}
 
 	// Set outputs
-#ifdef _TRI
-    TBase::outputs[TRI_OUTPUT].value = 5.0*tri;
-#endif
-#ifdef _SIN
+    TBase::outputs[TRI_OUTPUT].value = doTri ? 5.0*tri : 0;
     TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
-#endif
-#ifdef _EVEN
     TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
-#endif
-#ifdef _SAW
     TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
-#endif
-#ifdef _SQ
-    TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
-#endif
 }
 
 
