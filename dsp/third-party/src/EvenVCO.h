@@ -18,6 +18,10 @@
 using namespace rack;
 
 #define _EVEN
+#define _TRI
+#define _SAW
+#define _SQ
+#define _SIN
 /**
  * Before optimization, cpu = 43
  * turn off tri = 42
@@ -69,24 +73,11 @@ struct EvenVCO : TBase {
 	bool halfPhase = false;
 
 	MinBLEP<16> triSquareMinBLEP;
-#ifdef _TRI
     MinBLEP<16> triMinBLEP;
-#endif
-#ifdef _SIN
     MinBLEP<16> sineMinBLEP;
-#endif
-#ifdef _EVEN
     MinBLEP<16> doubleSawMinBLEP;
-#endif
-#ifdef _SAW
     MinBLEP<16> sawMinBLEP;
-#endif
-#ifdef _SQ
     MinBLEP<16> squareMinBLEP;
-#endif
-
-	//RCFilter triFilter;
-
 
 	void step() override;
 	void initialize();
@@ -104,48 +95,43 @@ inline EvenVCO<TBase>::EvenVCO(struct Module * module) : TBase(module)
 	 initialize();
 }
 
+
 template <class TBase>
 inline void EvenVCO<TBase>::initialize()
 {
 	triSquareMinBLEP.minblep = rack::minblep_16_32;
 	triSquareMinBLEP.oversample = 32;
-#ifdef _TRI
 	triMinBLEP.minblep = minblep_16_32;
 	triMinBLEP.oversample = 32;
-#endif
-#ifdef _SIN
 	sineMinBLEP.minblep = minblep_16_32;
 	sineMinBLEP.oversample = 32;
-#endif
-#ifdef _EVEN
 	doubleSawMinBLEP.minblep = minblep_16_32;
 	doubleSawMinBLEP.oversample = 32;
-#endif
-#ifdef _SAW
 	sawMinBLEP.minblep = minblep_16_32;
 	sawMinBLEP.oversample = 32;
-#endif
-#ifdef _SQ
 	squareMinBLEP.minblep = minblep_16_32;
 	squareMinBLEP.oversample = 32;
-#endif
 }
 
 template <class TBase>
 void EvenVCO<TBase>::step() {
+
+	const bool doEven = TBase::outputs[EVEN_OUTPUT].active;
+	const bool doTri = TBase::outputs[TRI_OUTPUT].active;
+	const bool doSaw = TBase::outputs[SAW_OUTPUT].active;
+	const bool doSq = TBase::outputs[SQUARE_OUTPUT].active;
+	const bool doSin = TBase::outputs[SINE_OUTPUT].active;
+
 	// Compute frequency, pitch is 1V/oct
 	float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
 	pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
 	pitch += TBase::inputs[FM_INPUT].value / 4.0;
-//	float freq = 261.626 * powf(2.0, pitch);
-    float freq = 523;
+
+	// TODO: get rid of pow
+	float freq = 261.626 * powf(2.0, pitch);
 	freq = clamp(freq, 0.0f, 20000.0f);
    // printf("pitch = %f, freq = %f\n", pitch, freq);
 
-	// Pulse width
-	float pw = TBase::params[PWM_PARAM].value + TBase::inputs[PWM_INPUT].value / 5.0;
-	const float minPw = 0.05f;
-	pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
 
 	// Advance phase
 	float deltaPhase = clamp(freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
@@ -156,17 +142,25 @@ void EvenVCO<TBase>::step() {
        // printf("doing blep\n");
 		float crossing = -(phase - 0.5) / deltaPhase;
 		triSquareMinBLEP.jump(crossing, 2.0);
-#ifdef _EVEN
-		doubleSawMinBLEP.jump(crossing, -2.0);
-#endif
+		if (doEven) {
+			doubleSawMinBLEP.jump(crossing, -2.0);
+		}
 	}
 
-	if (!halfPhase && phase >= pw) {
-#ifdef _SQ
-		float crossing  = -(phase - pw) / deltaPhase;
-		squareMinBLEP.jump(crossing, 2.0);
-#endif
-		halfPhase = true;
+		// Pulse width
+	float pw;
+	if (doSq) {
+		pw = TBase::params[PWM_PARAM].value + TBase::inputs[PWM_INPUT].value / 5.0;
+		const float minPw = 0.05f;
+		pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
+
+		if (!halfPhase && phase >= pw) {
+
+			float crossing  = -(phase - pw) / deltaPhase;
+			squareMinBLEP.jump(crossing, 2.0);
+
+			halfPhase = true;
+		}
 	}
 
 	// Reset phase if at end of cycle
@@ -208,10 +202,14 @@ void EvenVCO<TBase>::step() {
 	float saw = -1.0 + 2.0*phase;
 	saw += sawMinBLEP.shift();
 #endif
-#ifdef _SQ
-	float square = (phase < pw) ? -1.0 : 1.0;
-	square += squareMinBLEP.shift();
-#endif
+
+	if (doSq) {
+		float square = (phase < pw) ? -1.0 : 1.0;
+		square += squareMinBLEP.shift();
+		TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
+	} else {
+		TBase::outputs[SQUARE_OUTPUT].value = 0;
+	}
 
 	// Set outputs
 #ifdef _TRI
@@ -231,37 +229,5 @@ void EvenVCO<TBase>::step() {
 #endif
 }
 
-#if 0
-struct EvenVCOWidget : ModuleWidget {
-	EvenVCOWidget(EvenVCO *module) : ModuleWidget(module) {
-		setPanel(SVG::load(assetPlugin(plugin, "res/EvenVCO.svg")));
-
-		addChild(Widget::create<Knurlie>(Vec(15, 0)));
-		addChild(Widget::create<Knurlie>(Vec(15, 365)));
-		addChild(Widget::create<Knurlie>(Vec(15*6, 0)));
-		addChild(Widget::create<Knurlie>(Vec(15*6, 365)));
-
-		addParam(ParamWidget::create<BefacoBigSnapKnob>(Vec(22, 32), module, EvenVCO::OCTAVE_PARAM, -5.0, 4.0, 0.0));
-		addParam(ParamWidget::create<BefacoTinyKnob>(Vec(73, 131), module, EvenVCO::TUNE_PARAM, -7.0, 7.0, 0.0));
-		addParam(ParamWidget::create<Davies1900hRedKnob>(Vec(16, 230), module, EvenVCO::PWM_PARAM, -1.0, 1.0, 0.0));
-
-		addInput(Port::create<PJ301MPort>(Vec(8, 120), Port::INPUT, module, EvenVCO::PITCH1_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(19, 157), Port::INPUT, module, EvenVCO::PITCH2_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(48, 183), Port::INPUT, module, EvenVCO::FM_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(86, 189), Port::INPUT, module, EvenVCO::SYNC_INPUT));
-
-		addInput(Port::create<PJ301MPort>(Vec(72, 236), Port::INPUT, module, EvenVCO::PWM_INPUT));
-
-		addOutput(Port::create<PJ301MPort>(Vec(10, 283), Port::OUTPUT, module, EvenVCO::TRI_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(87, 283), Port::OUTPUT, module, EvenVCO::SINE_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(48, 306), Port::OUTPUT, module, EvenVCO::EVEN_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(10, 327), Port::OUTPUT, module, EvenVCO::SAW_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(87, 327), Port::OUTPUT, module, EvenVCO::SQUARE_OUTPUT));
-	}
-};
-
-
-Model *modelEvenVCO = Model::create<EvenVCO, EvenVCOWidget>("Befaco", "EvenVCO", "EvenVCO", OSCILLATOR_TAG);
-#endif
 
 #pragma warning (pop)
