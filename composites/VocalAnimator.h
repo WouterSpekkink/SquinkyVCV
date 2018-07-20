@@ -91,7 +91,7 @@ public:
     };
 
     void init();
-    void step();
+    void step() override;
     T modulatorOutput[numModOutputs];
 
     // The frequency inputs to the filters, exposed for testing.

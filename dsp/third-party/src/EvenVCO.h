@@ -29,11 +29,8 @@ using namespace rack;
  */
 template <class TBase>
 struct EvenVCO : TBase {
-	EvenVCO(struct Module * module) : TBase(module)
-    {
-    }
+	EvenVCO(struct Module * module);
 	EvenVCO();
-
 
 	enum ParamIds {
 		OCTAVE_PARAM,
@@ -92,11 +89,24 @@ struct EvenVCO : TBase {
 
 
 	void step() override;
+	void initialize();
 };
 
 template <class TBase>
-//EvenVCO<TBase>::EvenVCO() : TBase(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {
- EvenVCO<TBase>::EvenVCO() : TBase() {
+inline EvenVCO<TBase>::EvenVCO() : TBase()
+{
+	 initialize();
+}
+
+template <class TBase>
+inline EvenVCO<TBase>::EvenVCO(struct Module * module) : TBase(module)
+{
+	 initialize();
+}
+
+template <class TBase>
+inline void EvenVCO<TBase>::initialize()
+{
 	triSquareMinBLEP.minblep = rack::minblep_16_32;
 	triSquareMinBLEP.oversample = 32;
 #ifdef _TRI

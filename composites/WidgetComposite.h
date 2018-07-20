@@ -18,7 +18,7 @@ public:
     virtual void step();
     float engineGetSampleRate()
     {
-        ::engineGetSampleRate();
+        return ::engineGetSampleRate();
     }
     float engineGetSampleTime()
     {

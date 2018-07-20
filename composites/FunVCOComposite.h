@@ -63,8 +63,6 @@ private:
 template <class TBase>
 inline void FunVCOComposite<TBase>::step()
 {
-
-
     oscillator.analog = TBase::params[MODE_PARAM].value > 0.0f;
     oscillator.soft = TBase::params[SYNC_PARAM].value <= 0.0f;
 
