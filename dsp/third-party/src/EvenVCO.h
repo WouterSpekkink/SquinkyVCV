@@ -45,6 +45,8 @@ using namespace rack;
  * dispatch saw version
  * pitch calc, but no waveform - 6.7
  * saw - 9.7
+ * even/sin - 16
+ * sin only - 15.9 (let's try putting back std::sin
  */
 template <class TBase>
 struct EvenVCO : TBase
@@ -99,8 +101,9 @@ struct EvenVCO : TBase
     MinBLEP<16> squareMinBLEP;
 
     void step() override;
-    void step_even();
+    void step_even(float deltaPhase);
     void step_saw(float deltaPhase);
+    void step_sin(float deltaPhase);
     void step_old();
     void initialize();
     void zeroOutputsExcept(int except);
@@ -148,14 +151,52 @@ void EvenVCO<TBase>::zeroOutputsExcept(int except)
 {
     for (int i = 0; i < NUM_OUTPUTS; ++i) {
         if (i != except) {
-            TBase::outputs[i].value = 0;
+            // if we do even, we do sin at same time
+            if ((i == SINE_OUTPUT) && (except == EVEN_OUTPUT)) {
+            } else {
+                TBase::outputs[i].value = 0;
+            }
         }
     }
 }
 
 template <class TBase>
-inline void EvenVCO<TBase>::step_even()
+inline void EvenVCO<TBase>::step_even(float deltaPhase)
 {
+    float oldPhase = phase;
+    phase += deltaPhase;
+
+    if (oldPhase < 0.5 && phase >= 0.5) {
+        // printf("doing blep\n");
+        float crossing = -(phase - 0.5) / deltaPhase;
+        doubleSawMinBLEP.jump(crossing, -2.0);
+    }
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+        float crossing = -phase / deltaPhase;
+        doubleSawMinBLEP.jump(crossing, -2.0);
+        //halfPhase = false;
+    }
+
+
+    //sine = -cosf(2*AudioMath::Pi * phase);
+    // TODO: phase, amp, etc right?
+    // want cosine, but only have sine lookup
+    float adjPhase = phase + .25f;
+    if (adjPhase >= 1) {
+        adjPhase -= 1;
+    }
+    const float sine = -LookupTable<float>::lookup(*sinLookup, adjPhase, true);
+
+
+    float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
+    doubleSaw += doubleSawMinBLEP.shift();
+    const float even = 0.55 * (doubleSaw + 1.27 * sine);
+ 
+    TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
+    TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
 }
 
 template <class TBase>
@@ -180,6 +221,27 @@ inline void EvenVCO<TBase>::step_saw(float deltaPhase)
 }
 
 template <class TBase>
+inline void EvenVCO<TBase>::step_sin(float deltaPhase)
+{
+    float oldPhase = phase;
+    phase += deltaPhase;
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+    }
+
+    // want cosine, but only have sine lookup
+    float adjPhase = phase + .25f;
+    if (adjPhase >= 1) {
+        adjPhase -= 1;
+    }
+
+    const float sine = -LookupTable<float>::lookup(*sinLookup, adjPhase, true);
+    TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
+}
+
+template <class TBase>
 void EvenVCO<TBase>::step()
 {
     if (--loopCounter < 0) {
@@ -194,14 +256,22 @@ void EvenVCO<TBase>::step()
 #else
         const bool doSaw = false;
         const bool doEven = true;
-        const bool doTri =false;
+        const bool doTri = false;
         const bool doSq = false;
-        const bool doSin = false;
+        const bool doSin = true;
 #endif
 
         if (doSaw && !doEven && !doTri && !doSq && !doSin) {
-           dispatcher = SAW_OUTPUT;
+            dispatcher = SAW_OUTPUT;
+            zeroOutputsExcept(SAW_OUTPUT);
+        } else if (!doSaw && doEven && !doTri && !doSq) {
+            dispatcher = EVEN_OUTPUT;
+            zeroOutputsExcept(EVEN_OUTPUT);
+        } else if (!doSaw && !doEven && !doTri && !doSq && doSin) {
+            dispatcher = SINE_OUTPUT;
+            zeroOutputsExcept(SINE_OUTPUT);
         } else {
+    
             assert(false);
         }
     }
@@ -227,6 +297,12 @@ void EvenVCO<TBase>::step()
     switch (dispatcher) {
         case SAW_OUTPUT:
             step_saw(deltaPhase);
+            break;
+        case EVEN_OUTPUT:
+            step_even(deltaPhase);
+            break;
+        case SINE_OUTPUT:
+            step_sin(deltaPhase);
             break;
         default:
             assert(false);
