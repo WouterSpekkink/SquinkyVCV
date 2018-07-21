@@ -16,13 +16,18 @@
 #include "AudioMath.h"
 #include "ObjectCache.h"
 
+
 using namespace rack;
 
+/**
 #define _EVEN
 #define _TRI
 #define _SAW
 #define _SQ
 #define _SIN
+*/
+
+
 /**
  * Before optimization, cpu = 43
  * turn off tri = 42
@@ -31,6 +36,15 @@ using namespace rack;
  * turn off tri, even, sin, sqr, saw, 17
  * everything off and no exp, 3
  * even only, no exp or sin 6.7
+ * -----------------------------
+ * My first version:
+ * everything on - 19.6
+ * even only - 17.1
+ * saw only - 11.4
+ *
+ * dispatch saw version
+ * pitch calc, but no waveform - 6.7
+ * saw - 9.7
  */
 template <class TBase>
 struct EvenVCO : TBase
@@ -85,7 +99,13 @@ struct EvenVCO : TBase
     MinBLEP<16> squareMinBLEP;
 
     void step() override;
+    void step_even();
+    void step_saw(float deltaPhase);
+    void step_old();
     void initialize();
+    void zeroOutputsExcept(int except);
+    int dispatcher = 0;
+    int loopCounter = 0;
 };
 
 template <class TBase>
@@ -124,9 +144,102 @@ inline void EvenVCO<TBase>::initialize()
 }
 
 template <class TBase>
+void EvenVCO<TBase>::zeroOutputsExcept(int except)
+{
+    for (int i = 0; i < NUM_OUTPUTS; ++i) {
+        if (i != except) {
+            TBase::outputs[i].value = 0;
+        }
+    }
+}
+
+template <class TBase>
+inline void EvenVCO<TBase>::step_even()
+{
+}
+
+template <class TBase>
+inline void EvenVCO<TBase>::step_saw(float deltaPhase)
+{
+  //  float oldPhase = phase;
+    phase += deltaPhase;
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+        float crossing = -phase / deltaPhase;
+        sawMinBLEP.jump(crossing, -2.0);
+
+        // saw only doesn't care
+        //halfPhase = false;
+    }
+
+    float saw = -1.0 + 2.0*phase;
+    saw += sawMinBLEP.shift();
+    TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
+}
+
+template <class TBase>
 void EvenVCO<TBase>::step()
 {
+    if (--loopCounter < 0) {
+        loopCounter = 16;
 
+#if 0
+        const bool doSaw = TBase::outputs[SAW_OUTPUT].active;
+        const bool doEven = TBase::outputs[EVEN_OUTPUT].active;
+        const bool doTri = TBase::outputs[TRI_OUTPUT].active;
+        const bool doSq = TBase::outputs[SQUARE_OUTPUT].active;
+        const bool doSin = TBase::outputs[SINE_OUTPUT].active;
+#else
+        const bool doSaw = false;
+        const bool doEven = true;
+        const bool doTri =false;
+        const bool doSq = false;
+        const bool doSin = false;
+#endif
+
+        if (doSaw && !doEven && !doTri && !doSq && !doSin) {
+           dispatcher = SAW_OUTPUT;
+        } else {
+            assert(false);
+        }
+    }
+
+
+    // Compute frequency, pitch is 1V/oct
+    float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
+    pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
+    pitch += TBase::inputs[FM_INPUT].value / 4.0;
+
+    // float freq = 261.626 * powf(2.0, pitch);
+    // TODO: pass in false
+    // TODO: mul by 261?
+    float freq = LookupTable<float>::lookup(*expLookup, pitch, true);
+    freq = clamp(freq, 0.0f, 20000.0f);
+    // printf("pitch = %f, freq = %f\n", pitch, freq);
+
+    // Advance phase
+    float deltaPhase = clamp(freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+
+    /* Idea: just pass in deltaPhase, let everyone to all the calcs themselves
+    */
+    switch (dispatcher) {
+        case SAW_OUTPUT:
+            step_saw(deltaPhase);
+            break;
+        default:
+            assert(false);
+    }
+}
+
+
+
+#if 1
+template <class TBase>
+void EvenVCO<TBase>::step_old()
+{
+  //  dispatch = &EvenVCO<TBase>::step_even;
     const bool doEven = TBase::outputs[EVEN_OUTPUT].active;
     const bool doTri = TBase::outputs[TRI_OUTPUT].active;
     const bool doSaw = TBase::outputs[SAW_OUTPUT].active;
@@ -242,6 +355,7 @@ void EvenVCO<TBase>::step()
     TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
     TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
 }
+#endif
 
 
 #pragma warning (pop)
