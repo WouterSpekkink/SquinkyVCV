@@ -194,7 +194,7 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
     float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
     doubleSaw += doubleSawMinBLEP.shift();
     const float even = 0.55 * (doubleSaw + 1.27 * sine);
- 
+
     TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
     TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
 }
@@ -271,7 +271,7 @@ void EvenVCO<TBase>::step()
             dispatcher = SINE_OUTPUT;
             zeroOutputsExcept(SINE_OUTPUT);
         } else {
-    
+
             assert(false);
         }
     }
@@ -330,7 +330,7 @@ void EvenVCO<TBase>::step_old()
 
    // float freq = 261.626 * powf(2.0, pitch);
     // TODO: pass in false
-   float freq = LookupTable<float>::lookup(*expLookup, pitch, true);
+    float freq = LookupTable<float>::lookup(*expLookup, pitch, true);
     freq = clamp(freq, 0.0f, 20000.0f);
    // printf("pitch = %f, freq = %f\n", pitch, freq);
 
