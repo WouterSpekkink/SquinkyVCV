@@ -109,6 +109,8 @@ struct EvenVCO : TBase
     void zeroOutputsExcept(int except);
     int dispatcher = 0;
     int loopCounter = 0;
+
+    float _freq = 0;   // for testing
 };
 
 template <class TBase>
@@ -285,12 +287,14 @@ void EvenVCO<TBase>::step()
     // float freq = 261.626 * powf(2.0, pitch);
     // TODO: pass in false
     // TODO: mul by 261?
-    float freq = LookupTable<float>::lookup(*expLookup, pitch, true);
-    freq = clamp(freq, 0.0f, 20000.0f);
+    _freq = LookupTable<float>::lookup(*expLookup, pitch, true);
+    printf("mine: pitch = %f exp = %f\n", pitch, _freq);
+    _freq *= 261.626f;
+    _freq = clamp(_freq, 0.0f, 20000.0f);
     // printf("pitch = %f, freq = %f\n", pitch, freq);
 
     // Advance phase
-    float deltaPhase = clamp(freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+    float deltaPhase = clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
 
     /* Idea: just pass in deltaPhase, let everyone to all the calcs themselves
     */
