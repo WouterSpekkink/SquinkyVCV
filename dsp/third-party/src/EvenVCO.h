@@ -47,6 +47,10 @@ using namespace rack;
  * saw - 9.7
  * even/sin - 16
  * sin only - 15.9 (let's try putting back std::sin
+ *
+ * put back fpow(2) to get precise freq
+ * saw 16
+ * even/sin  22
  */
 template <class TBase>
 struct EvenVCO : TBase
