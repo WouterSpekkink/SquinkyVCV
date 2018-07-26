@@ -34,6 +34,7 @@ extern void testStochasticGrammar();
 extern void testGMR();
 extern void testLowpassFilter();
 extern void testPoly();
+extern void testVCO();
 
 int main(int argc, char ** argv)
 {
@@ -75,6 +76,7 @@ int main(int argc, char ** argv)
 
     testSinOscillator();
     testHilbert();
+    testVCO();
    
 
     testFFT();

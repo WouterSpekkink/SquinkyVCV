@@ -254,6 +254,7 @@ void EvenVCO<TBase>::step()
         const bool doSq = TBase::outputs[SQUARE_OUTPUT].active;
         const bool doSin = TBase::outputs[SINE_OUTPUT].active;
 #else
+        // TEPLORARY: just for hacking
         const bool doSaw = false;
         const bool doEven = true;
         const bool doTri = false;
@@ -271,7 +272,6 @@ void EvenVCO<TBase>::step()
             dispatcher = SINE_OUTPUT;
             zeroOutputsExcept(SINE_OUTPUT);
         } else {
-
             assert(false);
         }
     }

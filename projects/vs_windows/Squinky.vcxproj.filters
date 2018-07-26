@@ -237,6 +237,9 @@
     <ClCompile Include="..\..\dsp\third-party\src\minblep.cpp">
       <Filter>Source Files\dsp\third-party\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\testVCO.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
