@@ -249,7 +249,7 @@ void EvenVCO<TBase>::step()
     if (--loopCounter < 0) {
         loopCounter = 16;
 
-#if 0
+#if 1
         const bool doSaw = TBase::outputs[SAW_OUTPUT].active;
         const bool doEven = TBase::outputs[EVEN_OUTPUT].active;
         const bool doTri = TBase::outputs[TRI_OUTPUT].active;
@@ -257,11 +257,11 @@ void EvenVCO<TBase>::step()
         const bool doSin = TBase::outputs[SINE_OUTPUT].active;
 #else
         // TEPLORARY: just for hacking
-        const bool doSaw = false;
-        const bool doEven = true;
+        const bool doSaw = true;
+        const bool doEven = false;
         const bool doTri = false;
         const bool doSq = false;
-        const bool doSin = true;
+        const bool doSin = false;
 #endif
 
         if (doSaw && !doEven && !doTri && !doSq && !doSin) {
@@ -284,12 +284,14 @@ void EvenVCO<TBase>::step()
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
-    // float freq = 261.626 * powf(2.0, pitch);
-    // TODO: pass in false
-    // TODO: mul by 261?
+#if 0
+    const float q = float(log2(261.626));
+    pitch += q;
     _freq = LookupTable<float>::lookup(*expLookup, pitch, true);
     printf("mine: pitch = %f exp = %f\n", pitch, _freq);
-    _freq *= 261.626f;
+#endif
+
+    _freq = 261.626 * powf(2.0, pitch);
     _freq = clamp(_freq, 0.0f, 20000.0f);
     // printf("pitch = %f, freq = %f\n", pitch, freq);
 
