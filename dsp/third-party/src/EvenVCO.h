@@ -48,9 +48,13 @@ using namespace rack;
  * even/sin - 16
  * sin only - 15.9 (let's try putting back std::sin
  *
- * put back fpow(2) to get precise freq
- * saw 16
- * even/sin  22
+ * ver1: table for everything
+ * even - 18
+ * sin - 13
+ * saw - 10
+ * tri - 14
+ * sq = 15
+ * all - 24
  */
 template <class TBase>
 struct EvenVCO : TBase
@@ -107,6 +111,7 @@ struct EvenVCO : TBase
     void step() override;
     void step_even(float deltaPhase);
     void step_saw(float deltaPhase);
+    void step_sq(float deltaPhase);
     void step_sin(float deltaPhase);
     void step_tri(float deltaPhase);
     void step_all(float deltaPhase);
@@ -292,6 +297,54 @@ void EvenVCO<TBase>::step_tri(float deltaPhase)
     TBase::outputs[TRI_OUTPUT].value = 5.0*tri;
 }
 
+
+template <class TBase>
+void EvenVCO<TBase>::step_sq(float deltaPhase)
+{
+    float oldPhase = phase;
+    phase += deltaPhase;
+
+    if (oldPhase < 0.5 && phase >= 0.5) {
+        // printf("doing blep\n");
+        float crossing = -(phase - 0.5) / deltaPhase;
+
+        // TODO: can we turn this off?
+       // triSquareMinBLEP.jump(crossing, 2.0);
+
+    }
+
+    // Pulse width
+    float pw;
+    if (doSq) {
+        pw = TBase::params[PWM_PARAM].value + TBase::inputs[PWM_INPUT].value / 5.0;
+        const float minPw = 0.05f;
+        pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
+
+        if (!halfPhase && phase >= pw) {
+            float crossing = -(phase - pw) / deltaPhase;
+            squareMinBLEP.jump(crossing, 2.0);
+            halfPhase = true;
+        }
+    }
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+        float crossing = -phase / deltaPhase;
+        squareMinBLEP.jump(crossing, -2.0);
+        halfPhase = false;
+    }
+
+
+    float sine = 0;
+    float even = 0;
+    float saw = 0;
+
+    float square = (phase < pw) ? -1.0 : 1.0;
+    square += squareMinBLEP.shift();
+    TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
+}
+
 template <class TBase>
 void EvenVCO<TBase>::step()
 {
@@ -322,9 +375,12 @@ void EvenVCO<TBase>::step()
         } else if (!doSaw && !doEven && !doTri && !doSq && doSin) {
             dispatcher = SINE_OUTPUT;
             zeroOutputsExcept(SINE_OUTPUT);
-        } else if (!doSaw && !doEven && doTri && !doSq && doSin) {
+        } else if (!doSaw && !doEven && doTri && !doSq && !doSin) {
             dispatcher = TRI_OUTPUT;
             zeroOutputsExcept(TRI_OUTPUT);
+        } else if (!doSaw && !doEven && !doTri && doSq && !doSin) {
+            dispatcher = SQUARE_OUTPUT;
+            zeroOutputsExcept(SQUARE_OUTPUT);
         } else {
             dispatcher = NUM_OUTPUTS;
         }
@@ -366,6 +422,9 @@ void EvenVCO<TBase>::step()
             break;
         case TRI_OUTPUT:
             step_tri(deltaPhase);
+            break;
+        case SQUARE_OUTPUT:
+            step_sq(deltaPhase);
             break;
         case NUM_OUTPUTS:
             step_all(deltaPhase);
@@ -468,6 +527,7 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
     }
 
     // Set outputs
+    // get rid of redundant stuff here
     TBase::outputs[TRI_OUTPUT].value = doTri ? 5.0*tri : 0;
     TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
     TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
