@@ -254,7 +254,7 @@ static void testEven()
     EvenVCO<TestComposite> lfn;
 
 
-    MeasureTime<float>::run(overheadOutOnly, "Even", [&lfn]() {
+    MeasureTime<float>::run(overheadOutOnly, "Even, all outs", [&lfn]() {
         lfn.step();
         return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
         }, 1);
@@ -291,6 +291,7 @@ static void testEvenSaw()
         return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
         }, 1);
 }
+
 static void testFun()
 {
     FunVCOComposite<TestComposite> lfn;
@@ -386,6 +387,7 @@ void perfTest()
     testEven();
     testEvenEven();
     testEvenSaw();
+
     testFun();
 
     testCHB();

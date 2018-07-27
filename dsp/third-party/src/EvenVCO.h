@@ -108,6 +108,7 @@ struct EvenVCO : TBase
     void step_even(float deltaPhase);
     void step_saw(float deltaPhase);
     void step_sin(float deltaPhase);
+    void step_all(float deltaPhase, bool doEven, bool doTri, bool doSaw, bool doSq, bool doSin);
     void step_old();
     void initialize();
     void zeroOutputsExcept(int except);
@@ -115,6 +116,11 @@ struct EvenVCO : TBase
     int loopCounter = 0;
 
     float _freq = 0;   // for testing
+    bool doSaw = false;
+    bool doEven = false;
+    bool doTri = false;
+    bool doSq = false;
+    bool doSin = false;
 };
 
 template <class TBase>
@@ -254,18 +260,18 @@ void EvenVCO<TBase>::step()
         loopCounter = 16;
 
 #if 1
-        const bool doSaw = TBase::outputs[SAW_OUTPUT].active;
-        const bool doEven = TBase::outputs[EVEN_OUTPUT].active;
-        const bool doTri = TBase::outputs[TRI_OUTPUT].active;
-        const bool doSq = TBase::outputs[SQUARE_OUTPUT].active;
-        const bool doSin = TBase::outputs[SINE_OUTPUT].active;
+        doSaw = TBase::outputs[SAW_OUTPUT].active;
+        doEven = TBase::outputs[EVEN_OUTPUT].active;
+        doTri = TBase::outputs[TRI_OUTPUT].active;
+        doSq = TBase::outputs[SQUARE_OUTPUT].active;
+        doSin = TBase::outputs[SINE_OUTPUT].active;
 #else
-        // TEPLORARY: just for hacking
-        const bool doSaw = true;
-        const bool doEven = false;
-        const bool doTri = false;
-        const bool doSq = false;
-        const bool doSin = false;
+        // TEPORARY: just for hacking
+        doSaw = true;
+        doEven = false;
+        doTri = false;
+        doSq = false;
+        doSin = false;
 #endif
 
         if (doSaw && !doEven && !doTri && !doSq && !doSin) {
@@ -278,7 +284,7 @@ void EvenVCO<TBase>::step()
             dispatcher = SINE_OUTPUT;
             zeroOutputsExcept(SINE_OUTPUT);
         } else {
-            assert(false);
+            dispatcher = NUM_OUTPUTS;
         }
     }
 
@@ -288,15 +294,17 @@ void EvenVCO<TBase>::step()
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
-#if 0
-    const float q = float(log2(261.626));
+#if 1
+    // Note: this lookup may not be accurate enough or cover enough range.
+    const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
     _freq = LookupTable<float>::lookup(*expLookup, pitch, true);
-    printf("mine: pitch = %f exp = %f\n", pitch, _freq);
-#endif
+    //printf("mine: pitch = %f exp = %f\n", pitch, _freq);
+#else
 
     _freq = 261.626 * powf(2.0, pitch);
     _freq = clamp(_freq, 0.0f, 20000.0f);
+#endif
     // printf("pitch = %f, freq = %f\n", pitch, freq);
 
     // Advance phase
@@ -314,9 +322,111 @@ void EvenVCO<TBase>::step()
         case SINE_OUTPUT:
             step_sin(deltaPhase);
             break;
+        case NUM_OUTPUTS:
+            step_all(deltaPhase, doEven, doTri, doSaw, doSq, doSin);
+            break;
         default:
             assert(false);
     }
+}
+
+
+template <class TBase>
+void EvenVCO<TBase>::step_all(float deltaPhase, bool doEven, bool doTri, bool doSaw, bool doSq, bool doSin)
+{
+    float oldPhase = phase;
+    phase += deltaPhase;
+
+    if (oldPhase < 0.5 && phase >= 0.5) {
+        // printf("doing blep\n");
+        float crossing = -(phase - 0.5) / deltaPhase;
+
+        // TODO: can we turn this off?
+        triSquareMinBLEP.jump(crossing, 2.0);
+        if (doEven) {
+            doubleSawMinBLEP.jump(crossing, -2.0);
+        }
+    }
+
+    // Pulse width
+    float pw;
+    if (doSq) {
+        pw = TBase::params[PWM_PARAM].value + TBase::inputs[PWM_INPUT].value / 5.0;
+        const float minPw = 0.05f;
+        pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
+
+        if (!halfPhase && phase >= pw) {
+
+            float crossing = -(phase - pw) / deltaPhase;
+            squareMinBLEP.jump(crossing, 2.0);
+
+            halfPhase = true;
+        }
+    }
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+        float crossing = -phase / deltaPhase;
+        triSquareMinBLEP.jump(crossing, -2.0);
+        if (doEven) {
+            doubleSawMinBLEP.jump(crossing, -2.0);
+        }
+        if (doSq) {
+            squareMinBLEP.jump(crossing, -2.0);
+        }
+        if (doSaw) {
+            sawMinBLEP.jump(crossing, -2.0);
+        }
+        halfPhase = false;
+    }
+
+    // Outputs
+    if (doTri) {
+        float triSquare = (phase < 0.5) ? -1.0 : 1.0;
+        triSquare += triSquareMinBLEP.shift();
+
+        // Integrate square for triangle
+        tri += 4.0 * triSquare * _freq * TBase::engineGetSampleTime();
+        tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
+    }
+
+    float sine = 0;
+    float even = 0;
+    float saw = 0;
+    if (doSin || doEven) {
+        //sine = -cosf(2*AudioMath::Pi * phase);
+        // TODO: phase, amp, etc right?
+
+        // want cosine, but only have sine lookup
+        float adjPhase = phase + .25f;
+        if (adjPhase >= 1) {
+            adjPhase -= 1;
+        }
+        sine = -LookupTable<float>::lookup(*sinLookup, adjPhase, true);
+    }
+    if (doEven) {
+        float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
+        doubleSaw += doubleSawMinBLEP.shift();
+        even = 0.55 * (doubleSaw + 1.27 * sine);
+    }
+    if (doSaw) {
+        saw = -1.0 + 2.0*phase;
+        saw += sawMinBLEP.shift();
+    }
+    if (doSq) {
+        float square = (phase < pw) ? -1.0 : 1.0;
+        square += squareMinBLEP.shift();
+        TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
+    } else {
+        TBase::outputs[SQUARE_OUTPUT].value = 0;
+    }
+
+    // Set outputs
+    TBase::outputs[TRI_OUTPUT].value = doTri ? 5.0*tri : 0;
+    TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
+    TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
+    TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
 }
 
 
