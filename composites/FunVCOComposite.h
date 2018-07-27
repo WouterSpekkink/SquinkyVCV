@@ -77,9 +77,21 @@ inline void FunVCOComposite<TBase>::step()
     oscillator.setPulseWidth(TBase::params[PW_PARAM].value + TBase::params[PWM_PARAM].value * TBase::inputs[PW_INPUT].value / 10.0f);
     oscillator.syncEnabled = TBase::inputs[SYNC_INPUT].active;
 
+#if 1   // saw is 260 if we do this
+        // 203 if no process call??
+    oscillator.sawEnabled = TBase::outputs[SAW_OUTPUT].active;
+    oscillator.sinEnabled = TBase::outputs[SIN_OUTPUT].active;
+    oscillator.sqEnabled = TBase::outputs[SQR_OUTPUT].active;
+    oscillator.triEnabled = TBase::outputs[TRI_OUTPUT].active;
+  
+#else
+    oscillator.sawEnabled = true;
+    oscillator.sinEnabled = true;
+    oscillator.sqEnabled =  true;
+    oscillator.triEnabled = true;
+#endif
 
     oscillator.process(TBase::engineGetSampleTime(), TBase::inputs[SYNC_INPUT].value);
-
     // Set output
     if (TBase::outputs[SIN_OUTPUT].active)
         TBase::outputs[SIN_OUTPUT].value = 5.0f * oscillator.sin();

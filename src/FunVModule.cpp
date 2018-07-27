@@ -72,7 +72,7 @@ struct FunVWidget : ModuleWidget
  */
 FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
 {
-    box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+    box.size = Vec(10 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
@@ -80,18 +80,32 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
         addChild(panel);
     }
 
-#if 0
-    addInput(Port::create<PJ301MPort>(
-        Vec(40, 200), Port::INPUT, module, module->vco.CLOCK_INPUT));
-    addOutput(Port::create<PJ301MPort>(
-        Vec(40, 300), Port::OUTPUT, module, module->vco.TRIGGER_OUTPUT));
- #endif
-
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+
+	addParam(ParamWidget::create<CKSS>(Vec(15, 77), module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
+	addParam(ParamWidget::create<CKSS>(Vec(119, 77), module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
+
+	addParam(ParamWidget::create<RoundHugeBlackKnob>(Vec(47, 61), module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
+	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(23, 143), module, module->vco.FINE_PARAM, -1.0f, 1.0f, 0.0f));
+	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(91, 143), module, module->vco.PW_PARAM, 0.0f, 1.0f, 0.5f));
+	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(23, 208), module, module->vco.FM_PARAM, 0.0f, 1.0f, 0.0f));
+	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(91, 208), module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
+
+	addInput(Port::create<PJ301MPort>(Vec(11, 276), Port::INPUT, module, module->vco.PITCH_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(45, 276), Port::INPUT, module, module->vco.FM_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(80, 276), Port::INPUT, module, module->vco.SYNC_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(114, 276), Port::INPUT, module, module->vco.PW_INPUT));
+
+	addOutput(Port::create<PJ301MPort>(Vec(11, 320), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(45, 320), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(80, 320), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(114, 320), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
+
+	//addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(99, 42.5f), module, module->vco.::PHASE_POS_LIGHT));
 }
 
 Model *modelFunVModule = Model::create<FunVModule,

@@ -361,7 +361,27 @@ static void testEvenSqSaw()
         return lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].value;
         }, 1);
 }
+
 static void testFun()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    for (int i = 0; i < lfn.NUM_OUTPUTS; ++i) {
+        lfn.outputs[i].active = true;
+    }
+
+    lfn.setSampleRate(44100.f);
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun all on", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value +
+            lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value +
+            lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].value +
+            lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunNone()
 {
     FunVCOComposite<TestComposite> lfn;
 
@@ -369,16 +389,28 @@ static void testFun()
         lfn.outputs[i].active = false;
     }
 
+    lfn.setSampleRate(44100.f);
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun all off", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunSaw()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
 
     lfn.setSampleRate(44100.f);
 
-    //  lfn.setSampleTime(1.0f / 44100.f);
-    //   lfn.setSampleRate();
-    //  lfn.init();
-
-    MeasureTime<float>::run(overheadOutOnly, "Fun", [&lfn]() {
+    MeasureTime<float>::run(overheadOutOnly, "Fun saw", [&lfn]() {
         lfn.step();
-        return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value;
+        return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
         }, 1);
 }
 
@@ -453,6 +485,8 @@ void perfTest()
     testAttenuverters();
     testExpRange();
 #endif
+
+#if 0
     testEven();
     testEvenEven();
     testEvenSin();
@@ -460,8 +494,11 @@ void perfTest()
     testEvenTri();
     testEvenSq();
     testEvenSqSaw();
+#endif
 
     testFun();
+    testFunSaw();
+    testFunNone();
 
     testCHB();
     testLFN();

@@ -17,7 +17,7 @@ extern float triTable[2048];
 
 /**
  * CPU = 554, all outputs hooked up.
- * 392 no output hooked up
+ * 392 no output hooked up (turns of decimation filters
  * 91 no outputs hooked up, short circuit sin
  * 89 no outputs hooked up, short circuit sin, sq
  * 48 all the above, and smarter phase advance 
@@ -29,6 +29,8 @@ extern float triTable[2048];
  * 14 fake oversample down to 4
  * 41 (back to no crazy stuff
  * 16 gut the do nothing part of high sample rate inner loop
+ *
+ * Start again.
  */
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator
@@ -100,6 +102,7 @@ struct VoltageControlledOscillator
 
     void process(float deltaTime, float syncValue)
     {
+#if 1
         assert(sampleTime > 0);
         if (analog) {
             // Adjust pitch slew
@@ -213,6 +216,7 @@ struct VoltageControlledOscillator
                 phase += 1.0f;
             }
         }
+#endif
     }
 
     float sin()
