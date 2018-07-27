@@ -346,6 +346,21 @@ static void testEvenSq()
         }, 1);
 }
 
+static void testEvenSqSaw()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, Sq Saw", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
 static void testFun()
 {
     FunVCOComposite<TestComposite> lfn;
@@ -444,6 +459,7 @@ void perfTest()
     testEvenSaw();
     testEvenTri();
     testEvenSq();
+    testEvenSqSaw();
 
     testFun();
 

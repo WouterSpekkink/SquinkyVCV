@@ -53,8 +53,19 @@ using namespace rack;
  * sin - 13
  * saw - 10
  * tri - 14
- * sq = 15
+ * sq - 15
+ * sq + saw - 16
  * all - 24
+ *
+ * comment out pitch calc
+ * even - 8
+ * sin - 4
+ * saw - 3
+ * tri - 5
+ * sq - 15
+
+ * all - 24
+ 
  */
 template <class TBase>
 struct EvenVCO : TBase
@@ -208,7 +219,6 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
     }
     const float sine = -LookupTable<float>::lookup(*sinLookup, adjPhase, true);
 
-
     float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
     doubleSaw += doubleSawMinBLEP.shift();
     const float even = 0.55 * (doubleSaw + 1.27 * sine);
@@ -220,7 +230,6 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step_saw(float deltaPhase)
 {
-  //  float oldPhase = phase;
     phase += deltaPhase;
 
     // Reset phase if at end of cycle
@@ -228,9 +237,6 @@ inline void EvenVCO<TBase>::step_saw(float deltaPhase)
         phase -= 1.0;
         float crossing = -phase / deltaPhase;
         sawMinBLEP.jump(crossing, -2.0);
-
-        // saw only doesn't care
-        //halfPhase = false;
     }
 
     float saw = -1.0 + 2.0*phase;
@@ -267,13 +273,9 @@ void EvenVCO<TBase>::step_tri(float deltaPhase)
     phase += deltaPhase;
 
     if (oldPhase < 0.5 && phase >= 0.5) {
-        // printf("doing blep\n");
-        float crossing = -(phase - 0.5) / deltaPhase;
-
-        // TODO: can we turn this off?
+        const float crossing = -(phase - 0.5) / deltaPhase;
         triSquareMinBLEP.jump(crossing, 2.0);
     }
-
 
     // Reset phase if at end of cycle
     if (phase >= 1.0) {
@@ -284,14 +286,13 @@ void EvenVCO<TBase>::step_tri(float deltaPhase)
     }
 
     // Outputs
-    if (doTri) {
-        float triSquare = (phase < 0.5) ? -1.0 : 1.0;
-        triSquare += triSquareMinBLEP.shift();
 
-        // Integrate square for triangle
-        tri += 4.0 * triSquare * _freq * TBase::engineGetSampleTime();
-        tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
-    }
+    float triSquare = (phase < 0.5) ? -1.0 : 1.0;
+    triSquare += triSquareMinBLEP.shift();
+
+    // Integrate square for triangle
+    tri += 4.0 * triSquare * _freq * TBase::engineGetSampleTime();
+    tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
 
     // Set outputs
     TBase::outputs[TRI_OUTPUT].value = 5.0*tri;
@@ -305,12 +306,7 @@ void EvenVCO<TBase>::step_sq(float deltaPhase)
     phase += deltaPhase;
 
     if (oldPhase < 0.5 && phase >= 0.5) {
-        // printf("doing blep\n");
         float crossing = -(phase - 0.5) / deltaPhase;
-
-        // TODO: can we turn this off?
-       // triSquareMinBLEP.jump(crossing, 2.0);
-
     }
 
     // Pulse width
@@ -334,11 +330,6 @@ void EvenVCO<TBase>::step_sq(float deltaPhase)
         squareMinBLEP.jump(crossing, -2.0);
         halfPhase = false;
     }
-
-
-    float sine = 0;
-    float even = 0;
-    float saw = 0;
 
     float square = (phase < pw) ? -1.0 : 1.0;
     square += squareMinBLEP.shift();
@@ -386,7 +377,6 @@ void EvenVCO<TBase>::step()
         }
     }
 
-
     // Compute frequency, pitch is 1V/oct
     float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
@@ -404,6 +394,7 @@ void EvenVCO<TBase>::step()
     _freq = clamp(_freq, 0.0f, 20000.0f);
 #endif
     // printf("pitch = %f, freq = %f\n", pitch, freq);
+
 
     // Advance phase
     float deltaPhase = clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
@@ -434,7 +425,6 @@ void EvenVCO<TBase>::step()
     }
 }
 
-
 template <class TBase>
 void EvenVCO<TBase>::step_all(float deltaPhase)
 {
@@ -442,11 +432,11 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
     phase += deltaPhase;
 
     if (oldPhase < 0.5 && phase >= 0.5) {
-        // printf("doing blep\n");
-        float crossing = -(phase - 0.5) / deltaPhase;
+        const float crossing = -(phase - 0.5) / deltaPhase;
 
-        // TODO: can we turn this off?
-        triSquareMinBLEP.jump(crossing, 2.0);
+        if (doTri) {
+            triSquareMinBLEP.jump(crossing, 2.0);
+        }
         if (doEven) {
             doubleSawMinBLEP.jump(crossing, -2.0);
         }
@@ -460,10 +450,8 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
         pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
 
         if (!halfPhase && phase >= pw) {
-
-            float crossing = -(phase - pw) / deltaPhase;
+            const float crossing = -(phase - pw) / deltaPhase;
             squareMinBLEP.jump(crossing, 2.0);
-
             halfPhase = true;
         }
     }
@@ -472,7 +460,9 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
     if (phase >= 1.0) {
         phase -= 1.0;
         float crossing = -phase / deltaPhase;
-        triSquareMinBLEP.jump(crossing, -2.0);
+        if (doTri) {
+            triSquareMinBLEP.jump(crossing, -2.0);
+        }
         if (doEven) {
             doubleSawMinBLEP.jump(crossing, -2.0);
         }
@@ -498,6 +488,7 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
     float sine = 0;
     float even = 0;
     float saw = 0;
+    float square = 0;
     if (doSin || doEven) {
         //sine = -cosf(2*AudioMath::Pi * phase);
         // TODO: phase, amp, etc right?
@@ -519,9 +510,9 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
         saw += sawMinBLEP.shift();
     }
     if (doSq) {
-        float square = (phase < pw) ? -1.0 : 1.0;
+        square = (phase < pw) ? -1.0 : 1.0;
         square += squareMinBLEP.shift();
-        TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
+       
     } else {
         TBase::outputs[SQUARE_OUTPUT].value = 0;
     }
@@ -532,11 +523,12 @@ void EvenVCO<TBase>::step_all(float deltaPhase)
     TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
     TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
     TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
+    TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
 }
 
 
 
-#if 1
+#if 0
 template <class TBase>
 void EvenVCO<TBase>::step_old()
 {
