@@ -2,6 +2,7 @@
 
 
 #include "FunVCO.h"
+//#define _ORIGVCO
 
 template <class TBase>
 class FunVCOComposite : public TBase
@@ -57,7 +58,11 @@ public:
     }
 
 private:
+#ifdef _ORIGVCO
+    VoltageControlledOscillatorOrig<16,16> oscillator;
+#else
     VoltageControlledOscillator<16,16> oscillator;
+#endif
 };
 
 template <class TBase>
@@ -77,6 +82,8 @@ inline void FunVCOComposite<TBase>::step()
     oscillator.setPulseWidth(TBase::params[PW_PARAM].value + TBase::params[PWM_PARAM].value * TBase::inputs[PW_INPUT].value / 10.0f);
     oscillator.syncEnabled = TBase::inputs[SYNC_INPUT].active;
 
+#ifndef _ORIGVCO
+
 #if 1   // saw is 260 if we do this
         // 203 if no process call??
     oscillator.sawEnabled = TBase::outputs[SAW_OUTPUT].active;
@@ -89,6 +96,7 @@ inline void FunVCOComposite<TBase>::step()
     oscillator.sinEnabled = true;
     oscillator.sqEnabled =  true;
     oscillator.triEnabled = true;
+#endif
 #endif
 
     oscillator.process(TBase::engineGetSampleTime(), TBase::inputs[SYNC_INPUT].value);
