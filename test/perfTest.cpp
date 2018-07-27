@@ -254,6 +254,11 @@ static void testEven()
     EvenVCO<TestComposite> lfn;
 
 
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
     MeasureTime<float>::run(overheadOutOnly, "Even, all outs", [&lfn]() {
         lfn.step();
         return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
@@ -276,6 +281,22 @@ static void testEvenEven()
         }, 1);
 }
 
+static void testEvenSin()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, sin only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
 static void testEvenSaw()
 {
     EvenVCO<TestComposite> lfn;
@@ -288,9 +309,27 @@ static void testEvenSaw()
 
     MeasureTime<float>::run(overheadOutOnly, "Even, saw only", [&lfn]() {
         lfn.step();
-        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
+        return lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].value;
         }, 1);
 }
+
+
+static void testEvenTri()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, tri only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
+
 
 static void testFun()
 {
@@ -386,7 +425,9 @@ void perfTest()
 #endif
     testEven();
     testEvenEven();
+    testEvenSin();
     testEvenSaw();
+    testEvenTri();
 
     testFun();
 

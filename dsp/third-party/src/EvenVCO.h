@@ -108,7 +108,8 @@ struct EvenVCO : TBase
     void step_even(float deltaPhase);
     void step_saw(float deltaPhase);
     void step_sin(float deltaPhase);
-    void step_all(float deltaPhase, bool doEven, bool doTri, bool doSaw, bool doSq, bool doSin);
+    void step_tri(float deltaPhase);
+    void step_all(float deltaPhase);
     void step_old();
     void initialize();
     void zeroOutputsExcept(int except);
@@ -253,6 +254,44 @@ inline void EvenVCO<TBase>::step_sin(float deltaPhase)
     TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
 }
 
+
+template <class TBase>
+void EvenVCO<TBase>::step_tri(float deltaPhase)
+{
+    float oldPhase = phase;
+    phase += deltaPhase;
+
+    if (oldPhase < 0.5 && phase >= 0.5) {
+        // printf("doing blep\n");
+        float crossing = -(phase - 0.5) / deltaPhase;
+
+        // TODO: can we turn this off?
+        triSquareMinBLEP.jump(crossing, 2.0);
+    }
+
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+        float crossing = -phase / deltaPhase;
+        triSquareMinBLEP.jump(crossing, -2.0);
+        halfPhase = false;
+    }
+
+    // Outputs
+    if (doTri) {
+        float triSquare = (phase < 0.5) ? -1.0 : 1.0;
+        triSquare += triSquareMinBLEP.shift();
+
+        // Integrate square for triangle
+        tri += 4.0 * triSquare * _freq * TBase::engineGetSampleTime();
+        tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
+    }
+
+    // Set outputs
+    TBase::outputs[TRI_OUTPUT].value = 5.0*tri;
+}
+
 template <class TBase>
 void EvenVCO<TBase>::step()
 {
@@ -283,6 +322,9 @@ void EvenVCO<TBase>::step()
         } else if (!doSaw && !doEven && !doTri && !doSq && doSin) {
             dispatcher = SINE_OUTPUT;
             zeroOutputsExcept(SINE_OUTPUT);
+        } else if (!doSaw && !doEven && doTri && !doSq && doSin) {
+            dispatcher = TRI_OUTPUT;
+            zeroOutputsExcept(TRI_OUTPUT);
         } else {
             dispatcher = NUM_OUTPUTS;
         }
@@ -322,8 +364,11 @@ void EvenVCO<TBase>::step()
         case SINE_OUTPUT:
             step_sin(deltaPhase);
             break;
+        case TRI_OUTPUT:
+            step_tri(deltaPhase);
+            break;
         case NUM_OUTPUTS:
-            step_all(deltaPhase, doEven, doTri, doSaw, doSq, doSin);
+            step_all(deltaPhase);
             break;
         default:
             assert(false);
@@ -332,7 +377,7 @@ void EvenVCO<TBase>::step()
 
 
 template <class TBase>
-void EvenVCO<TBase>::step_all(float deltaPhase, bool doEven, bool doTri, bool doSaw, bool doSq, bool doSin)
+void EvenVCO<TBase>::step_all(float deltaPhase)
 {
     float oldPhase = phase;
     phase += deltaPhase;
