@@ -1,8 +1,10 @@
 
 #include <assert.h>
 
+#include "Analyzer.h"
 #include "asserts.h"
 #include "EvenVCO.h"
+#include "SawOscillator.h"
 #include "TestComposite.h"
 
 
@@ -68,9 +70,8 @@ static void foo()
 
 static void test0()
 {
-    printf("start of vco\n");
     testx(3);
-    printf("end of vco\n");
+
 #if 0
     EVCO vco;
  
@@ -80,8 +81,58 @@ static void test0()
 #endif
 }
 
+
+static void testAlias1()
+{
+    const int windowSize = 1 * 1024;
+    const float sampleRate = 44100.f;
+    const float normalizedFreq = 1.0f / 6.5f;
+
+    //const float normalizedFreq = 1.0f / (3.0f * 4);            // lower freq
+
+
+    const float fundamental = sampleRate* normalizedFreq;
+
+    SawOscillatorParams<float> params;
+    SawOscillatorState<float> state;
+    SawOscillator<float, false>::setFrequency(params, normalizedFreq );
+
+    const double binSpacing = 44100.0 / windowSize;
+
+    printf("**** saw at %f bins spacing = %f***\n", fundamental, binSpacing);
+    printf(" neighbors at %f and %f\n", fundamental - binSpacing, fundamental + binSpacing);
+    printf(" harm at %f, %f\n", fundamental * 2, fundamental * 3);
+
+  
+    FFTDataCpx spectrum(windowSize);
+    Analyzer::getSpectrum(spectrum, true, [&state, &params]() {
+        return 30 * SawOscillator<float, false>::runSaw(state, params);
+    });
+    Analyzer::getAndPrintFeatures(spectrum, 3, sampleRate);
+
+}
+
+static void foo3()
+{
+    double baseFreq = 1.0 / 6.5;
+  //  double baseFreq = 1.0 / 9.0;
+    printf("base freq = %f\n", baseFreq);
+    for (int i = 1; i < 6; ++i) {
+        double freq = i * baseFreq;
+        if (freq > .5) {
+            double over = freq - .5;
+            freq = .5 - over;
+        }
+        printf("harm %d, freq (aliased) %f\n", i, freq);
+
+    }
+}
+
 void testVCO()
 {
  //   foo();
      test0();
+    testAlias1();
+   // foo3();
+
 }

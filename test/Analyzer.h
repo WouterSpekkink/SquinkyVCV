@@ -67,6 +67,8 @@ public:
      */
     static float makeEvenPeriod(float desiredFreq, float sampleRate, int numSamples);
 
+    static double hamming(int iSample, int totalSamples);
+
     /**
      * Assert that there is a single frequency in spectrum, and that it is close to
      * expectedFreq.

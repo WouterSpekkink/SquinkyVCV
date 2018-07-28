@@ -102,7 +102,8 @@ std::tuple<float, float, float> Analyzer::getMaxAndShouldersFreq(const FFTDataCp
 // TODO: pass in cutoff
 std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
 {
-    const float dbMinCutoff = -80;
+   // TODO: pass this in
+    const float dbMinCutoff = -100;
     assert(sensitivityDb > 0);
     std::vector<FPoint> ret;
     float lastDb = 10000000000;
@@ -179,11 +180,11 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
 }
 
 
-static double hamming(int iSample, int totalSamples)
+double Analyzer::hamming(int iSample, int totalSamples)
 {
     const double a0 = .53836;
     double theta = AudioMath::Pi * 2.0 * double(iSample) / double(totalSamples - 1);
-    return a0 + (1.0 - a0) * std::cos(theta);
+    return a0 - (1.0 - a0) * std::cos(theta);
 }
 
 void Analyzer::getSpectrum(FFTDataCpx& out, bool useWindow, std::function<float()> func)
@@ -212,8 +213,6 @@ void Analyzer::getSpectrum(FFTDataCpx& out, bool useWindow, std::function<float(
     }
 #endif
 }
-
-
 
 void Analyzer::generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq)
 {
