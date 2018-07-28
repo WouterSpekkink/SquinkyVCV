@@ -16,6 +16,35 @@
 extern float sawTable[2048];
 extern float triTable[2048];
 
+#define _USEIIR
+
+template <int OVERSAMPLE>
+class IIRDecimator
+{
+public:
+    float process(const float * input)
+    {
+        float x = 0;
+        for (int i = 0; i < OVERSAMPLE; ++i) {
+            x = BiquadFilter<float>::run(input[i], state, params);
+        }
+        return x;
+    }
+
+    /**
+     * cutoff is normalized freq (.5 = nyquist)
+     */
+    void setCutoff(float cutoff)
+    {
+        assert(cutoff > 0 && cutoff < .5f);
+        ButterworthFilterDesigner<float>::designSixPoleLowpass(params, cutoff);
+    }
+private:
+    BiquadParams<float, 3> params;
+    BiquadState<float, 3> state;
+
+};
+
 /**
  * orig, all outputs off - 394
  * orig, all outputs on - 809
@@ -40,6 +69,13 @@ extern float triTable[2048];
  *
  * dedicated saw path (used for all
  * saw - 236, 233 optimized
+ *
+ * IIR Decimators
+ * all outputs off - 42
+ * all outputs on - 214
+ * saw only - 80
+ * sin only - 88
+ * sq only - 92
  */
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator
@@ -63,12 +99,20 @@ struct VoltageControlledOscillator
     bool sawEnabled = false;
     bool triEnabled = false;
 
-
+#ifdef _USEIIR
+    IIRDecimator<OVERSAMPLE> sinDecimator;
+    IIRDecimator<OVERSAMPLE> triDecimator;
+    IIRDecimator<OVERSAMPLE> sawDecimator;
+    IIRDecimator<OVERSAMPLE> sqrDecimator;
+#else
     rack::Decimator<OVERSAMPLE, QUALITY> sinDecimator;
     rack::Decimator<OVERSAMPLE, QUALITY> triDecimator;
     rack::Decimator<OVERSAMPLE, QUALITY> sawDecimator;
     rack::Decimator<OVERSAMPLE, QUALITY> sqrDecimator;
+#endif
     RCFilter sqrFilter;
+
+
 
     // For analog detuning effect
     float pitchSlew = 0.0f;
@@ -84,6 +128,14 @@ struct VoltageControlledOscillator
     void init()
     {
         sinLookup = ObjectCache<float>::getSinLookup();
+
+        // first guess - an octave below nyquist
+        float cutoff = .25f / float(OVERSAMPLE);
+        sinDecimator.setCutoff(1.f / 32.f);
+        sawDecimator.setCutoff(1.f / 32.f);
+        sqrDecimator.setCutoff(1.f / 32.f);
+        triDecimator.setCutoff(1.f / 32.f);
+       
     }
 
     // TODO: what is the range of the one in VCV?
@@ -327,8 +379,7 @@ struct VoltageControlledOscillator
     }
     float saw()
     {
-        return sawDecimator.process(sawBuffer);
-       // return sawBuffer[0];
+       return sawDecimator.process(sawBuffer);
     }
     float sqr()
     {
