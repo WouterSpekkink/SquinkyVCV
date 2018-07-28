@@ -122,19 +122,54 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
 }
 
 
-std::vector<Analyzer::FPoint> Analyzer::getPeaks(const FFTDataCpx& data, float sampleRate)
+std::vector<Analyzer::FPoint> Analyzer::getPeaks(const FFTDataCpx& data, float sampleRate, float minDb)
 {
     std::vector<FPoint> ret;
 
     // only look at the below nyquist stuff
-    for (int i = 1; i < (data.size() / 2) - 1; ++i) {
-        const double magBelow = std::abs(data.get(i - 1));
+    for (int i = 0; i < data.size() / 2; ++i) {
         const double mag = std::abs(data.get(i));
-        const double magAbove = std::abs(data.get(i + 1));
-
         const double db = AudioMath::db(mag);
+        bool isPeak = false;
+        if (i < 2 || i >(data.size() / 2) - 2) {
+            isPeak = true;
+        } else {
 
-        if (mag > magBelow && mag > magAbove && db > -70) {
+            const double magBelow = std::abs(data.get(i - 1));
+            const double magAbove = std::abs(data.get(i + 1));
+            if (mag <= magBelow || mag <= magAbove) {
+                isPeak = false;
+            } else {
+
+#if 1
+                double average = 0;
+                for (int j = 0; j < 5; ++j) {
+                    average += std::abs(data.get(i + j - 2));
+                }
+                average -= mag;             // subtract out our contribution
+                average /= 4.0;
+                double a = std::abs(data.get(i - 2));
+                double b = std::abs(data.get(i - 1));
+                double c = std::abs(data.get(i - 0));
+                double d = std::abs(data.get(i + 1));
+                double e = std::abs(data.get(i + 2));
+                isPeak = (mag > (average * 2));
+#else
+                //this way average db
+                double average = 0;
+                for (int j = 0; j < 5; ++j) {
+                    average += AudioMath::db(std::abs(data.get(i + j - 2)));
+                }
+                isPeak = (db > (average + 3));
+#endif
+                //if (isPeak) printf("accepted peak at %f db, average was %f\n", db, average);
+            }
+        }
+        if (db < minDb) {
+            isPeak = false;
+        }
+
+        if (isPeak) {
         //if ((std::abs(db - lastDb) >= sensitivityDb) && (db > dbMinCutoff)) {
             float freq = FFT::bin2Freq(i, sampleRate, data.size());
             FPoint p(freq, (float) db);
@@ -154,13 +189,45 @@ void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, 
     }
 }
 
-void Analyzer::getAndPrintPeaks(const FFTDataCpx& data, float sampleRate)
+void Analyzer::getAndPrintPeaks(const FFTDataCpx& data, float sampleRate, float minDb)
 {
-    auto peaks = getPeaks(data, sampleRate);
+    auto peaks = getPeaks(data, sampleRate, minDb);
     printf("there are %d peaks\n", (int) peaks.size());
     for (int i = 0; i < (int) peaks.size(); ++i) {
         printf("peak: freq=%f, db=%f\n", peaks[i].freq, peaks[i].gainDb);
     }
+}
+
+
+void Analyzer::getAndPrintFreqOfInterest(const FFTDataCpx& data, float sampleRate, const std::vector<double>& freqOfInterest)
+{
+    for (double freq : freqOfInterest) {
+        int bin = FFT::freqToBin(freq, sampleRate, data.size());
+        if (bin > 2 && bin < data.size() - 2) {
+
+;
+            double a = AudioMath::db(std::abs(data.get(bin - 2)));
+            double b = AudioMath::db(std::abs(data.get(bin - 1)));
+            double c = AudioMath::db(std::abs(data.get(bin)));
+            double d = AudioMath::db(std::abs(data.get(bin + 1)));
+            double e = AudioMath::db(std::abs(data.get(bin + 2)));
+
+            double db = std::max(e, std::max(
+                std::max(a, b),
+                std::max(c, d)));
+
+            printf("freq=%.2f db=%f  range:%.2f,%.2f,%.2f,%.2f,%.2f\n", freq, db,
+                a, b, c, d, e
+            );
+        }
+
+
+    }
+
+    for (int i = 0; i < data.size() / 2; ++i) {
+        float freq = FFT::bin2Freq(i, sampleRate, data.size());
+    }
+
 }
 
 void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func)
@@ -198,7 +265,7 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
         const cpx x = (std::abs(testSpectrum.get(i)) == 0) ? 0 :
             spectrum.get(i) / testSpectrum.get(i);
         out.set(i, x);
-    }
+}
 
 #if 0
     for (int i = 0; i < numSamples; ++i) {

@@ -11,6 +11,10 @@
 #include "dsp/decimator.hpp"
 #include <random>
 
+#include "BiquadFilter.h"
+#include "BiquadParams.h"
+#include "BiquadState.h"
+#include "ButterworthFilterDesigner.h"
 #include "ObjectCache.h"
 
 extern float sawTable[2048];

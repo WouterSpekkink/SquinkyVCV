@@ -24,9 +24,11 @@ public:
     };
 
     static std::vector<FPoint> getFeatures(const FFTDataCpx&, float sensitivityDb, float sampleRate);
-    static std::vector<FPoint> getPeaks(const FFTDataCpx&, float sampleRate);
+    static std::vector<FPoint> getPeaks(const FFTDataCpx&, float sampleRate, float minDb);
     static void getAndPrintFeatures(const FFTDataCpx&, float sensitivityDb, float sampleRate);
-    static void getAndPrintPeaks(const FFTDataCpx&, float sampleRate);
+    static void getAndPrintPeaks(const FFTDataCpx&, float sampleRate, float minDb);
+    static void getAndPrintFreqOfInterest(const FFTDataCpx&, float sampleRate, const std::vector<double>& freqOfInterest);
+
     static int getMax(const FFTDataCpx&);
     static int getMaxExcluding(const FFTDataCpx&, std::set<int> exclusions);
     static int getMaxExcluding(const FFTDataCpx&, int exclusion);
