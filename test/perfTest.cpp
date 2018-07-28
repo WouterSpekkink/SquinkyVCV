@@ -401,10 +401,10 @@ static void testFunSaw()
 {
     FunVCOComposite<TestComposite> lfn;
 
-    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
-    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
-    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
-    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
+    lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = true;
 
     lfn.setSampleRate(44100.f);
 
@@ -414,6 +414,39 @@ static void testFunSaw()
         }, 1);
 }
 
+static void testFunSin()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].active = true;
+    lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = false;
+
+    lfn.setSampleRate(44100.f);
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun sin", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunSq()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = true;
+    lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = false;
+
+    lfn.setSampleRate(44100.f);
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun sq", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
 static void testCHB()
 {
     CHB<TestComposite> chb;
@@ -496,8 +529,10 @@ void perfTest()
     testEvenSqSaw();
 #endif
 
-    testFun();
     testFunSaw();
+    testFunSin();
+    testFunSq();
+    testFun();
     testFunNone();
 
     testCHB();

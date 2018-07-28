@@ -11,6 +11,7 @@
 #include "dsp/decimator.hpp"
 #include <random>
 
+#include "ObjectCache.h"
 
 extern float sawTable[2048];
 extern float triTable[2048];
@@ -18,7 +19,27 @@ extern float triTable[2048];
 /**
  * orig, all outputs off - 394
  * orig, all outputs on - 809
- * orig, saw only = 599
+ * orig, saw only = 492
+ *
+ * mine 7/27
+ * all outputs off - 47
+ * all outputs on - 475
+ * saw only - 149
+ * sin only - 154
+ * sq only - 153;
+ *
+ * why does all off take so long?
+ * remove inner loop, all off - 6!!
+ * no inner loop, saw only 205
+ * inner loop, no decimator saw - 158
+
+ * no decimator, no pitch calc.
+ * saw - 142
+ * all off - 36
+ * all on - 624
+ *
+ * dedicated saw path (used for all
+ * saw - 236, 233 optimized
  */
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator
@@ -58,6 +79,13 @@ struct VoltageControlledOscillator
     float sawBuffer[OVERSAMPLE] = {};
     float sqrBuffer[OVERSAMPLE] = {};
 
+    std::shared_ptr<LookupTableParams<float>> sinLookup;
+
+    void init()
+    {
+        sinLookup = ObjectCache<float>::getSinLookup();
+    }
+
     // TODO: what is the range of the one in VCV?
     std::default_random_engine generator{99};
     std::normal_distribution<double> distribution{-1.0, 1.0};
@@ -88,8 +116,89 @@ struct VoltageControlledOscillator
         pw = clamp(pulseWidth, pwMin, 1.0f - pwMin);
     }
 
+    void processSaw(float deltaTime, float syncValue)
+    {
+        assert(sampleTime > 0);
+        if (analog) {
+            // Adjust pitch slew
+            if (++pitchSlewIndex > 32) {
+                const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
+                pitchSlew += (noise() - pitchSlew / pitchSlewTau) *sampleTime;
+                pitchSlewIndex = 0;
+            }
+        }
+
+        // Advance phase
+        float deltaPhaseOver = clamp(freq * deltaTime, 1e-6, 0.5f) * (1.0f / OVERSAMPLE);
+
+        // Detect sync
+        int syncIndex = -1; // Index in the oversample loop where sync occurs [0, OVERSAMPLE)
+        float syncCrossing = 0.0f; // Offset that sync occurs [0.0f, 1.0f)
+        if (syncEnabled) {
+            syncValue -= 0.01f;
+            if (syncValue > 0.0f && lastSyncValue <= 0.0f) {
+                float deltaSync = syncValue - lastSyncValue;
+                syncCrossing = 1.0f - syncValue / deltaSync;
+                syncCrossing *= OVERSAMPLE;
+                syncIndex = (int) syncCrossing;
+                syncCrossing -= syncIndex;
+            }
+            lastSyncValue = syncValue;
+        }
+
+        if (syncDirection)
+            deltaPhaseOver *= -1.0f;
+
+     
+
+        for (int i = 0; i < OVERSAMPLE; i++) {
+#if 0
+            // if (syncEnabled) {
+            if (syncIndex == i) {
+                if (soft) {
+                    syncDirection = !syncDirection;
+                    deltaPhaseOver *= -1.0f;
+                } else {
+                    // phase = syncCrossing * deltaPhase / OVERSAMPLE;
+                    phase = 0.0f;
+                }
+            }
+            // }
+
+
+#endif
+
+
+        //    if (analog) {
+        //        sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
+        //    } else {
+                if (phase < 0.5f)
+                    sawBuffer[i] = 2.f * phase;
+                else
+                    sawBuffer[i] = -2.f + 2.f * phase;
+        //    }
+
+
+            // don't divide by oversample every time.
+            // don't do that expensive mod (TODO: is this correct
+
+            // Advance phase ( I think this could be a normal phase advance
+            //  phase += deltaPhase / OVERSAMPLE;
+            // phase = eucmod(phase, 1.0f);
+            phase += deltaPhaseOver;
+            while (phase > 1.0f) {
+                phase -= 1.0f;
+            }
+            while (phase < 0) {
+                phase += 1.0f;
+            }
+        }
+    }
+
     void process(float deltaTime, float syncValue)
     {
+       // processSaw(deltaTime, syncValue);
+        assert(sinLookup);
 #if 1
         assert(sampleTime > 0);
         if (analog) {
@@ -151,7 +260,8 @@ struct VoltageControlledOscillator
                         sinBuffer[i] = -1.f + 16.f * powf(phase - 0.75f, 2);
                     sinBuffer[i] *= 1.08f;
                 } else {
-                    sinBuffer[i] = sinf(2.f*M_PI * phase);
+                   // sinBuffer[i] = sinf(2.f*M_PI * phase);
+                    sinBuffer[i] = LookupTable<float>::lookup(*sinLookup, phase, true);
                 }
             }
 
@@ -218,6 +328,7 @@ struct VoltageControlledOscillator
     float saw()
     {
         return sawDecimator.process(sawBuffer);
+       // return sawBuffer[0];
     }
     float sqr()
     {
