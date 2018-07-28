@@ -22,17 +22,17 @@ pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
 float desiredPitch(const EVCO& vco)
 {
-    float pitch = 1.0f + roundf(vco.params[(int)EVCO::OCTAVE_PARAM].value) + vco.params[(int) EVCO::TUNE_PARAM].value / 12.0f;
+    float pitch = 1.0f + roundf(vco.params[(int) EVCO::OCTAVE_PARAM].value) + vco.params[(int) EVCO::TUNE_PARAM].value / 12.0f;
     pitch += vco.inputs[(int) EVCO::PITCH1_INPUT].value + vco.inputs[(int) EVCO::PITCH2_INPUT].value;
     pitch += vco.inputs[(int) EVCO::FM_INPUT].value / 4.0f;
-   
+
     float freq = 261.626f * powf(2.0f, pitch);
     printf("theirs: pitch = %f exp = %f\n", pitch, freq);
     return freq;
 }
 
 
-static void testx(float octave, float tune=0, float pitch1=0, float pitch2=0, float fm=0)
+static void testx(float octave, float tune = 0, float pitch1 = 0, float pitch2 = 0, float fm = 0)
 {
     EVCO vco;
 
@@ -74,65 +74,68 @@ static void test0()
 
 #if 0
     EVCO vco;
- 
+
     vco.step();
     const float desired = desiredPitch(vco);
     assertEQ(vco._freq, desired);
 #endif
 }
 
+/*
+Measure straight saw,  normalizedFreq = 1.0f / (2 * 6.5f);
 
-static void testAlias1()
+**** saw at 3392.307861 bins spacing = 0.672913***
+neighbors at 3391.634949 and 3392.980774
+harm at 6784.615723, 10176.923828, 13.5, 16.9
+
+there are 18 peaks
+
+H0: peak: freq=3392.152344, db=7.919424
+H1: freq=6784.304688, db=1.042711
+alias: freq=10177.129883, db=-1.219168
+H2: freq=13569.282227, db=-2.484016
+alias: freq=16961.435547, db=-3.714211
+alias or something else?: freq=20353.587891, db=-5.093843
+peak: freq=20356.951172, db=-47.860172
+*/
+
+const float sampleRate = 44100;
+const float normalizedFreq = 1.0f / (2 * 6.5f);     // this will make alias freq spaced from harmonics
+static void printOscPeaks(std::function<float()> func)
 {
-    const int windowSize = 1 * 1024;
-    const float sampleRate = 44100.f;
-    const float normalizedFreq = 1.0f / 6.5f;
-
-    //const float normalizedFreq = 1.0f / (3.0f * 4);            // lower freq
-
-
-    const float fundamental = sampleRate* normalizedFreq;
-
-    SawOscillatorParams<float> params;
-    SawOscillatorState<float> state;
-    SawOscillator<float, false>::setFrequency(params, normalizedFreq );
+    const int windowSize = 64 * 1024;
 
     const double binSpacing = 44100.0 / windowSize;
+    const float fundamental = sampleRate * normalizedFreq;
 
     printf("**** saw at %f bins spacing = %f***\n", fundamental, binSpacing);
     printf(" neighbors at %f and %f\n", fundamental - binSpacing, fundamental + binSpacing);
     printf(" harm at %f, %f\n", fundamental * 2, fundamental * 3);
 
-  
+
     FFTDataCpx spectrum(windowSize);
-    Analyzer::getSpectrum(spectrum, true, [&state, &params]() {
-        return 30 * SawOscillator<float, false>::runSaw(state, params);
-    });
-    Analyzer::getAndPrintFeatures(spectrum, 3, sampleRate);
+    Analyzer::getSpectrum(spectrum, true, func);
+    Analyzer::getAndPrintPeaks(spectrum, sampleRate);
 
 }
 
-static void foo3()
+static void testAlias1()
 {
-    double baseFreq = 1.0 / 6.5;
-  //  double baseFreq = 1.0 / 9.0;
-    printf("base freq = %f\n", baseFreq);
-    for (int i = 1; i < 6; ++i) {
-        double freq = i * baseFreq;
-        if (freq > .5) {
-            double over = freq - .5;
-            freq = .5 - over;
-        }
-        printf("harm %d, freq (aliased) %f\n", i, freq);
+    SawOscillatorParams<float> params;
+    SawOscillatorState<float> state;
+    SawOscillator<float, false>::setFrequency(params, normalizedFreq);
+    printOscPeaks([&state, &params]() {
+        return 30 * SawOscillator<float, false>::runSaw(state, params);
+        });
 
-    }
+
 }
 
 void testVCO()
 {
- //   foo();
-     test0();
-    testAlias1();
-   // foo3();
+
+    test0();
+    testAliasSaw();
+
 
 }

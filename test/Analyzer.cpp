@@ -56,7 +56,7 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
     int iMax = data.size() / 2;
 
     assert(maxBin >= 0);
-    const double dbShoulder = atten +  AudioMath::db(std::abs(data.get(maxBin)));
+    const double dbShoulder = atten + AudioMath::db(std::abs(data.get(maxBin)));
 
     int i;
     int iShoulderLow = -1;
@@ -108,8 +108,8 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
     std::vector<FPoint> ret;
     float lastDb = 10000000000;
     // only look at the below nyquist stuff
-    for (int i = 0; i < data.size()/2; ++i) {
-        const float db = (float) AudioMath::db( std::abs(data.get(i)));
+    for (int i = 0; i < data.size() / 2; ++i) {
+        const float db = (float) AudioMath::db(std::abs(data.get(i)));
         if ((std::abs(db - lastDb) >= sensitivityDb) && (db > dbMinCutoff)) {
             float freq = FFT::bin2Freq(i, sampleRate, data.size());
             FPoint p(freq, db);
@@ -121,12 +121,45 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
     return ret;
 }
 
+
+std::vector<Analyzer::FPoint> Analyzer::getPeaks(const FFTDataCpx& data, float sampleRate)
+{
+    std::vector<FPoint> ret;
+
+    // only look at the below nyquist stuff
+    for (int i = 1; i < (data.size() / 2) - 1; ++i) {
+        const double magBelow = std::abs(data.get(i - 1));
+        const double mag = std::abs(data.get(i));
+        const double magAbove = std::abs(data.get(i + 1));
+
+        const double db = AudioMath::db(mag);
+
+        if (mag > magBelow && mag > magAbove && db > -70) {
+        //if ((std::abs(db - lastDb) >= sensitivityDb) && (db > dbMinCutoff)) {
+            float freq = FFT::bin2Freq(i, sampleRate, data.size());
+            FPoint p(freq, (float) db);
+            // printf("feature at bin %d, db=%f raw val=%f\n", i, db, std::abs(data.get(i)));
+            ret.push_back(p);
+        }
+    }
+    return ret;
+}
+
 void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
 {
     auto features = getFeatures(data, sensitivityDb, sampleRate);
-    printf("there are %d features\n", (int)features.size());
+    printf("there are %d features\n", (int) features.size());
     for (int i = 0; i < (int) features.size(); ++i) {
         printf("feature: freq=%f, db=%f\n", features[i].freq, features[i].gainDb);
+    }
+}
+
+void Analyzer::getAndPrintPeaks(const FFTDataCpx& data, float sampleRate)
+{
+    auto peaks = getPeaks(data, sampleRate);
+    printf("there are %d peaks\n", (int) peaks.size());
+    for (int i = 0; i < (int) peaks.size(); ++i) {
+        printf("peak: freq=%f, db=%f\n", peaks[i].freq, peaks[i].gainDb);
     }
 }
 
@@ -162,9 +195,9 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
     FFT::forward(&testSpectrum, testSignal);
 
     for (int i = 0; i < numSamples; ++i) {
-            const cpx x = (std::abs(testSpectrum.get(i)) == 0) ? 0 :
-                spectrum.get(i) / testSpectrum.get(i);
-            out.set(i, x);
+        const cpx x = (std::abs(testSpectrum.get(i)) == 0) ? 0 :
+            spectrum.get(i) / testSpectrum.get(i);
+        out.set(i, x);
     }
 
 #if 0
@@ -189,7 +222,7 @@ double Analyzer::hamming(int iSample, int totalSamples)
 
 void Analyzer::getSpectrum(FFTDataCpx& out, bool useWindow, std::function<float()> func)
 {
- 
+
     const int numSamples = out.size();
 
     // Run the test signal though func, capture output in fft real
@@ -225,7 +258,7 @@ void Analyzer::generateSweep(float sampleRate, float* out, int numSamples, float
     SinOscillatorState<double> state;
 
     double fLog = minLog;
-    for (int i = 0; i < numSamples; ++i, fLog+=delta) {
+    for (int i = 0; i < numSamples; ++i, fLog += delta) {
         const double freq = std::pow(2, fLog);
         assert(freq < (sampleRate / 2));
 
@@ -242,11 +275,11 @@ float Analyzer::makeEvenPeriod(float desiredFreq, float sampleRate, int numSampl
     float desiredPeriodSamples = sampleRate / desiredFreq;
     float periodsPerFrame = numSamples / desiredPeriodSamples;
 
-   
+
      //printf("desiredFreq = %f, desired period/ samp = %f, periods per frame = %f\n", desiredFreq, desiredPeriodSamples, periodsPerFrame);
 
-      
-     float evenPeriodsPerFrame = std::floor(periodsPerFrame);
+
+    float evenPeriodsPerFrame = std::floor(periodsPerFrame);
 
     float period = (float) numSamples / evenPeriodsPerFrame;
     //printf("period = %f\n", period);
