@@ -106,7 +106,45 @@ freq=1890.97 db=-19.832927
 freq=202.60 db=-20.125769 
 
 Origiginal fun:
+freq=1688.36 db=8.184821 
+freq=8441.81 db=-6.162163  
+freq=13506.89 db=-10.978656
+freq=15195.25 db=-12.677216
+freq=18571.98 db=-17.830856
+alias:
+freq=20462.94 db=-35.077753
+freq=18774.58 db=-45.695258
+freq=17086.22 db=-60.030020
+freq=15397.86 db=-76.772331
+freq=13709.50 db=-81.981375
+freq=12021.13 db=-82.227736
+freq=10332.77 db=-82.034031
+freq=8644.41 db=-80.662224 
+freq=6956.05 db=-80.317230 
+freq=5267.69 db=-81.107440 
+freq=3579.33 db=-82.032488 
+freq=1890.97 db=-78.061883 
+freq=202.60 db=-86.225815  
 
+modified fun
+freq=1688.36 db=8.184871 
+freq=8441.81 db=-6.162146 
+freq=13506.89 db=-10.859227 
+freq=15195.25 db=-12.184126 
+freq=18571.98 db=-14.747237 
+alias:
+freq=20462.94 db=-20.723662 
+freq=18774.58 db=-23.930877 
+freq=17086.22 db=-27.325587 
+freq=15397.86 db=-30.722889 
+freq=13709.50 db=-34.037846 
+freq=12021.13 db=-37.241892 
+freq=10332.77 db=-40.326342 
+freq=8644.41 db=-43.295392  
+freq=6956.05 db=-46.148976  
+freq=5267.69 db=-48.890096  
+freq=3579.33 db=-51.522286  
+freq=1890.97 db=-54.017538  
 
 */
 
@@ -186,12 +224,14 @@ static void testAliasFun()
     vco.sinEnabled = false;
     vco.sqEnabled = false;
     vco.triEnabled = false;
+    vco.freq = sampleRate * normalizedFreq;
+    vco.sampleTime = 1.0f / sampleRate;
     vco.init();
 
     printOscPeaks([&vco]() {
         const float deltaTime = 1.0f / sampleRate;
         vco.process(deltaTime, 0);
-        return vco.saw();
+        return 15 * vco.saw();
         });
 }
 
@@ -208,13 +248,35 @@ static void testAliasFunOrig()
         return 15 * vco.saw();
         });
 }
+
+static void testAliasEven()
+{
+
+   EVCO vco;
+    vco._testFreq = sampleRate * normalizedFreq;
+   // vco.set = 1.0f / sampleRate;
+    vco.outputs[EVCO::SAW_OUTPUT].active = true;
+    vco.outputs[EVCO::SINE_OUTPUT].active = false;
+    vco.outputs[EVCO::TRI_OUTPUT].active = false;
+    vco.outputs[EVCO::SQUARE_OUTPUT].active = false;
+    vco.outputs[EVCO::EVEN_OUTPUT].active = false;
+
+
+    printOscPeaks([&vco]() {
+       // const float deltaTime = 1.0f / sampleRate;
+       // vco.process(deltaTime, 0);
+        vco.step();
+        return 3 * vco.outputs[EVCO::SAW_OUTPUT].value;
+        });
+}
 void testVCO()
 {
 
     test0();
-    testAliasSaw();
+   // testAliasSaw();
    //testAliasFun();
    // testAliasFunOrig();
+    testAliasEven();
 
 
 }

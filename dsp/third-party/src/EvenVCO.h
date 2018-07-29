@@ -133,6 +133,7 @@ struct EvenVCO : TBase
     int loopCounter = 0;
 
     float _freq = 0;   // for testing
+    float _testFreq = 0;
     bool doSaw = false;
     bool doEven = false;
     bool doTri = false;
@@ -397,7 +398,8 @@ void EvenVCO<TBase>::step()
 
 
     // Advance phase
-    float deltaPhase = clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+    float f = (_testFreq) ? _testFreq : _freq;
+    float deltaPhase = clamp(f * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
 
     /* Idea: just pass in deltaPhase, let everyone to all the calcs themselves
     */
