@@ -133,12 +133,14 @@ struct VoltageControlledOscillator
     {
         sinLookup = ObjectCache<float>::getSinLookup();
 
+        // was using 1/32 = .5 / 16 for first try
         // first guess - an octave below nyquist
         float cutoff = .25f / float(OVERSAMPLE);
-        sinDecimator.setCutoff(1.f / 32.f);
-        sawDecimator.setCutoff(1.f / 32.f);
-        sqrDecimator.setCutoff(1.f / 32.f);
-        triDecimator.setCutoff(1.f / 32.f);
+
+        sinDecimator.setCutoff(cutoff);
+        sawDecimator.setCutoff(cutoff);
+        sqrDecimator.setCutoff(cutoff);
+        triDecimator.setCutoff(cutoff);
        
     }
 

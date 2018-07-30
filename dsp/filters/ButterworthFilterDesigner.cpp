@@ -59,6 +59,32 @@ void ButterworthFilterDesigner<T>::designTwoPoleLowpass(BiquadParams<T, 1>& outP
     BiquadFilter<T>::fillFromStages(outParams, lp2->Stages(), lp2->GetStageCount());
 }
 
+template <typename T>
+void ButterworthFilterDesigner<T>::designSixPoleElliptic(BiquadParams<T, 3>& outParams, T frequency, T rippleDb, T stopbandAttenDb)
+{
+    assert(stopbandAttenDb > 0);
+    using Filter = Dsp::EllipticLowPass<6, 1>;
+    std::unique_ptr<Filter> ellip6(new Filter());
+    // 	void SetupAs( CalcT cutoffFreq, CalcT passRippleDb, CalcT rollOff )
+    ellip6->SetupAs(frequency, rippleDb, stopbandAttenDb);
+    assert(ellip6->GetStageCount() == 3);
+
+    BiquadFilter<T>::fillFromStages(outParams, ellip6->Stages(), ellip6->GetStageCount());
+}
+
+template <typename T>
+void ButterworthFilterDesigner<T>::designEightPoleElliptic(BiquadParams<T, 4>& outParams, T frequency, T rippleDb, T stopbandAttenDb)
+{
+    assert(stopbandAttenDb > 0);
+    using Filter = Dsp::EllipticLowPass<8, 1>;
+    std::unique_ptr<Filter> ellip8(new Filter());
+    // 	void SetupAs( CalcT cutoffFreq, CalcT passRippleDb, CalcT rollOff )
+    ellip8->SetupAs(frequency, rippleDb, stopbandAttenDb);
+    assert(ellip8->GetStageCount() == 4);
+
+    BiquadFilter<T>::fillFromStages(outParams, ellip8->Stages(), ellip8->GetStageCount());
+}
+
 // Explicit instantiation, so we can put implementation into .cpp file
 // TODO: option to take out float version (if we don't need it)
 // Or put all in header

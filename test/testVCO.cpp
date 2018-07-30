@@ -126,7 +126,7 @@ freq=3579.33 db=-82.032488
 freq=1890.97 db=-78.061883 
 freq=202.60 db=-86.225815  
 
-modified fun
+modified fun (using 1/32 IIR)
 freq=1688.36 db=8.184871 
 freq=8441.81 db=-6.162146 
 freq=13506.89 db=-10.859227 
@@ -218,7 +218,7 @@ static void testAliasSaw()
 
 static void testAliasFun()
 {
-
+    printf("**** modified fun filter\n");
     FUN vco;
     vco.sawEnabled = true;
     vco.sinEnabled = false;
@@ -276,7 +276,7 @@ void testVCO()
    // testAliasSaw();
    //testAliasFun();
    // testAliasFunOrig();
-    testAliasEven();
+   // testAliasEven();
 
 
 }
