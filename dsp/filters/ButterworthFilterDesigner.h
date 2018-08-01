@@ -9,6 +9,7 @@ class ButterworthFilterDesigner
 {
 public:
     ButterworthFilterDesigner() = delete;       // we are only static
+    static void designEightPoleLowpass(BiquadParams<T, 4>& pOut, T frequency);
     static void designSixPoleLowpass(BiquadParams<T, 3>& pOut, T frequency);
     static void designThreePoleLowpass(BiquadParams<T, 2>& pOut, T frequency);
     static void designFourPoleLowpass(BiquadParams<T, 2>& pOut, T frequency);

@@ -10,6 +10,16 @@
 
 
 template <typename T>
+void ButterworthFilterDesigner<T>::designEightPoleLowpass(BiquadParams<T, 4>& outParams, T frequency)
+{
+    using Filter = Dsp::ButterLowPass<8, 1>;
+    std::unique_ptr<Filter> lp(new Filter());      // std::make_unique is not until C++14
+    lp->SetupAs(frequency);
+    assert(lp->GetStageCount() == 4);
+    BiquadFilter<T>::fillFromStages(outParams, lp->Stages(), lp->GetStageCount());
+}
+
+template <typename T>
 void ButterworthFilterDesigner<T>::designSixPoleLowpass(BiquadParams<T, 3>& outParams, T frequency)
 {
     using Filter = Dsp::ButterLowPass<6, 1>;
