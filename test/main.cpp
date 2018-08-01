@@ -36,10 +36,12 @@ extern void testLowpassFilter();
 extern void testPoly();
 extern void testVCO();
 extern void testFilterDesign();
+extern void testVCOAlias();
 
 int main(int argc, char ** argv)
 {
-    testFilterDesign();
+    //testFilterDesign();
+    testVCOAlias();
 #if 0
     bool runPerf = false;
     bool extended = false;
