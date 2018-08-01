@@ -133,6 +133,7 @@ static void testBasicFilter2()
     // the first five values of the step increase
     for (int i = 0; i < 100; ++i) {
         T temp = BiquadFilter<T>::run(1, state, params);
+
         if (i < 5) {
             // the first 5 are strictly increasing and below 1
             assert(temp < 1);
@@ -144,7 +145,6 @@ static void testBasicFilter2()
             //settled
             assert(temp > .999 && temp < 1.001);
         }
-
         lastValue = temp;
     }
     const T val = BiquadFilter<T>::run(1, state, params);
@@ -164,8 +164,8 @@ static void testBasicFilter3()
 
     //the first five values of the step decrease (to -1)
     for (int i = 0; i < 100; ++i) {
-        T temp = BiquadFilter<T>::run(1, state, params);
-
+        // old filters inverted odd orders...
+        T temp = - BiquadFilter<T>::run(1, state, params);
         if (i < 6) {
             // the first 5 are strictly increasing and below 1
             assert(temp > -1);

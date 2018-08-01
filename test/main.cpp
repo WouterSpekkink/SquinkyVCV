@@ -38,6 +38,8 @@ extern void testVCO();
 
 int main(int argc, char ** argv)
 {
+    // for now put up here. take outlater.
+    testLowpassFilter();
     bool runPerf = false;
     bool extended = false;
     if (argc > 1) {

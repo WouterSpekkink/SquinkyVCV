@@ -147,65 +147,116 @@ static void test6()
 }
 
 /******************************************************************************************************/
+/*
+rolloff 0: 21db at 215 
+*/
 
+class results
+{
+public:
+    float attenStopDb;
+    float freq;
+};
 
 template<typename T>
-static void doEllipticTest(std::function<float(float)> filter, T Fc, T expectedSlope)
+static results doEllipticTest(std::function<float(float)> filter)
 {
      const int numSamples = 16 * 1024;
-    //const int numSamples = 1024;
+   // const int numSamples = 1* 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
 
-    auto x = Analyzer::getMaxAndShoulders(response, -3);
+    //auto x = Analyzer::getMaxAndShoulders(response, -3);
 
-    const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
+   // const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
 
 
     // Some higher order filters have a tinny bit of ripple
-    float peakMag = std::abs(response.get(std::get<1>(x)));
+    //float peakMag = std::abs(response.get(std::get<1>(x)));
     float zeroMag = std::abs(response.get(0));
-    printf("mag at zero hz = %f, peak mag = %f, -3db at %f\n ",
-        zeroMag, peakMag, cutoff);
+  //  printf("mag at zero hz = %f, peak mag = %f, -3db at %f\n ",
+   //     zeroMag, peakMag, cutoff);
 
-    Analyzer::getAndPrintFeatures(response, 1, sampleRate);
+    float maxHighMag = 0;
+    float fMax = 0;
+    //Analyzer::getAndPrintFeatures(response, 3, sampleRate);
     for (int i = 0; i < numSamples; ++i) {
+        float freq = FFT::bin2Freq(i, sampleRate, numSamples);
+        if (freq > 150) {
+            float mag = std::abs(response.get(i));
+            if (mag > maxHighMag) {
+                maxHighMag = mag;
+                fMax = freq;
+            }
+        }
 
     }
-    //assertClose(peakMag / zeroMag, 1, .0001);
-
-
-  //  assertClose(cutoff, Fc, 3);    // 3db down at Fc
-
-
-    double slope = Analyzer::getSlope(response, (float) Fc * 2, sampleRate);
-  //  assertClose(slope, expectedSlope, 1);          // to get accurate we need to go to higher freq, etc... this is fine
-
+  
+    results r;
+    r.attenStopDb = (float) AudioMath::db(maxHighMag);
+    r.freq = fMax;
+    return r;
 }
 
+//#define _DO4
+
 template<typename T>
-static void testElip1()
+static results testElip1(double rolloff)
 {
     const float Fc = 100;
+#ifdef _DO4
     BiquadParams<T, 4> params;
     BiquadState<T, 4> state;
+#else
+    BiquadParams<T, 3> params;
+    BiquadState<T, 3> state;
+#endif
 
     T rippleDb = 3;
-    T attenDb = 100000;
-    T ripple = (T) AudioMath::gainFromDb(1);
-    ButterworthFilterDesigner<T>::designEightPoleElliptic(params, Fc / sampleRate, rippleDb, attenDb);
+  //  T rolloff = 0;                // at 20 it dies
+#ifdef _DO4
+    ButterworthFilterDesigner<T>::designEightPoleElliptic(params, Fc / sampleRate, rippleDb, rolloff);
+#else
+    ButterworthFilterDesigner<T>::designSixPoleElliptic(params, Fc / sampleRate, rippleDb, rolloff);
+#endif
 
     std::function<float(float)> filter = [&state, &params](float x) {
         x = (float) BiquadFilter<T>::run(x, state, params);
         return x;
     };
-    doEllipticTest<T>(filter, Fc, -36);
-  
+    return doEllipticTest<T>(filter);
+   
+}
+
+//float attenStopDb;
+//float freq;
+
+
+
+//best 8 pole: r = -0.47, max = -57.47 at 156.12
+static void hunt()
+{
+    results best;
+    best.attenStopDb = 100;
+    double bestRolloff = 1000;
+    for (double f = -2; f < -1; f += .01) {
+        results x = testElip1<double>(f);
+        printf("r = %.2f, max = %.2f at %.2f\n", f, x.attenStopDb, x.freq);
+        if (x.attenStopDb < best.attenStopDb) {
+            best = x;
+            bestRolloff = f;
+        }
+    }
+    testElip1<double>(-1.24);
+    printf("best: r = %.2f, max = %.2f at %.2f\n", bestRolloff, best.attenStopDb, best.freq);
+    printf("done\n");
 }
 
 template<typename T>
 void _testLowpassFilter()
 {
+    hunt();
+  //  testElip1<T>();
     test0<T>();
     test1<T>();
     test2<T>();
@@ -213,7 +264,7 @@ void _testLowpassFilter()
     test4<T>();
     test5<T>();
     test6<T>();
-    testElip1<T>();
+   // testElip1<T>();
 }
 
 /************ also test decimator here

@@ -4,13 +4,169 @@
  */
 
 #include "HilbertFilterDesigner.h"
-#include "DspFilter.h"
+#include "DSPFilters/Dsp.h"
 #include "BiquadFilter.h"
 #include <memory>
 
 
 const int hilbertOrder = 6;
 const bool dumpHilbert = false;
+
+
+
+/*
+Dsp::SimpleFilter <Dsp::Butterworth::LowPass <6>, 0> lp6;
+
+template <int MaxOrder>
+struct LowPass : PoleFilter <LowPassBase, MaxOrder>
+{
+};
+
+
+struct LowPassBase : PoleFilterBase <AnalogLowPass>
+{
+void setup (int order,
+double sampleRate,
+double cutoffFrequency);
+};
+
+
+disign
+m_numPoles = numPoles;
+m_gainDb = gainDb;
+
+reset ();
+
+const double n2 = numPoles * 2;
+const double g = pow (pow (10., gainDb/20), 1. / n2);
+const double gp = -1. / g;
+const double gz = -g;
+
+const int pairs = numPoles / 2;
+for (int i = 1; i <= pairs; ++i)
+{
+const double theta = doublePi * (0.5 - (2 * i - 1) / n2);
+addPoleZeroConjugatePairs (std::polar (gp, theta), std::polar (gz, theta));
+}
+
+if (numPoles & 1)
+add (gp, gz);
+
+*/
+
+
+namespace Dsp {
+    
+    const double leftPoles[] = {
+        .3609,
+        2.7412,
+        11.1573,
+        44.7581,
+        179.6242,
+        798.4578
+    };
+
+    const double rightPoles[] = {
+        1.2524,
+        5.5671,
+        22.3423,
+        89.6271,
+        364.7914,
+        2770.1114
+    };
+
+ class AnalogLowPass : public LayoutBase
+{
+public:
+    AnalogLowPass();
+
+    void design(bool isSin)
+    {
+        m_numPoles = hilbertOrder;
+
+        reset();
+
+       // const double n2 = numPoles * 2;
+      //  const double g = pow(pow(10., gainDb / 20), 1. / n2);
+     //   const double gp = -1. / g;
+     //   const double gz = -g;
+
+     //   const int pairs = numPoles / 2;
+        const double * poles = isSin ? leftPoles : rightPoles;
+        for (int i = 0; i <= m_numPoles; ++i) {
+            //const double theta = doublePi * (0.5 - (2 * i - 1) / n2);
+           // addPoleZeroConjugatePairs(std::polar(gp, theta), std::polar(gz, theta));
+
+            //   void add (const complex_t& pole, const complex_t& zero)
+            const double f = poles[i];
+            const complex_t pole = (-f, 0);
+            const complex_t zero = (f, 0);
+            add(pole, zero);
+
+          //  Pole(i) = Complex(-f, 0);	// TODO: why do we need this negative sign?
+          //  Zero(i) = Complex(f, 0);
+        }
+    }
+
+private:
+    int m_numPoles;
+};
+
+
+ inline AnalogLowPass::AnalogLowPass()
+     : m_numPoles(-1)
+ {
+     setNormal(0, 1);
+ }
+
+
+struct HilbertBase : PoleFilterBase <AnalogLowPass>
+{
+    void setup(bool isSin, double sampleRate)
+    {
+        m_analogProto.design(isSin);
+#if 0
+        LowPassTransform(cutoffFrequency / sampleRate,
+            m_digitalProto,
+            m_analogProto);
+#endif
+
+        Cascade::setLayout(m_digitalProto);
+    }
+};
+
+template <int MaxOrder>
+struct Hilbert : PoleFilter <HilbertBase, MaxOrder>
+{
+};
+
+
+}
+
+
+// TEMP KLUGE!!!
+template <typename T>
+void HilbertFilterDesigner<T>::design(double sampleRate, BiquadParams<T, 3>& outSin, BiquadParams<T, 3>& outCos)
+{
+    designSide(true, sampleRate, outSin);
+    designSide(true, sampleRate, outCos);
+
+}
+
+template <typename T>
+void HilbertFilterDesigner<T>::designSide(bool isSin, double sampleRate, BiquadParams<T, 3>& outParams)
+{
+    Dsp::SimpleFilter <Dsp::Hilbert<hilbertOrder>, 0> hilbert;
+
+    hilbert.setup(isSin, sampleRate);
+
+    Dsp::Cascade::Storage cascadeStorage = hilbert.getCascadeStorage();
+    assert(cascadeStorage.maxStages == 3);
+    BiquadFilter<T>::fillFromStages(outParams, cascadeStorage.stageArray, cascadeStorage.maxStages);
+}
+
+
+#if 0
 
 namespace Dsp {
 
@@ -134,6 +290,7 @@ namespace Dsp {
 
 
     /** just a simple allpass, for debugging
+     * (Ancient test stuff)
     */
 #if 0
     struct HilbTest : Prototype
@@ -211,10 +368,12 @@ void HilbertFilterDesigner<T>::design(double sampleRate, BiquadParams<T, 3>& out
     hilbert.SetupAs(true, sampleRate);
     BiquadFilter<T>::fillFromStages(outCos, hilbert.Stages(), hilbert.GetStageCount());
 }
+#endif
 
 // Explicit instantiation, so we can put implementation into .cpp file
 // TODO: option to take out double version (if we don't need it)
 // Or put all in header
 template class HilbertFilterDesigner<double>;
 template class HilbertFilterDesigner<float>;
+
 

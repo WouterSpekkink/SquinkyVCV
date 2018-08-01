@@ -12,4 +12,6 @@ public:
      * generates a pair of biquads, on will be 90 degrees shifter from the other
      */
     static void design(double sampleRate, BiquadParams<T, 3>& pOutSin, BiquadParams<T, 3>& pOutCos);
+private:
+    static void designSide(bool isSin, double sampleRate, BiquadParams<T, 3>& outParams);
 };

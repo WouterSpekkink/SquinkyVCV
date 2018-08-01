@@ -97,11 +97,11 @@
     <Filter Include="Source Files\dsp\third-party\src">
       <UniqueIdentifier>{bcce7e7a-2123-42c9-8557-a31f6444e05e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dsp\third-party\falco">
+      <UniqueIdentifier>{9c2a1e8a-6699-49ef-9fa2-8e8204b66d16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
-      <Filter>Source Files\dsp\third-party</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\test\main.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
@@ -240,11 +240,29 @@
     <ClCompile Include="..\..\test\testVCO.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\Biquad.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\Butterworth.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\Cascade.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\Param.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\Filter.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\PoleFilter.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\DSPFilters\Elliptic.cpp">
+      <Filter>Source Files\dsp\third-party\falco</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
-      <Filter>Header Files\dsp\third-party\falco</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\dsp\filters\BiquadFilter.h">
       <Filter>Header Files\dsp\filters</Filter>
     </ClInclude>

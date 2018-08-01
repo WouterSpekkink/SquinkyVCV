@@ -4,7 +4,8 @@ template<typename T, int N> class BiquadState;
 template<typename T, int N> class BiquadParams;
 
 #include "BiquadParams.h"// what is our forward declaration strategy here? put implementation in c++?
-#include "DspFilter.h"	 // TODO: get rid of this. we need it now because you can't forward declare Cascade::Stage
+//#include "DspFilter.h"	 // TODO: get rid of this. we need it now because you can't forward declare Cascade::Stage
+#include "DSPFilters/Dsp.h"
 
 /*
  *
@@ -44,16 +45,18 @@ template <typename T>
 template<int N>
 inline void BiquadFilter<T>::fillFromStages(BiquadParams<T, N>& params, Dsp::Cascade::Stage * stages, int numStages)
 {
+
     assert(numStages == N);
 
     for (int i = 0; i < N; ++i) {
         const Dsp::Cascade::Stage& stage = stages[i];
 
-        params.B0(i) = (T) stage.b[0];
-        params.B1(i) = (T) stage.b[1];
-        params.B2(i) = (T) stage.b[2];
-        params.A1(i) = (T) stage.a[1];
-        params.A2(i) = (T) stage.a[2];
+        params.B0(i) = (T) stage.getB0();
+        params.B1(i) = (T) stage.getB1();
+        params.B2(i) = (T) stage.getB2();
+        params.A1(i) = - (T) stage.getA1();
+        params.A2(i) = - (T) stage.getA2();     // this negative sign is a guess based on inspecting data.
+        assert(stage.getA0() == 1);
     }
 }
 
