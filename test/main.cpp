@@ -35,9 +35,12 @@ extern void testGMR();
 extern void testLowpassFilter();
 extern void testPoly();
 extern void testVCO();
+extern void testFilterDesign();
 
 int main(int argc, char ** argv)
 {
+    testFilterDesign();
+#if 0
     bool runPerf = false;
     bool extended = false;
     if (argc > 1) {
@@ -105,7 +108,7 @@ int main(int argc, char ** argv)
     if (runPerf) {
         perfTest();
     }
-
+#endif
 
     testFinalLeaks();
 
