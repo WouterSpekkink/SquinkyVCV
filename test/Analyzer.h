@@ -69,7 +69,7 @@ public:
      * Adjusts desiredFreq to a frequency that is close, but is an exact division of 
      * numSamples.
      */
-    static float makeEvenPeriod(float desiredFreq, float sampleRate, int numSamples);
+    static double makeEvenPeriod(double desiredFreq, double sampleRate, int numSamples);
 
     static double hamming(int iSample, int totalSamples);
 

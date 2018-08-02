@@ -75,7 +75,7 @@ static void testSyncSin()
     float desiredFreq = 500.0f;
     int numSamples = 16 * 1024;
     const float sampleRate = 44100.0f;
-    float actualFreq = Analyzer::makeEvenPeriod(desiredFreq, sampleRate, numSamples);
+    const double actualFreq = Analyzer::makeEvenPeriod(desiredFreq, sampleRate, numSamples);
 
     SinOscillatorParams<float> sinParams;
     SinOscillatorState<float> sinState;

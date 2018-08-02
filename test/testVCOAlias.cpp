@@ -1,6 +1,45 @@
 
 #include "Analyzer.h"
+#include "asserts.h"
 #include "SawOscillator.h"
+#include "SinOscillator.h"
+
+
+
+static void testPitchQuantize()
+{
+    const double sampleRate = 44100;
+    const int numSamples = 16;
+    const double inputFreq = 44100.0 / 4.0;
+    double freq = Analyzer::makeEvenPeriod(inputFreq, sampleRate, numSamples);
+
+    // check that quantized pitch is in the bin we expect.
+    assertEQ(freq, FFT::bin2Freq(4, sampleRate, numSamples));
+
+    // make saw osc at correct freq
+    SinOscillatorParams<double> params;
+    SinOscillatorState<double> state;
+    SinOscillator<double, false>::setFrequency(params, 1.0 / 4.0);
+   
+
+    // check that spectrum has only a single freq
+    std::function<float()> func = [&state, &params]() {
+        return float(30 * SinOscillator<double, false>::run(state, params));
+        };
+    FFTDataCpx spectrum(numSamples);
+
+
+    Analyzer::getSpectrum(spectrum, false, func);
+    for (int i = 0; i < numSamples / 2; ++i) {
+        const float abs = spectrum.getAbs(i);
+        if (i == 4) {
+            assertGE(abs, .5);
+        }
+        else {
+            assertLT(abs, 0.000000001);
+        }
+    }
+}
 
 const float sampleRate = 44100;
 //const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
@@ -22,7 +61,7 @@ std::vector<int> getLocalPeaks(const FFTDataCpx& spectrum)
 {
     std::vector<int> ret;
     for (int i = 0; i < spectrum.size(); ++i) {
-        const float freq = FFT::bin2Freq(i, 44100, spectrum.size());
+        const double freq = FFT::bin2Freq(i, 44100, spectrum.size());
         const bool print = (freq > 30 && freq < 60);
         const float lastMag = (i == 0) ? 0 : std::abs(spectrum.get(i - 1));
         const float nextMag = (i == (spectrum.size()-1)) ? 0 : std::abs(spectrum.get(i + 1));
@@ -41,11 +80,11 @@ std::vector<int> getLocalPeaks(const FFTDataCpx& spectrum)
 Next: examine the spectrum. make sure all freq in spectrum are signal or alias
 */
 
-std::pair< std::set<double>, std::set<double>> getFrequencies(float fundamental, float sampleRate)
+std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental, double sampleRate)
 {
     std::set<double> harmonics;
     std::set<double> alias;
-    const float nyquist = sampleRate / 2;
+    const double nyquist = sampleRate / 2;
     bool done = false;
     for (int i = 1; !done; ++i) {
         double freq = fundamental * i;
@@ -66,7 +105,7 @@ std::pair< std::set<double>, std::set<double>> getFrequencies(float fundamental,
     return std::pair< std::set<double>, std::set<double>>(harmonics, alias);
 }
 
-bool freqIsInSet(float freq, const std::set<double> set)
+bool freqIsInSet(double freq, const std::set<double> set)
 {
     auto lb = set.lower_bound(freq);
     auto xx = lb;
@@ -86,7 +125,8 @@ bool freqIsInSet(float freq, const std::set<double> set)
     }
     return isHarmonic;
 }
-void testAlias(std::function<float()> func, float fundamental)
+
+void testAlias(std::function<float()> func, double fundamental)
 {
     FFTDataCpx spectrum(numSamples);
     Analyzer::getSpectrum(spectrum, false, func);
@@ -105,7 +145,7 @@ void testAlias(std::function<float()> func, float fundamental)
 
     auto peaks = getLocalPeaks(spectrum);
     for (int peak : peaks) {
-        const float freq = FFT::bin2Freq(peak, sampleRate, numSamples);
+        const double freq = FFT::bin2Freq(peak, sampleRate, numSamples);
 #if 0
         if (freq < 2000) {
 
@@ -135,7 +175,7 @@ void testRawSaw()
 {
     // adjust the freq to even
    // static float makeEvenPeriod(float desiredFreq, float sampleRate, int numSamples);
-    float freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
+    double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
     printf("desired freq = %f, round %f\n", sampleRate * normalizedFreq, freq);
 
     // make saw osc at correct freq
@@ -155,5 +195,6 @@ void testRawSaw()
 
 void testVCOAlias()
 {
+    testPitchQuantize();
     testRawSaw();
 }

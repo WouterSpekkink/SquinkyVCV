@@ -202,7 +202,7 @@ void Analyzer::getAndPrintPeaks(const FFTDataCpx& data, float sampleRate, float 
 void Analyzer::getAndPrintFreqOfInterest(const FFTDataCpx& data, float sampleRate, const std::vector<double>& freqOfInterest)
 {
     for (double freq : freqOfInterest) {
-        int bin = FFT::freqToBin(freq, sampleRate, data.size());
+        int bin = FFT::freqToBin((float) freq, sampleRate, data.size());
         if (bin > 2 && bin < data.size() - 2) {
 
 ;
@@ -337,21 +337,24 @@ void Analyzer::generateSweep(float sampleRate, float* out, int numSamples, float
     }
 }
 
-float Analyzer::makeEvenPeriod(float desiredFreq, float sampleRate, int numSamples)
+double Analyzer::makeEvenPeriod(double desiredFreq, double sampleRate, int numSamples)
 {
-    float desiredPeriodSamples = sampleRate / desiredFreq;
-    float periodsPerFrame = numSamples / desiredPeriodSamples;
+    assert(desiredFreq <= (sampleRate / 2.0));
+    assert(numSamples > 2);
+    double desiredPeriodSamples = sampleRate / desiredFreq;
+    double periodsPerFrame = numSamples / desiredPeriodSamples;
 
 
      //printf("desiredFreq = %f, desired period/ samp = %f, periods per frame = %f\n", desiredFreq, desiredPeriodSamples, periodsPerFrame);
 
 
-    float evenPeriodsPerFrame = std::floor(periodsPerFrame);
+    double evenPeriodsPerFrame = std::floor(periodsPerFrame);
 
-    float period = (float) numSamples / evenPeriodsPerFrame;
+    double period = (double) numSamples / evenPeriodsPerFrame;
     //printf("period = %f\n", period);
-    float freq = sampleRate / period;
+    double freq = sampleRate / period;
     //printf("freq = %f\n", freq);
+    assert(freq > .0001);       // don't want zero
     return (freq);
 }
 
