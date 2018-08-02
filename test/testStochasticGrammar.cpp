@@ -125,7 +125,8 @@ public:
     TestEvaluator(AudioMath::RandomUniformFunc xr) : ProductionRule::EvaluationState(xr)
     {
     }
-    virtual void writeSymbol(GKEY key)
+
+    void writeSymbol(GKEY key) override
     {
         keys.push_back(key);
     }
