@@ -42,11 +42,15 @@ static void testPitchQuantize()
 }
 
 const float sampleRate = 44100;
-//const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
-//const int numSamples = 16 * 1024;
 
-const float normalizedFreq = 1.0f / (1000);     // this will make alias freq spaced from harmonics
-const int numSamples = 256 * 1024;
+// this is a typical case
+const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
+const int numSamples = 16 * 1024;
+
+
+// this is a crazy torture case
+//const float normalizedFreq = 1.0f / (1000);     // this will make alias freq spaced from harmonics
+//const int numSamples = 256 * 1024;
 
 
 class AliasStats
@@ -57,16 +61,28 @@ public:
     float maxAliasFreq;
 };
 
+bool should(double freq)
+{
+//    return ((freq > 1680) && (freq < 1698));
+    return ((freq > 3370) && (freq < 3400));
+}
+
+
+#if 0   // this is the problem right now - we are missing peaks
 std::vector<int> getLocalPeaks(const FFTDataCpx& spectrum)
 {
     std::vector<int> ret;
     for (int i = 0; i < spectrum.size(); ++i) {
         const double freq = FFT::bin2Freq(i, 44100, spectrum.size());
-        const bool print = (freq > 30 && freq < 60);
+       // const bool print = (freq > 30 && freq < 60);
         const float lastMag = (i == 0) ? 0 : std::abs(spectrum.get(i - 1));
         const float nextMag = (i == (spectrum.size()-1)) ? 0 : std::abs(spectrum.get(i + 1));
         const float mag = std::abs(spectrum.get(i));
-       // if (print) printf("mag=%.2f last=%.2f next=%.2f bin %d f=%.2f\n", mag, lastMag, nextMag, i, freq);
+       
+        if (should(freq)) {
+            printf("getloc mag=%.2f last=%.2f next=%.2f bin %d f=%f\n", mag, lastMag, nextMag, i, freq);
+       
+        }
         if (mag > lastMag && mag > nextMag) {
             ret.push_back(i);
         }
@@ -74,6 +90,7 @@ std::vector<int> getLocalPeaks(const FFTDataCpx& spectrum)
     }
     return ret;
 }
+#endif
 
 /*
 
@@ -105,29 +122,39 @@ std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental
     return std::pair< std::set<double>, std::set<double>>(harmonics, alias);
 }
 
+
+
 bool freqIsInSet(double freq, const std::set<double> set)
 {
     auto lb = set.lower_bound(freq);
+    bool isHarmonic = false;
+    if (lb != set.end() && freq <= *lb) {
+        const double ratio = *lb / freq;
+        isHarmonic = (*lb / freq < 1.00001);
+    }
+    if (isHarmonic) {
+        return true;
+    }
+
+
+    // does this second try catch anything?
     auto xx = lb;
     --xx;
+    if (xx != set.end() && freq >= *xx) {
+        isHarmonic = ((freq / *xx) < 1.00001);
+    }
+    if (false) {
+        printf("freqInSet(%f) looked at %f ", freq, *lb);
+        if (xx != set.end()) printf("and %f", *xx);
 
-    // TODO: are the frequencies as close as they should be?
-    // should we quantize harmonic frequencies? (yes!)
-    bool isHarmonic = false;
-    if (xx != set.end() && lb != set.end()) {
-        if (freq >= *xx && freq <= *lb) {
-            if ((freq / *xx) < 1.00001) {
-                isHarmonic = true;
-            } else if (*lb / freq < 1.00001) {
-                isHarmonic = true;
-            }
-       }
+        printf("\n");
     }
     return isHarmonic;
 }
 
 void testAlias(std::function<float()> func, double fundamental)
 {
+    printf("test alias fundamental=%f,%f,%f\n", fundamental, fundamental * 2, fundamental * 3);
     FFTDataCpx spectrum(numSamples);
     Analyzer::getSpectrum(spectrum, false, func);
 
@@ -136,16 +163,30 @@ void testAlias(std::function<float()> func, double fundamental)
 
     auto frequencies = getFrequencies(fundamental, sampleRate);
 #if 0
-    for (double h : x.first)
-        printf("harmonic at %.2f\n", h);
-    for (double a : x.second)
-        printf("alias at %.2f\n", a);
+    for (double h : frequencies.first)
+        printf("harmonic at %f\n", h);
+    for (double a : frequencies.second)
+        printf("alias at %f\n", a);
 #endif
    
 
-    auto peaks = getLocalPeaks(spectrum);
-    for (int peak : peaks) {
-        const double freq = FFT::bin2Freq(peak, sampleRate, numSamples);
+  //  const double minDbCareAbout = -30;      // UNTIL WE FIGURE IT OUT
+ //   auto peaks = getLocalPeaks(spectrum);
+  //  printf("got peaks %zd\n", peaks.size());
+
+
+    // let's look at every spectrum line
+    for (int i=1; i<numSamples/2; ++i) {
+
+   // for (int peak : peaks) {
+        const double freq = FFT::bin2Freq(i, sampleRate, numSamples);
+        const double db = AudioMath::db(spectrum.getAbs(i));
+
+     
+        if (should(freq))
+        {
+          //  printf("eval index=%d freq=%f\n", i, freq);
+        }
 #if 0
         if (freq < 2000) {
 
@@ -155,11 +196,37 @@ void testAlias(std::function<float()> func, double fundamental)
             printf("peak bin %d freq %f h=%d\n", peak, freq, isHarmonic);
         }
 #endif
+
+   
         const bool isHarmonic = freqIsInSet(freq, frequencies.first);
+        const bool isH2 = frequencies.first.find(freq) != frequencies.first.end();
         const bool isAlias = freqIsInSet(freq, frequencies.second);
+        const bool isA2 = frequencies.second.find(freq) != frequencies.second.end();
+        assert(isH2 == isHarmonic);
+        assert(isA2 == isAlias);
+        if (isAlias || isHarmonic) {
+          
+            printf("freq %f, harm=%d alias=%d db=%f\n", freq, isHarmonic, isAlias,
+                db);
+            freqIsInSet(freq, frequencies.first);
+
+        }
+#if 0
         if (!isHarmonic && !isAlias) {
-            printf("freq is not either %f\n", freq);
-            assert(freq < 1);           // don't care about dc
+            printf("freq is not either %f peak=%d\n", freq, peak);
+
+            if (peak > 10) {
+                for (int bin = peak - 10; bin < peak + 2; ++bin) {
+                    const double freq = FFT::bin2Freq(bin, sampleRate, numSamples);
+                    const double db = AudioMath::db(spectrum.getAbs(bin));
+                    printf("bin %d freq %f db %f\n", bin, freq, db);
+                }
+            }
+
+            if (freq > 1 && db > minDbCareAbout) {
+                bool wasH = freqIsInSet(freq, frequencies.first);
+            }
+            assert(freq < 1 || db < minDbCareAbout);           // don't care about dc
             // we need magnitude in here
         }
         if (isHarmonic && isAlias) {
@@ -167,6 +234,7 @@ void testAlias(std::function<float()> func, double fundamental)
             freqIsInSet(freq, frequencies.second);
             assert(false);
         }
+#endif
 
     }
 }
