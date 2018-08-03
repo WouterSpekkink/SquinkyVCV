@@ -157,10 +157,6 @@ void testAlias(std::function<float()> func, double fundamental)
     printf("test alias fundamental=%f,%f,%f\n", fundamental, fundamental * 2, fundamental * 3);
     FFTDataCpx spectrum(numSamples);
     Analyzer::getSpectrum(spectrum, false, func);
-
-   // Analyzer::getAndPrintFeatures(spectrum, 3, sampleRate);
-
-
     auto frequencies = getFrequencies(fundamental, sampleRate);
 #if 0
     for (double h : frequencies.first)
@@ -168,42 +164,25 @@ void testAlias(std::function<float()> func, double fundamental)
     for (double a : frequencies.second)
         printf("alias at %f\n", a);
 #endif
-   
 
-  //  const double minDbCareAbout = -30;      // UNTIL WE FIGURE IT OUT
- //   auto peaks = getLocalPeaks(spectrum);
-  //  printf("got peaks %zd\n", peaks.size());
-
+    double totalSignal = 0;
+    double totalAlias = 0;
 
     // let's look at every spectrum line
     for (int i=1; i<numSamples/2; ++i) {
-
-   // for (int peak : peaks) {
         const double freq = FFT::bin2Freq(i, sampleRate, numSamples);
-        const double db = AudioMath::db(spectrum.getAbs(i));
+        const double mag = spectrum.getAbs(i);
+        const double db = AudioMath::db(mag);
 
-     
-        if (should(freq))
-        {
-          //  printf("eval index=%d freq=%f\n", i, freq);
-        }
-#if 0
-        if (freq < 2000) {
-
-           
-            bool isHarmonic = freqIsInSet(freq, frequencies.first);
-
-            printf("peak bin %d freq %f h=%d\n", peak, freq, isHarmonic);
-        }
-#endif
-
-   
         const bool isHarmonic = freqIsInSet(freq, frequencies.first);
         const bool isH2 = frequencies.first.find(freq) != frequencies.first.end();
         const bool isAlias = freqIsInSet(freq, frequencies.second);
         const bool isA2 = frequencies.second.find(freq) != frequencies.second.end();
         assert(isH2 == isHarmonic);
         assert(isA2 == isAlias);
+        assert(!isA2 || !isH2);
+
+#if 0
         if (isAlias || isHarmonic) {
           
             printf("freq %f, harm=%d alias=%d db=%f\n", freq, isHarmonic, isAlias,
@@ -211,32 +190,17 @@ void testAlias(std::function<float()> func, double fundamental)
             freqIsInSet(freq, frequencies.first);
 
         }
-#if 0
-        if (!isHarmonic && !isAlias) {
-            printf("freq is not either %f peak=%d\n", freq, peak);
-
-            if (peak > 10) {
-                for (int bin = peak - 10; bin < peak + 2; ++bin) {
-                    const double freq = FFT::bin2Freq(bin, sampleRate, numSamples);
-                    const double db = AudioMath::db(spectrum.getAbs(bin));
-                    printf("bin %d freq %f db %f\n", bin, freq, db);
-                }
-            }
-
-            if (freq > 1 && db > minDbCareAbout) {
-                bool wasH = freqIsInSet(freq, frequencies.first);
-            }
-            assert(freq < 1 || db < minDbCareAbout);           // don't care about dc
-            // we need magnitude in here
-        }
-        if (isHarmonic && isAlias) {
-            printf("freq is both %f\n", freq);
-            freqIsInSet(freq, frequencies.second);
-            assert(false);
-        }
 #endif
-
+        if (isH2) {
+            totalSignal += mag;
+        }
+        if (isA2) {
+            totalAlias += mag;
+        }
     }
+
+    printf("total sig = %f alias = %f ratiodb=%f\n",
+        totalSignal, totalAlias, AudioMath::db(totalAlias / totalSignal));
 }
 
 void testRawSaw()
