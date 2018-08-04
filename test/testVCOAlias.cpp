@@ -101,17 +101,19 @@ class FrequencySets
 {
 public:
     FrequencySets(double fundamental, double sampleRate);
+    void expandFrequencies(const FFTDataCpx& spectrum);
     bool checkOverlap() const;
 
     std::set<double> harmonics;
     std::set<double> alias;
+
+    void dump(const char *, const FFTDataCpx& spectrum) const;
+private:
+    static void expandFrequencies(std::set<double>&, const FFTDataCpx& spectrum);
 };
 
 inline FrequencySets::FrequencySets(double fundamental, double sampleRate)
-//std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental, double sampleRate)
 {
-  //  std::set<double> harmonics;
- //   std::set<double> alias;
     const double nyquist = sampleRate / 2;
     bool done = false;
     for (int i = 1; !done; ++i) {
@@ -131,6 +133,70 @@ inline FrequencySets::FrequencySets(double fundamental, double sampleRate)
         }
     }
 }
+
+inline void expandHelper(double& maxDb, bool& done, int& i, int deltaI, const FFTDataCpx& spectrum, std::set<double>& f)
+{
+    if (i >= spectrum.size() || i < 0) {
+        done = true;
+    } else {
+        const double db = AudioMath::db(spectrum.getAbs(i));
+        if (db < (maxDb - 3)) {
+            done = true;
+        } else {
+            const double newFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
+           // if (newFreq < 2600)
+          //      printf("inserting new freq %f db=%f m=%f\n ", newFreq, db, maxDb);
+            maxDb = std::max(maxDb, db);
+            f.insert(newFreq);
+        }
+    }
+    i += deltaI;
+}
+
+inline void FrequencySets::expandFrequencies(std::set<double>& f, const FFTDataCpx& spectrum)
+{
+    for (double freq : f) {
+        const int bin = FFT::freqToBin(freq, sampleRate, spectrum.size());
+        double maxDb = AudioMath::db(spectrum.getAbs(bin));
+
+
+        // search upward
+        bool done;
+        int i;
+        for (i = bin + 1, done = false; !done ; ) {
+            expandHelper(maxDb, done, i, 1, spectrum, f);
+        }
+
+        for (i = bin - 1, done = false; !done; ) {
+            expandHelper(maxDb, done, i, -1, spectrum, f);
+        }
+    }
+}
+
+inline void FrequencySets::dump(const char *label, const FFTDataCpx& spectrum) const
+{
+    printf("**** %s ****\n", label);
+    for (auto f : harmonics) {
+        int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
+        printf("harm at %.2f db:%.2f\n", f, AudioMath::db(spectrum.getAbs(bin)));
+    }
+    for (auto f : alias) {
+        int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
+        printf("alias at %.2f db:%.2f\n", f, AudioMath::db(spectrum.getAbs(bin)));
+    }
+}
+
+inline void FrequencySets::expandFrequencies(const FFTDataCpx& spectrum)
+{
+    dump("before expand freq", spectrum);
+    expandFrequencies(harmonics, spectrum);
+    expandFrequencies(alias, spectrum);
+    assert(checkOverlap());
+
+    dump("after expand freq", spectrum);
+
+}
+
 
 
 inline bool FrequencySets::checkOverlap() const
@@ -172,10 +238,6 @@ bool freqIsInSet(double freq, const std::set<double> set)
     return isHarmonic;
 }
 
-inline void expandFrequencies(FrequencySets& data, const FFTDataCpx& spectrum)
-{
-    assert(false);
-}
 
 void testAlias(std::function<float()> func, double fundamental, int numSamples)
 {
@@ -185,7 +247,7 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
     FrequencySets frequencies(fundamental, sampleRate);
     assert(frequencies.checkOverlap());
 
-    expandFrequencies(frequencies, spectrum);
+    frequencies.expandFrequencies(spectrum);
 
 
     double totalSignal = 0;
@@ -260,12 +322,27 @@ test alias fundamental=3375.329590,6750.659180,10125.988770
 total sig = 3.512697 alias = 0.166856 ratiodb=-26.465975
 Test passed. Press any key to continue...
 
+first bin expand 6 db:
+
+desired freq = 844.180682, round 842.486572
+test alias fundamental=842.486572,1684.973145,2527.459717
+total sig = 22.917906 alias = 1.563906 ratiodb=-23.319288
+
+desired freq = 1688.361365, round 1687.664795
+test alias fundamental=1687.664795,3375.329590,5062.994385
+total sig = 17.118325 alias = 5.358352 ratiodb=-10.088601
+
+desired freq = 3376.722729, round 3375.329590
+test alias fundamental=3375.329590,6750.659180,10125.988770
+total sig = 14.605277 alias = 6.552373 ratiodb=-6.962224
+Test passed. Press any key to continue...
+
 */
 
 void testVCOAlias()
 {
     testPitchQuantize();
     testRawSaw(1.0f / (8 * 6.53f));
-    testRawSaw(1.0f / (4 * 6.53f));
-    testRawSaw(1.0f / (2 * 6.53f));
+ //   testRawSaw(1.0f / (4 * 6.53f));
+ //   testRawSaw(1.0f / (2 * 6.53f));
 }
