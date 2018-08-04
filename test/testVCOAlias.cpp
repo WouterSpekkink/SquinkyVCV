@@ -97,10 +97,21 @@ std::vector<int> getLocalPeaks(const FFTDataCpx& spectrum)
 Next: examine the spectrum. make sure all freq in spectrum are signal or alias
 */
 
-std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental, double sampleRate)
+class FrequencySets
 {
+public:
+    FrequencySets(double fundamental, double sampleRate);
+    bool checkOverlap() const;
+
     std::set<double> harmonics;
     std::set<double> alias;
+};
+
+inline FrequencySets::FrequencySets(double fundamental, double sampleRate)
+//std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental, double sampleRate)
+{
+  //  std::set<double> harmonics;
+ //   std::set<double> alias;
     const double nyquist = sampleRate / 2;
     bool done = false;
     for (int i = 1; !done; ++i) {
@@ -119,9 +130,18 @@ std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental
             }
         }
     }
-    return std::pair< std::set<double>, std::set<double>>(harmonics, alias);
 }
 
+
+inline bool FrequencySets::checkOverlap() const
+{
+    std::vector<double> overlap;
+
+    std::set_intersection(harmonics.begin(), harmonics.end(),
+        alias.begin(), alias.end(),
+        std::back_inserter(overlap));
+    return overlap.empty();
+}
 
 // probably don't need this
 bool freqIsInSet(double freq, const std::set<double> set)
@@ -152,18 +172,21 @@ bool freqIsInSet(double freq, const std::set<double> set)
     return isHarmonic;
 }
 
+inline void expandFrequencies(FrequencySets& data, const FFTDataCpx& spectrum)
+{
+    assert(false);
+}
+
 void testAlias(std::function<float()> func, double fundamental, int numSamples)
 {
     printf("test alias fundamental=%f,%f,%f\n", fundamental, fundamental * 2, fundamental * 3);
     FFTDataCpx spectrum(numSamples);
     Analyzer::getSpectrum(spectrum, false, func);
-    auto frequencies = getFrequencies(fundamental, sampleRate);
-#if 0
-    for (double h : frequencies.first)
-        printf("harmonic at %f\n", h);
-    for (double a : frequencies.second)
-        printf("alias at %f\n", a);
-#endif
+    FrequencySets frequencies(fundamental, sampleRate);
+    assert(frequencies.checkOverlap());
+
+    expandFrequencies(frequencies, spectrum);
+
 
     double totalSignal = 0;
     double totalAlias = 0;
@@ -174,10 +197,10 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
         const double mag = spectrum.getAbs(i);
         const double db = AudioMath::db(mag);
 
-        const bool isHarmonic = freqIsInSet(freq, frequencies.first);
-        const bool isH2 = frequencies.first.find(freq) != frequencies.first.end();
-        const bool isAlias = freqIsInSet(freq, frequencies.second);
-        const bool isA2 = frequencies.second.find(freq) != frequencies.second.end();
+        const bool isHarmonic = freqIsInSet(freq, frequencies.harmonics);
+        const bool isH2 = frequencies.harmonics.find(freq) != frequencies.harmonics.end();
+        const bool isAlias = freqIsInSet(freq, frequencies.alias);
+        const bool isA2 = frequencies.alias.find(freq) != frequencies.alias.end();
         assert(isH2 == isHarmonic);
         assert(isA2 == isAlias);
         assert(!isA2 || !isH2);
@@ -222,7 +245,22 @@ void testRawSaw(double normalizedFreq)
 }
 
 
+/*
+First try:
+desired freq = 844.180682, round 842.486572
+test alias fundamental=842.486572,1684.973145,2527.459717
+total sig = 3.239564 alias = 0.100040 ratiodb=-30.206276
 
+desired freq = 1688.361365, round 1687.664795
+test alias fundamental=1687.664795,3375.329590,5062.994385
+total sig = 6.824180 alias = 0.158808 ratiodb=-32.663559
+
+desired freq = 3376.722729, round 3375.329590
+test alias fundamental=3375.329590,6750.659180,10125.988770
+total sig = 3.512697 alias = 0.166856 ratiodb=-26.465975
+Test passed. Press any key to continue...
+
+*/
 
 void testVCOAlias()
 {
