@@ -44,8 +44,8 @@ static void testPitchQuantize()
 const float sampleRate = 44100;
 
 // this is a typical case
-const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
-const int numSamples = 16 * 1024;
+//const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
+//const int numSamples = 16 * 1024;
 
 
 // this is a crazy torture case
@@ -123,7 +123,7 @@ std::pair< std::set<double>, std::set<double>> getFrequencies(double fundamental
 }
 
 
-
+// probably don't need this
 bool freqIsInSet(double freq, const std::set<double> set)
 {
     auto lb = set.lower_bound(freq);
@@ -152,7 +152,7 @@ bool freqIsInSet(double freq, const std::set<double> set)
     return isHarmonic;
 }
 
-void testAlias(std::function<float()> func, double fundamental)
+void testAlias(std::function<float()> func, double fundamental, int numSamples)
 {
     printf("test alias fundamental=%f,%f,%f\n", fundamental, fundamental * 2, fundamental * 3);
     FFTDataCpx spectrum(numSamples);
@@ -203,23 +203,22 @@ void testAlias(std::function<float()> func, double fundamental)
         totalSignal, totalAlias, AudioMath::db(totalAlias / totalSignal));
 }
 
-void testRawSaw()
+void testRawSaw(double normalizedFreq)
 {
+    const int numSamples = 16 * 1024;
     // adjust the freq to even
-   // static float makeEvenPeriod(float desiredFreq, float sampleRate, int numSamples);
+
     double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
-    printf("desired freq = %f, round %f\n", sampleRate * normalizedFreq, freq);
+    printf("\ndesired freq = %f, round %f\n", sampleRate * normalizedFreq, freq);
 
     // make saw osc at correct freq
     SawOscillatorParams<float> params;
     SawOscillatorState<float> state;
-    SawOscillator<float, false>::setFrequency(params, normalizedFreq);
+    SawOscillator<float, false>::setFrequency(params, (float) normalizedFreq);
     testAlias([&state, &params]() {
         return 30 * SawOscillator<float, false>::runSaw(state, params);
-        }, freq);
+        }, freq, numSamples);
 
- 
-    //test it
 }
 
 
@@ -228,5 +227,7 @@ void testRawSaw()
 void testVCOAlias()
 {
     testPitchQuantize();
-    testRawSaw();
+    testRawSaw(1.0f / (8 * 6.53f));
+    testRawSaw(1.0f / (4 * 6.53f));
+    testRawSaw(1.0f / (2 * 6.53f));
 }
