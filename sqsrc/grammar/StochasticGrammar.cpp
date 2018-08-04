@@ -279,7 +279,7 @@ void ProductionRule::evaluate(EvaluationState& es, int ruleToEval)
 }
 
 // is the data self consistent, and appropriate for index
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && defined(_DEBUG)
 bool ProductionRule::_isValid(int index) const
 {
     if (index == sg_invalid) {

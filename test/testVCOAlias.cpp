@@ -43,16 +43,6 @@ static void testPitchQuantize()
 
 const float sampleRate = 44100;
 
-// this is a typical case
-//const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
-//const int numSamples = 16 * 1024;
-
-
-// this is a crazy torture case
-//const float normalizedFreq = 1.0f / (1000);     // this will make alias freq spaced from harmonics
-//const int numSamples = 256 * 1024;
-
-
 class AliasStats
 {
 public:
@@ -61,11 +51,13 @@ public:
     float maxAliasFreq;
 };
 
+#if 0
 bool should(double freq)
 {
 //    return ((freq > 1680) && (freq < 1698));
     return ((freq > 3370) && (freq < 3400));
 }
+#endif
 
 
 #if 0   // this is the problem right now - we are missing peaks
@@ -140,7 +132,7 @@ inline void expandHelper(double& maxDb, bool& done, int& i, int deltaI, const FF
         done = true;
     } else {
         const double db = AudioMath::db(spectrum.getAbs(i));
-        if (db < (maxDb - 3)) {
+        if (db < (maxDb - 10)) {
             done = true;
         } else {
             const double newFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
@@ -158,7 +150,6 @@ inline void FrequencySets::expandFrequencies(std::set<double>& f, const FFTDataC
     for (double freq : f) {
         const int bin = FFT::freqToBin(freq, sampleRate, spectrum.size());
         double maxDb = AudioMath::db(spectrum.getAbs(bin));
-
 
         // search upward
         bool done;
@@ -188,12 +179,13 @@ inline void FrequencySets::dump(const char *label, const FFTDataCpx& spectrum) c
 
 inline void FrequencySets::expandFrequencies(const FFTDataCpx& spectrum)
 {
-    dump("before expand freq", spectrum);
+   // dump("before expand freq", spectrum);
     expandFrequencies(harmonics, spectrum);
     expandFrequencies(alias, spectrum);
-    assert(checkOverlap());
+ 
 
-    dump("after expand freq", spectrum);
+    //dump("after expand freq", spectrum);
+    assert(checkOverlap());
 
 }
 
@@ -206,6 +198,11 @@ inline bool FrequencySets::checkOverlap() const
     std::set_intersection(harmonics.begin(), harmonics.end(),
         alias.begin(), alias.end(),
         std::back_inserter(overlap));
+    if (!overlap.empty()) {
+        for (auto x : overlap) {
+            printf("overlap at %f\n", x);
+        }
+    }
     return overlap.empty();
 }
 
@@ -267,15 +264,6 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
         assert(isA2 == isAlias);
         assert(!isA2 || !isH2);
 
-#if 0
-        if (isAlias || isHarmonic) {
-          
-            printf("freq %f, harm=%d alias=%d db=%f\n", freq, isHarmonic, isAlias,
-                db);
-            freqIsInSet(freq, frequencies.first);
-
-        }
-#endif
         if (isH2) {
             totalSignal += mag;
         }
@@ -290,7 +278,7 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
 
 void testRawSaw(double normalizedFreq)
 {
-    const int numSamples = 16 * 1024;
+    const int numSamples = 64 * 1024;
     // adjust the freq to even
 
     double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
@@ -337,12 +325,15 @@ test alias fundamental=3375.329590,6750.659180,10125.988770
 total sig = 14.605277 alias = 6.552373 ratiodb=-6.962224
 Test passed. Press any key to continue...
 
+get overlap with 10db window, 16k fft, 6db ok
+64k, 6db ok
+
 */
 
 void testVCOAlias()
 {
     testPitchQuantize();
     testRawSaw(1.0f / (8 * 6.53f));
- //   testRawSaw(1.0f / (4 * 6.53f));
- //   testRawSaw(1.0f / (2 * 6.53f));
+    testRawSaw(1.0f / (4 * 6.53f));
+    testRawSaw(1.0f / (2 * 6.53f));
 }
