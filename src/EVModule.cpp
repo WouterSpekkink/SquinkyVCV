@@ -85,30 +85,30 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
     }
 
 
-		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-		addChild(Widget::create<ScrewSilver>(Vec(15*6, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(15*6, 365)));
+    addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+    addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+    addChild(Widget::create<ScrewSilver>(Vec(15 * 6, 0)));
+    addChild(Widget::create<ScrewSilver>(Vec(15 * 6, 365)));
 
-		addParam(ParamWidget::create<Rogan3PSBlue>(Vec(22, 32), module, module->vco.OCTAVE_PARAM, -5.0, 4.0, 0.0));
-		addParam(ParamWidget::create<Rogan1PSBlue>(Vec(73, 131), module, module->vco.TUNE_PARAM, -7.0, 7.0, 0.0));
-		addParam(ParamWidget::create<Rogan1PSBlue>(Vec(16, 230), module, module->vco.PWM_PARAM, -1.0, 1.0, 0.0));
+    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(22, 32), module, module->vco.OCTAVE_PARAM, -5.0, 4.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(73, 131), module, module->vco.TUNE_PARAM, -7.0, 7.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(16, 230), module, module->vco.PWM_PARAM, -1.0, 1.0, 0.0));
 
-		addInput(Port::create<PJ301MPort>(Vec(8, 120), Port::INPUT, module, module->vco.PITCH1_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(19, 157), Port::INPUT, module, module->vco.PITCH2_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(48, 183), Port::INPUT, module, module->vco.FM_INPUT));
-	//	addInput(Port::create<PJ301MPort>(Vec(86, 189), Port::INPUT, module, module->vco.SYNC_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(8, 120), Port::INPUT, module, module->vco.PITCH1_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(19, 157), Port::INPUT, module, module->vco.PITCH2_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(48, 183), Port::INPUT, module, module->vco.FM_INPUT));
+//	addInput(Port::create<PJ301MPort>(Vec(86, 189), Port::INPUT, module, module->vco.SYNC_INPUT));
 
-		addInput(Port::create<PJ301MPort>(Vec(72, 236), Port::INPUT, module, module->vco.PWM_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(72, 236), Port::INPUT, module, module->vco.PWM_INPUT));
 
-        const float penultimateRow = 273;
-		addOutput(Port::create<PJ301MPort>(Vec(10, penultimateRow), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(87, penultimateRow), Port::OUTPUT, module, module->vco.SINE_OUTPUT));
-		
-        const float bottomRow = 317;            // 320 -> 317 to make room?
-        addOutput(Port::create<PJ301MPort>(Vec(48, bottomRow), Port::OUTPUT, module, module->vco.EVEN_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(10, bottomRow), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(87, bottomRow), Port::OUTPUT, module, module->vco.SQUARE_OUTPUT));
+    const float penultimateRow = 273;
+    addOutput(Port::create<PJ301MPort>(Vec(10, penultimateRow), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(87, penultimateRow), Port::OUTPUT, module, module->vco.SINE_OUTPUT));
+
+    const float bottomRow = 317;            // 320 -> 317 to make room?
+    addOutput(Port::create<PJ301MPort>(Vec(48, bottomRow), Port::OUTPUT, module, module->vco.EVEN_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(10, bottomRow), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(87, bottomRow), Port::OUTPUT, module, module->vco.SQUARE_OUTPUT));
 
 #if 0
     addInput(Port::create<PJ301MPort>(
@@ -121,7 +121,7 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
- #endif
+#endif
 
 }
 
@@ -130,5 +130,5 @@ Model *modelEVModule = Model::create<EVModule,
     "squinkylabs-evco",
     "EVCO", EFFECT_TAG);
 
-    #endif
+#endif
 

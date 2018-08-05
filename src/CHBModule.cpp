@@ -142,7 +142,7 @@ struct SQPush : SVGButton
         }
     }
 
-    void onClick( std::function<void(void)> callback)
+    void onClick(std::function<void(void)> callback)
     {
         clickHandler = callback;
     }
@@ -184,7 +184,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
     addParam(ParamWidget::create<CKSS>(
         Vec(170, row1), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(160, label1-46), "fold");
+    addLabel(Vec(160, label1 - 46), "fold");
     addLabel(Vec(160, label1), "clip");
 
 
@@ -199,25 +199,25 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     auto sw = new SQPush();
    // sw->box.size = Vec();
     sw->box.pos = Vec(20, 120);
-    sw->onClick( [this, module]() {
+    sw->onClick([this, module]() {
         this->resetMe();
 
 
 
     });
     addChild(sw);
-    #endif
+#endif
 
-    // NOW the three harmonic macro controls
+// NOW the three harmonic macro controls
     addParam(ParamWidget::create<Trimpot>(
         Vec(50, 150), module, module->chb.PARAM_SLOPE, -5.0f, 5.0f, 0.0f));
     addLabel(Vec(45, 180), "slope");
 
-     addParam(ParamWidget::create<Trimpot>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(100, 150), module, module->chb.PARAM_MAG_EVEN, -5.0f, 5.0f, 0.0f));
     addLabel(Vec(95, 180), "even");
 
-     addParam(ParamWidget::create<Trimpot>(
+    addParam(ParamWidget::create<Trimpot>(
         Vec(150, 150), module, module->chb.PARAM_MAG_ODD, -5.0f, 5.0f, 0.0f));
     addLabel(Vec(145, 180), "odd");
 

@@ -84,7 +84,7 @@ GMRWidget::GMRWidget(GMRModule *module) : ModuleWidget(module)
         Vec(40, 200), Port::INPUT, module, module->gmr.CLOCK_INPUT));
     addOutput(Port::create<PJ301MPort>(
         Vec(40, 300), Port::OUTPUT, module, module->gmr.TRIGGER_OUTPUT));
- 
+
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
@@ -98,5 +98,5 @@ Model *modelGMRModule = Model::create<GMRModule,
     "squinkylabs-GMR",
     "GMR", EFFECT_TAG, LFO_TAG);
 
-    #endif
+#endif
 
