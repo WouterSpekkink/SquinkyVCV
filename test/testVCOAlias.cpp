@@ -375,7 +375,6 @@ static void testEven(double normalizedFreq)
 {
 
     // adjust the freq to even
-
     double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
     printHeader("EvenVCO", sampleRate * normalizedFreq, freq);
 
@@ -398,6 +397,48 @@ static void testEven(double normalizedFreq)
         }, freq, numSamples);
 
     fflush(stdout);
+}
+
+
+static void testAliasFunOrig(double normalizedFreq)
+{
+    // adjust the freq to even
+    double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
+    printHeader("FunOrig", sampleRate * normalizedFreq, freq);
+
+    VoltageControlledOscillatorOrig<16, 16> vco;
+    vco.freq = float(sampleRate * normalizedFreq);
+    vco.sampleTime = 1.0f / sampleRate;
+
+    testAlias([&vco]() {
+        const float deltaTime = 1.0f / sampleRate;
+        vco.process(deltaTime, 0);
+        return 15 * vco.saw();
+        }, freq, numSamples);
+}
+
+
+static void testAliasFun(double normalizedFreq)
+{
+    // adjust the freq to even
+    double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
+    printHeader("Fun Mine", sampleRate * normalizedFreq, freq);
+
+    VoltageControlledOscillator<16, 16> vco;
+    vco.freq = float(sampleRate * normalizedFreq);
+    vco.sampleTime = 1.0f / sampleRate;
+
+    vco.sawEnabled = true;
+    vco.sinEnabled = false;
+    vco.sqEnabled = false;
+    vco.triEnabled = false;
+    vco.init();
+
+    testAlias([&vco]() {
+        const float deltaTime = 1.0f / sampleRate;
+        vco.process(deltaTime, 0);
+        return 15 * vco.saw();
+        }, freq, numSamples);
 }
 
 
@@ -478,10 +519,13 @@ Test passed. Press any key to continue...
 void testVCOAlias()
 {
     testPitchQuantize();
-    testEven(1.0f / (8 * 6.53f));
-    testRawSaw<float>(1.0f / (8 * 6.53f));
-    testEven(1.0f / (4 * 6.53f));
-    testRawSaw<float>(1.0f / (4 * 6.53f));
-    testEven(1.0f / (2 * 6.53f));
-    testRawSaw<float>(1.0f / (2 * 6.53f));
+
+
+    for (int i = 2; i <= 8; i *= 2) {
+        float f = 1.0f / (i * 6.53f);
+        testEven(f);
+       // testRawSaw<float>(f);
+        testAliasFunOrig(f);
+        testAliasFun(f);
+    }
 }
