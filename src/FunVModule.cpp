@@ -86,14 +86,16 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-	addParam(ParamWidget::create<CKSS>(Vec(15, 77), module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
-	addParam(ParamWidget::create<CKSS>(Vec(119, 77), module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
+	//addParam(ParamWidget::create<CKSS>(Vec(15, 77), module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
+	//addParam(ParamWidget::create<CKSS>(Vec(119, 77), module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<NKK>(Vec(15, 77), module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<NKK>(Vec(119, 77), module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
 
-	addParam(ParamWidget::create<RoundHugeBlackKnob>(Vec(47, 61), module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
-	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(23, 143), module, module->vco.FINE_PARAM, -1.0f, 1.0f, 0.0f));
-	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(91, 143), module, module->vco.PW_PARAM, 0.0f, 1.0f, 0.5f));
-	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(23, 208), module, module->vco.FM_PARAM, 0.0f, 1.0f, 0.0f));
-	addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(91, 208), module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
+	addParam(ParamWidget::create<Rogan3PSBlue>(Vec(47, 61), module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
+	addParam(ParamWidget::create<Rogan1PSBlue>(Vec(23, 143), module, module->vco.FINE_PARAM, -1.0f, 1.0f, 0.0f));
+	addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 143), module, module->vco.PW_PARAM, 0.0f, 1.0f, 0.5f));
+	addParam(ParamWidget::create<Rogan1PSBlue>(Vec(23, 208), module, module->vco.FM_PARAM, 0.0f, 1.0f, 0.0f));
+	addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 208), module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
 
 	addInput(Port::create<PJ301MPort>(Vec(11, 276), Port::INPUT, module, module->vco.PITCH_INPUT));
 	addInput(Port::create<PJ301MPort>(Vec(45, 276), Port::INPUT, module, module->vco.FM_INPUT));

@@ -503,9 +503,9 @@ void testVCOAlias()
 
     for (int i = 2; i <= 8; i *= 2) {
         float f = 1.0f / (i * 6.53f);
-        testEven(f);
+      //  testEven(f);
        // testRawSaw<float>(f);
-        testAliasFunOrig(f);
+       // testAliasFunOrig(f);
         testAliasFun(f);
     }
 }

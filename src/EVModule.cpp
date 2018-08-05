@@ -90,9 +90,9 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
 		addChild(Widget::create<ScrewSilver>(Vec(15*6, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(15*6, 365)));
 
-		addParam(ParamWidget::create<RoundHugeBlackKnob>(Vec(22, 32), module, module->vco.OCTAVE_PARAM, -5.0, 4.0, 0.0));
-		addParam(ParamWidget::create<RoundSmallBlackKnob>(Vec(73, 131), module, module->vco.TUNE_PARAM, -7.0, 7.0, 0.0));
-		addParam(ParamWidget::create<RoundLargeBlackKnob>(Vec(16, 230), module, module->vco.PWM_PARAM, -1.0, 1.0, 0.0));
+		addParam(ParamWidget::create<Rogan3PSBlue>(Vec(22, 32), module, module->vco.OCTAVE_PARAM, -5.0, 4.0, 0.0));
+		addParam(ParamWidget::create<Rogan1PSBlue>(Vec(73, 131), module, module->vco.TUNE_PARAM, -7.0, 7.0, 0.0));
+		addParam(ParamWidget::create<Rogan1PSBlue>(Vec(16, 230), module, module->vco.PWM_PARAM, -1.0, 1.0, 0.0));
 
 		addInput(Port::create<PJ301MPort>(Vec(8, 120), Port::INPUT, module, module->vco.PITCH1_INPUT));
 		addInput(Port::create<PJ301MPort>(Vec(19, 157), Port::INPUT, module, module->vco.PITCH2_INPUT));

@@ -133,15 +133,14 @@ struct VoltageControlledOscillator
     {
         sinLookup = ObjectCache<float>::getSinLookup();
 
-        // was using 1/32 = .5 / 16 for first try
-        // first guess - an octave below nyquist
+    
+        // first guess - an octave below nyquist .25   
         float cutoff = .25f / float(OVERSAMPLE);
 
         sinDecimator.setCutoff(cutoff);
         sawDecimator.setCutoff(cutoff);
         sqrDecimator.setCutoff(cutoff);
         triDecimator.setCutoff(cutoff);
-       
     }
 
     // TODO: what is the range of the one in VCV?
