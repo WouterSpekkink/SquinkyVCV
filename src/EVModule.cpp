@@ -101,11 +101,14 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
 
 		addInput(Port::create<PJ301MPort>(Vec(72, 236), Port::INPUT, module, module->vco.PWM_INPUT));
 
-		addOutput(Port::create<PJ301MPort>(Vec(10, 283), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(87, 283), Port::OUTPUT, module, module->vco.SINE_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(48, 306), Port::OUTPUT, module, module->vco.EVEN_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(10, 327), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(87, 327), Port::OUTPUT, module, module->vco.SQUARE_OUTPUT));
+        const float penultimateRow = 273;
+		addOutput(Port::create<PJ301MPort>(Vec(10, penultimateRow), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+		addOutput(Port::create<PJ301MPort>(Vec(87, penultimateRow), Port::OUTPUT, module, module->vco.SINE_OUTPUT));
+		
+        const float bottomRow = 317;            // 320 -> 317 to make room?
+        addOutput(Port::create<PJ301MPort>(Vec(48, bottomRow), Port::OUTPUT, module, module->vco.EVEN_OUTPUT));
+		addOutput(Port::create<PJ301MPort>(Vec(10, bottomRow), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+		addOutput(Port::create<PJ301MPort>(Vec(87, bottomRow), Port::OUTPUT, module, module->vco.SQUARE_OUTPUT));
 
 #if 0
     addInput(Port::create<PJ301MPort>(

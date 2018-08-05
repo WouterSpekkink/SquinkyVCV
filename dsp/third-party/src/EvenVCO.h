@@ -248,7 +248,7 @@ inline void EvenVCO<TBase>::step_saw(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step_sin(float deltaPhase)
 {
-    float oldPhase = phase;
+   // float oldPhase = phase;
     phase += deltaPhase;
 
     // Reset phase if at end of cycle
@@ -303,12 +303,13 @@ void EvenVCO<TBase>::step_tri(float deltaPhase)
 template <class TBase>
 void EvenVCO<TBase>::step_sq(float deltaPhase)
 {
-    float oldPhase = phase;
+   // float oldPhase = phase;
     phase += deltaPhase;
-
+#if 0
     if (oldPhase < 0.5 && phase >= 0.5) {
         float crossing = -(phase - 0.5) / deltaPhase;
     }
+    #endif
 
     // Pulse width
     float pw;

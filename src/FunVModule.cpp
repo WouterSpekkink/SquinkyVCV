@@ -97,15 +97,15 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
 	addParam(ParamWidget::create<Rogan1PSBlue>(Vec(23, 208), module, module->vco.FM_PARAM, 0.0f, 1.0f, 0.0f));
 	addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 208), module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
 
-	addInput(Port::create<PJ301MPort>(Vec(11, 276), Port::INPUT, module, module->vco.PITCH_INPUT));
-	addInput(Port::create<PJ301MPort>(Vec(45, 276), Port::INPUT, module, module->vco.FM_INPUT));
-	addInput(Port::create<PJ301MPort>(Vec(80, 276), Port::INPUT, module, module->vco.SYNC_INPUT));
-	addInput(Port::create<PJ301MPort>(Vec(114, 276), Port::INPUT, module, module->vco.PW_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(11, 273), Port::INPUT, module, module->vco.PITCH_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(45, 273), Port::INPUT, module, module->vco.FM_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(80, 273), Port::INPUT, module, module->vco.SYNC_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(114, 273), Port::INPUT, module, module->vco.PW_INPUT));
 
-	addOutput(Port::create<PJ301MPort>(Vec(11, 320), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(45, 320), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(80, 320), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(114, 320), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(11, 317), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(45, 317), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(80, 317), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(114, 317), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
 
 	//addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(99, 42.5f), module, module->vco.::PHASE_POS_LIGHT));
 }
