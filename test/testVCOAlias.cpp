@@ -1,8 +1,25 @@
 
 #include "Analyzer.h"
 #include "asserts.h"
+#include "EvenVCO.h"
+#include "FunVCO.h"
 #include "SawOscillator.h"
 #include "SinOscillator.h"
+#include "TestComposite.h"
+
+
+// globals for these tests
+static const float sampleRate = 44100;
+static bool expandBins = false;
+static bool adjustBins = true;
+#if 0
+static const int numSamples = 64 * 1024;
+static const double expandThresholdDb = -10;
+#else
+static const int numSamples = 64 * 1024;
+static const double expandThresholdDb = .01;          // normally negative
+#endif
+
 
 
 
@@ -41,8 +58,6 @@ static void testPitchQuantize()
     }
 }
 
-const float sampleRate = 44100;
-
 class AliasStats
 {
 public:
@@ -50,39 +65,6 @@ public:
     float totalAliasAWeighted;
     float maxAliasFreq;
 };
-
-#if 0
-bool should(double freq)
-{
-//    return ((freq > 1680) && (freq < 1698));
-    return ((freq > 3370) && (freq < 3400));
-}
-#endif
-
-
-#if 0   // this is the problem right now - we are missing peaks
-std::vector<int> getLocalPeaks(const FFTDataCpx& spectrum)
-{
-    std::vector<int> ret;
-    for (int i = 0; i < spectrum.size(); ++i) {
-        const double freq = FFT::bin2Freq(i, 44100, spectrum.size());
-       // const bool print = (freq > 30 && freq < 60);
-        const float lastMag = (i == 0) ? 0 : std::abs(spectrum.get(i - 1));
-        const float nextMag = (i == (spectrum.size()-1)) ? 0 : std::abs(spectrum.get(i + 1));
-        const float mag = std::abs(spectrum.get(i));
-       
-        if (should(freq)) {
-            printf("getloc mag=%.2f last=%.2f next=%.2f bin %d f=%f\n", mag, lastMag, nextMag, i, freq);
-       
-        }
-        if (mag > lastMag && mag > nextMag) {
-            ret.push_back(i);
-        }
-
-    }
-    return ret;
-}
-#endif
 
 /*
 
@@ -92,19 +74,92 @@ Next: examine the spectrum. make sure all freq in spectrum are signal or alias
 class FrequencySets
 {
 public:
-    FrequencySets(double fundamental, double sampleRate);
-    void expandFrequencies(const FFTDataCpx& spectrum);
+    FrequencySets(double fundamental, double sampleRate, const FFTDataCpx& spectrum);
+    void expandFrequencies();
     bool checkOverlap() const;
 
     std::set<double> harmonics;
     std::set<double> alias;
 
-    void dump(const char *, const FFTDataCpx& spectrum) const;
+    void adjustFrequencies();
+    void dump(const char *) const;
 private:
     static void expandFrequencies(std::set<double>&, const FFTDataCpx& spectrum);
+    bool adjustFrequencies1();
+    static bool adjustFreqHelper(int bin, int tryBin, std::set<double>& set, const FFTDataCpx& spectrum);
+    const FFTDataCpx& spectrum;
 };
 
-inline FrequencySets::FrequencySets(double fundamental, double sampleRate)
+inline void FrequencySets::adjustFrequencies()
+{
+    int tries = 0;
+    while (adjustFrequencies1()) {
+        ++tries;
+   }
+   printf("adjust moved %d\n", tries);
+}
+
+inline bool FrequencySets::adjustFreqHelper(int bin, int tryBin, std::set<double>& set, const FFTDataCpx& spectrum)
+{
+    bool ret = false;
+    if (tryBin < 0 || tryBin >= spectrum.size()) {
+        return false;
+    }
+    const double db = AudioMath::db(spectrum.getAbs(bin));
+    const double dbm1 = AudioMath::db(spectrum.getAbs(tryBin));
+    if (dbm1 > (db + 3)) {               // only adjust a bin if it's a 3db improvement
+        const double f = FFT::bin2Freq(bin, sampleRate, spectrum.size());
+        const double fNew = FFT::bin2Freq(tryBin, sampleRate, spectrum.size());
+#if 0
+        if (f < 800 ) {
+            printf("adjusted one from %.2f (%.2f) to %.2f (%.2f)\n",
+                f,
+                db,
+                fNew,
+                dbm1);
+        }
+#endif
+        auto x = set.erase(f);
+        assert(x == 1);
+        set.insert(fNew);
+        ret = true;
+    }
+
+    return ret;
+
+}
+
+inline bool FrequencySets::adjustFrequencies1()
+{
+    for (auto f : harmonics) {
+        const int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
+        if (adjustFreqHelper(bin, bin - 1, harmonics, spectrum))
+            return true;
+        if (adjustFreqHelper(bin, bin + 1, harmonics, spectrum))
+            return true;
+    }
+    for (auto f : alias) {
+#if 0
+        if (int(f) == 220) {
+            const int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
+            for (int i = -5; i < 6; ++i) {
+                
+                printf("220[%d] db=%f\n", i, AudioMath::db(spectrum.getAbs(bin + i)));
+            }
+        }
+#endif
+        const int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
+        if (adjustFreqHelper(bin, bin - 1, alias, spectrum))
+            return true;
+        if (adjustFreqHelper(bin, bin + 1, alias, spectrum))
+            return true;
+    }
+    return false;
+}
+
+
+inline FrequencySets::FrequencySets(double fundamental, double sampleRate, const FFTDataCpx& spectrum) :
+      spectrum(spectrum)
 {
     const double nyquist = sampleRate / 2;
     bool done = false;
@@ -126,18 +181,21 @@ inline FrequencySets::FrequencySets(double fundamental, double sampleRate)
     }
 }
 
+
 inline void expandHelper(double& maxDb, bool& done, int& i, int deltaI, const FFTDataCpx& spectrum, std::set<double>& f)
 {
     if (i >= spectrum.size() || i < 0) {
         done = true;
     } else {
         const double db = AudioMath::db(spectrum.getAbs(i));
-        if (db < (maxDb - 10)) {
+
+        if (db < (maxDb + expandThresholdDb)) {
             done = true;
         } else {
-            const double newFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
-           // if (newFreq < 2600)
-          //      printf("inserting new freq %f db=%f m=%f\n ", newFreq, db, maxDb);
+            //const double oldFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
+           const double newFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
+           if (newFreq < 900 && newFreq > 800)     
+               printf("inserting new freq %f db=%f m=%f\n ", newFreq, db, maxDb);
             maxDb = std::max(maxDb, db);
             f.insert(newFreq);
         }
@@ -147,7 +205,11 @@ inline void expandHelper(double& maxDb, bool& done, int& i, int deltaI, const FF
 
 inline void FrequencySets::expandFrequencies(std::set<double>& f, const FFTDataCpx& spectrum)
 {
+    assert(expandBins);
     for (double freq : f) {
+        if (int(freq) == 1064) {
+            int x = 5;
+        }
         const int bin = FFT::freqToBin(freq, sampleRate, spectrum.size());
         double maxDb = AudioMath::db(spectrum.getAbs(bin));
 
@@ -164,7 +226,7 @@ inline void FrequencySets::expandFrequencies(std::set<double>& f, const FFTDataC
     }
 }
 
-inline void FrequencySets::dump(const char *label, const FFTDataCpx& spectrum) const
+inline void FrequencySets::dump(const char *label) const
 {
     printf("**** %s ****\n", label);
     for (auto f : harmonics) {
@@ -177,9 +239,9 @@ inline void FrequencySets::dump(const char *label, const FFTDataCpx& spectrum) c
     }
 }
 
-inline void FrequencySets::expandFrequencies(const FFTDataCpx& spectrum)
+inline void FrequencySets::expandFrequencies()
 {
-   // dump("before expand freq", spectrum);
+    //dump("before expand freq", spectrum);
     expandFrequencies(harmonics, spectrum);
     expandFrequencies(alias, spectrum);
  
@@ -188,8 +250,6 @@ inline void FrequencySets::expandFrequencies(const FFTDataCpx& spectrum)
     assert(checkOverlap());
 
 }
-
-
 
 inline bool FrequencySets::checkOverlap() const
 {
@@ -238,14 +298,23 @@ bool freqIsInSet(double freq, const std::set<double> set)
 
 void testAlias(std::function<float()> func, double fundamental, int numSamples)
 {
-    printf("test alias fundamental=%f,%f,%f\n", fundamental, fundamental * 2, fundamental * 3);
+   // printf("test alias fundamental=%f,%f,%f\n", fundamental, fundamental * 2, fundamental * 3);
     FFTDataCpx spectrum(numSamples);
     Analyzer::getSpectrum(spectrum, false, func);
-    FrequencySets frequencies(fundamental, sampleRate);
+    FrequencySets frequencies(fundamental, sampleRate, spectrum);
     assert(frequencies.checkOverlap());
 
-    frequencies.expandFrequencies(spectrum);
+  // frequencies.dump("init freq");
+    if (adjustBins)
+        frequencies.adjustFrequencies();
+  //  frequencies.dump("after adjust");
+    assert(frequencies.checkOverlap());
 
+    if (expandBins)
+        frequencies.expandFrequencies();
+    assert(frequencies.checkOverlap());
+
+    //frequencies.dump("final freq");
 
     double totalSignal = 0;
     double totalAlias = 0;
@@ -276,22 +345,59 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
         totalSignal, totalAlias, AudioMath::db(totalAlias / totalSignal));
 }
 
+void printHeader(const char * label, double desired, double actual)
+{
+    printf("\n%s freq = %f, round %f\n", label, desired, actual);
+    printf("frame size = %d, expandThreshDb=%f \n", numSamples, expandThresholdDb);
+    printf("expand bins=%d, adjustBins=%d\n", expandBins, adjustBins);
+}
+
+template <typename T>
 void testRawSaw(double normalizedFreq)
 {
     const int numSamples = 64 * 1024;
     // adjust the freq to even
 
     double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
-    printf("\ndesired freq = %f, round %f\n", sampleRate * normalizedFreq, freq);
+    printHeader("Raw Saw", sampleRate * normalizedFreq, freq);
 
     // make saw osc at correct freq
-    SawOscillatorParams<float> params;
-    SawOscillatorState<float> state;
-    SawOscillator<float, false>::setFrequency(params, (float) normalizedFreq);
+    SawOscillatorParams<T> params;
+    SawOscillatorState<T> state;
+    SawOscillator<T, false>::setFrequency(params, (float) normalizedFreq);
     testAlias([&state, &params]() {
-        return 30 * SawOscillator<float, false>::runSaw(state, params);
+        return (T) 30 * SawOscillator<T, false>::runSaw(state, params);
         }, freq, numSamples);
 
+}
+
+static void testEven(double normalizedFreq)
+{
+
+    // adjust the freq to even
+
+    double freq = Analyzer::makeEvenPeriod(sampleRate * normalizedFreq, sampleRate, numSamples);
+    printHeader("EvenVCO", sampleRate * normalizedFreq, freq);
+
+    using EVCO = EvenVCO <TestComposite>;
+    EVCO vco;
+    vco._testFreq = float(sampleRate * normalizedFreq);
+    // vco.set = 1.0f / sampleRate;
+    vco.outputs[EVCO::SAW_OUTPUT].active = true;
+    vco.outputs[EVCO::SINE_OUTPUT].active = false;
+    vco.outputs[EVCO::TRI_OUTPUT].active = false;
+    vco.outputs[EVCO::SQUARE_OUTPUT].active = false;
+    vco.outputs[EVCO::EVEN_OUTPUT].active = false;
+
+
+    testAlias([&vco]() {
+        // const float deltaTime = 1.0f / sampleRate;
+        // vco.process(deltaTime, 0);
+        vco.step();
+        return 3 * vco.outputs[EVCO::SAW_OUTPUT].value;
+        }, freq, numSamples);
+
+    fflush(stdout);
 }
 
 
@@ -310,30 +416,72 @@ test alias fundamental=3375.329590,6750.659180,10125.988770
 total sig = 3.512697 alias = 0.166856 ratiodb=-26.465975
 Test passed. Press any key to continue...
 
-first bin expand 6 db:
+---
 
-desired freq = 844.180682, round 842.486572
-test alias fundamental=842.486572,1684.973145,2527.459717
-total sig = 22.917906 alias = 1.563906 ratiodb=-23.319288
+EvenVCO freq = 844.180682, round 843.832397
+frame size = 65536, expandThreshDb=0.000000
+expand bins=0, adjustBins=1
+adjust moved 6939
+total sig = 0.015563 alias = 0.015805 ratiodb=0.133833
 
-desired freq = 1688.361365, round 1687.664795
-test alias fundamental=1687.664795,3375.329590,5062.994385
-total sig = 17.118325 alias = 5.358352 ratiodb=-10.088601
+Raw Saw freq = 844.180682, round 843.832397
+frame size = 65536, expandThreshDb=0.000000
+expand bins=0, adjustBins=1
+adjust moved 392
+total sig = 0.166494 alias = 0.041957 ratiodb=-11.971910
 
-desired freq = 3376.722729, round 3375.329590
-test alias fundamental=3375.329590,6750.659180,10125.988770
-total sig = 14.605277 alias = 6.552373 ratiodb=-6.962224
+Raw Saw freq = 1688.361365, round 1688.337708
+frame size = 65536, expandThreshDb=0.000000
+expand bins=0, adjustBins=1
+adjust moved 0
+total sig = 14.344683 alias = 1.279057 ratiodb=-20.996020
+
+Raw Saw freq = 3376.722729, round 3376.675415
+frame size = 65536, expandThreshDb=0.000000
+expand bins=0, adjustBins=1
+adjust moved 0
+total sig = 10.917767 alias = 1.400212 ratiodb=-17.838803
 Test passed. Press any key to continue...
 
-get overlap with 10db window, 16k fft, 6db ok
-64k, 6db ok
+----
+
+EvenVCO freq = 844.180682, round 843.832397
+frame size = 65536, expandThreshDb=0.000000
+expand bins=1, adjustBins=1
+adjust moved 6939
+total sig = 0.015563 alias = 30.322415 ratiodb=65.793436
+
+Raw Saw freq = 844.180682, round 843.832397
+frame size = 65536, expandThreshDb=0.000000
+expand bins=1, adjustBins=1
+adjust moved 392
+total sig = 0.166494 alias = 0.368204 ratiodb=6.893811
+
+Raw Saw freq = 1688.361365, round 1688.337708
+frame size = 65536, expandThreshDb=0.000000
+expand bins=1, adjustBins=1
+adjust moved 0
+total sig = 14.344683 alias = 3.708226 ratiodb=-11.750495
+
+Raw Saw freq = 3376.722729, round 3376.675415
+frame size = 65536, expandThreshDb=0.000000
+expand bins=1, adjustBins=1
+adjust moved 0
+total sig = 10.917767 alias = 3.809961 ratiodb=-9.144265
+Test passed. Press any key to continue...
+
+
+
 
 */
 
 void testVCOAlias()
 {
     testPitchQuantize();
-    testRawSaw(1.0f / (8 * 6.53f));
-    testRawSaw(1.0f / (4 * 6.53f));
-    testRawSaw(1.0f / (2 * 6.53f));
+    testEven(1.0f / (8 * 6.53f));
+    testRawSaw<float>(1.0f / (8 * 6.53f));
+    testEven(1.0f / (4 * 6.53f));
+    testRawSaw<float>(1.0f / (4 * 6.53f));
+    testEven(1.0f / (2 * 6.53f));
+    testRawSaw<float>(1.0f / (2 * 6.53f));
 }

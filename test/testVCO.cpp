@@ -83,139 +83,7 @@ static void test0()
 #endif
 }
 
-/*
-Measure straight saw,  normalizedFreq = 1.0f / (4 * 6.5f);
-freq=1688.36 db=8.191729  
-freq=8441.81 db=-5.991078  
-freq=13506.89 db=-10.405733  
-freq=15195.25 db=-11.574288  
-freq=18571.98 db=-13.661299  
-alias:
-freq=20462.94 db=-16.407371  
-freq=18774.58 db=-16.857035  
-freq=17086.22 db=-17.191533  
-freq=15397.86 db=-17.510285  
-freq=13709.50 db=-17.816966  
-freq=12021.13 db=-18.114632  
-freq=10332.77 db=-18.405863  
-freq=8644.41 db=-18.692861  
-freq=6956.05 db=-18.977511 
-freq=5267.69 db=-19.261458 
-freq=3579.33 db=-19.546149 
-freq=1890.97 db=-19.832927 
-freq=202.60 db=-20.125769 
-
-Origiginal fun:
-freq=1688.36 db=8.184821 
-freq=8441.81 db=-6.162163  
-freq=13506.89 db=-10.978656
-freq=15195.25 db=-12.677216
-freq=18571.98 db=-17.830856
-alias:
-freq=20462.94 db=-35.077753
-freq=18774.58 db=-45.695258
-freq=17086.22 db=-60.030020
-freq=15397.86 db=-76.772331
-freq=13709.50 db=-81.981375
-freq=12021.13 db=-82.227736
-freq=10332.77 db=-82.034031
-freq=8644.41 db=-80.662224 
-freq=6956.05 db=-80.317230 
-freq=5267.69 db=-81.107440 
-freq=3579.33 db=-82.032488 
-freq=1890.97 db=-78.061883 
-freq=202.60 db=-86.225815  
-
-modified fun (using 1/32 IIR)
-freq=1688.36 db=8.184871 
-freq=8441.81 db=-6.162146 
-freq=13506.89 db=-10.859227 
-freq=15195.25 db=-12.184126 
-freq=18571.98 db=-14.747237 
-alias:
-freq=20462.94 db=-20.723662 
-freq=18774.58 db=-23.930877 
-freq=17086.22 db=-27.325587 
-freq=15397.86 db=-30.722889 
-freq=13709.50 db=-34.037846 
-freq=12021.13 db=-37.241892 
-freq=10332.77 db=-40.326342 
-freq=8644.41 db=-43.295392  
-freq=6956.05 db=-46.148976  
-freq=5267.69 db=-48.890096  
-freq=3579.33 db=-51.522286  
-freq=1890.97 db=-54.017538  
-
-*/
-
-const float sampleRate = 44100;
-const float normalizedFreq = 1.0f / (4 * 6.53f);     // this will make alias freq spaced from harmonics
-static void printOscPeaks(std::function<float()> func)
-{
-    const int windowSize = 64 * 1024;
-
-    const double binSpacing = 44100.0 / windowSize;
-    const float fundamental = sampleRate * normalizedFreq;
-
-    std::vector<double> harmonics;
-    std::vector<double> alias;
-    std::vector<double> interesting;
-    for (int i = 1; i < 30; ++i) {
-        double freq = normalizedFreq * i;
-        if (freq < .5) {
-            harmonics.push_back(freq * sampleRate);
-            interesting.push_back(freq* sampleRate);
-        } else {
-            double over = freq - .5;
-            if (over < .5) {
-                freq = .5 - over;
-                alias.push_back(freq* sampleRate);
-                interesting.push_back(freq* sampleRate);
-            }
-        }
-    }
-    printf("******* freq = %f **********\n", fundamental);
-    printf(" harmonics at ");
-    for (auto x : harmonics) printf("%f ", x);
-    printf("\n");
-    printf(" alias at ");
-    for (auto x : alias) printf("%f ", x);
-    printf("\n");
-
-  //  printf("**** saw at %f bins spacing = %f***\n", fundamental, binSpacing);
-  //  printf(" neighbors at %f and %f\n", fundamental - binSpacing, fundamental + binSpacing);
-  //  printf(" harm at %f, %f\n", fundamental * 2, fundamental * 3);
-
-
-    FFTDataCpx spectrum(windowSize);
-    Analyzer::getSpectrum(spectrum, true, func);
-
-    Analyzer::getAndPrintFreqOfInterest(spectrum, sampleRate, harmonics);
-    printf("alias:\n");
-    Analyzer::getAndPrintFreqOfInterest(spectrum, sampleRate, alias);
-   // Analyzer::getAndPrintPeaks(spectrum, sampleRate, -10);
-   
-    
-    //Analyzer::getAndPrintFreqOfInterest(spectrum, sampleRate, interesting);
-    // 27 with -20
-    // 79 with -30
-    // 328 with -40
-    // new criteria - mag > avgx3:, 27, 79..
-    // avx4: 15, 48, 189
-}
-
-static void testAliasSaw()
-{
-    SawOscillatorParams<float> params;
-    SawOscillatorState<float> state;
-    SawOscillator<float, false>::setFrequency(params, normalizedFreq);
-    printOscPeaks([&state, &params]() {
-        return 30 * SawOscillator<float, false>::runSaw(state, params);
-        });
-
-
-}
-
+#if 0
 static void testAliasFun()
 {
     printf("**** modified fun filter\n");
@@ -269,6 +137,8 @@ static void testAliasEven()
         return 3 * vco.outputs[EVCO::SAW_OUTPUT].value;
         });
 }
+#endif
+
 void testVCO()
 {
 
