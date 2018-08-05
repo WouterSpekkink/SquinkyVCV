@@ -69,14 +69,14 @@ struct FunVWidget : ModuleWidget
 
 void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 {
-    addParam(ParamWidget::create<NKK>(Vec(15, 77 + verticalShift),
+    addParam(ParamWidget::create<NKK>(Vec(8, 66 + verticalShift),
         module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
 
-    addParam(ParamWidget::create<NKK>(Vec(119, 77 + verticalShift),
-        module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
-
-    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(47, 61 + verticalShift),
+    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(49, 61 + verticalShift),
         module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
+
+    addParam(ParamWidget::create<NKK>(Vec(112, 66 + verticalShift),
+        module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
 }
 
 void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
