@@ -74,7 +74,7 @@ static void test0()
 {
     testx(3);
 
-#if 0
+#if 1
     EVCO vco;
 
     vco.step();
@@ -83,70 +83,7 @@ static void test0()
 #endif
 }
 
-#if 0
-static void testAliasFun()
-{
-    printf("**** modified fun filter\n");
-    FUN vco;
-    vco.sawEnabled = true;
-    vco.sinEnabled = false;
-    vco.sqEnabled = false;
-    vco.triEnabled = false;
-    vco.freq = sampleRate * normalizedFreq;
-    vco.sampleTime = 1.0f / sampleRate;
-    vco.init();
-
-    printOscPeaks([&vco]() {
-        const float deltaTime = 1.0f / sampleRate;
-        vco.process(deltaTime, 0);
-        return 15 * vco.saw();
-        });
-}
-
-static void testAliasFunOrig()
-{
-
-    VoltageControlledOscillatorOrig<16, 16> vco;
-    vco.freq = sampleRate * normalizedFreq;
-    vco.sampleTime = 1.0f / sampleRate;
-   
-    printOscPeaks([&vco]() {
-        const float deltaTime = 1.0f / sampleRate;
-        vco.process(deltaTime, 0);
-        return 15 * vco.saw();
-        });
-}
-
-static void testAliasEven()
-{
-
-   EVCO vco;
-    vco._testFreq = sampleRate * normalizedFreq;
-   // vco.set = 1.0f / sampleRate;
-    vco.outputs[EVCO::SAW_OUTPUT].active = true;
-    vco.outputs[EVCO::SINE_OUTPUT].active = false;
-    vco.outputs[EVCO::TRI_OUTPUT].active = false;
-    vco.outputs[EVCO::SQUARE_OUTPUT].active = false;
-    vco.outputs[EVCO::EVEN_OUTPUT].active = false;
-
-
-    printOscPeaks([&vco]() {
-       // const float deltaTime = 1.0f / sampleRate;
-       // vco.process(deltaTime, 0);
-        vco.step();
-        return 3 * vco.outputs[EVCO::SAW_OUTPUT].value;
-        });
-}
-#endif
-
 void testVCO()
 {
-
     test0();
-   // testAliasSaw();
-   //testAliasFun();
-   // testAliasFunOrig();
-   // testAliasEven();
-
-
 }

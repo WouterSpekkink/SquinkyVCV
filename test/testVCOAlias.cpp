@@ -38,7 +38,6 @@ static void testPitchQuantize()
     SinOscillatorState<double> state;
     SinOscillator<double, false>::setFrequency(params, 1.0 / 4.0);
    
-
     // check that spectrum has only a single freq
     std::function<float()> func = [&state, &params]() {
         return float(30 * SinOscillator<double, false>::run(state, params));
@@ -96,7 +95,7 @@ inline void FrequencySets::adjustFrequencies()
     while (adjustFrequencies1()) {
         ++tries;
    }
-   printf("adjust moved %d\n", tries);
+   //printf("adjust moved %d\n", tries);
 }
 
 inline bool FrequencySets::adjustFreqHelper(int bin, int tryBin, std::set<double>& set, const FFTDataCpx& spectrum)
@@ -110,15 +109,6 @@ inline bool FrequencySets::adjustFreqHelper(int bin, int tryBin, std::set<double
     if (dbm1 > (db + 3)) {               // only adjust a bin if it's a 3db improvement
         const double f = FFT::bin2Freq(bin, sampleRate, spectrum.size());
         const double fNew = FFT::bin2Freq(tryBin, sampleRate, spectrum.size());
-#if 0
-        if (f < 800 ) {
-            printf("adjusted one from %.2f (%.2f) to %.2f (%.2f)\n",
-                f,
-                db,
-                fNew,
-                dbm1);
-        }
-#endif
         auto x = set.erase(f);
         assert(x == 1);
         set.insert(fNew);
@@ -139,15 +129,6 @@ inline bool FrequencySets::adjustFrequencies1()
             return true;
     }
     for (auto f : alias) {
-#if 0
-        if (int(f) == 220) {
-            const int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
-            for (int i = -5; i < 6; ++i) {
-                
-                printf("220[%d] db=%f\n", i, AudioMath::db(spectrum.getAbs(bin + i)));
-            }
-        }
-#endif
         const int bin = FFT::freqToBin(f, sampleRate, spectrum.size());
         if (adjustFreqHelper(bin, bin - 1, alias, spectrum))
             return true;
@@ -266,35 +247,22 @@ inline bool FrequencySets::checkOverlap() const
     return overlap.empty();
 }
 
-// probably don't need this
-bool freqIsInSet(double freq, const std::set<double> set)
+
+/*
+
+
+Ra = 12194**2 * f**4 /
+(f**2 + 20.6 ** 2) sqrt((f2 + 107.2**2)(f2 + 737.9**2)) * (f2 + 12194**2)
+A(f) = db(Ra) + 2
+*/
+double WeightA(double mag, double f)
 {
-    auto lb = set.lower_bound(freq);
-    bool isHarmonic = false;
-    if (lb != set.end() && freq <= *lb) {
-        const double ratio = *lb / freq;
-        isHarmonic = (*lb / freq < 1.00001);
-    }
-    if (isHarmonic) {
-        return true;
-    }
-
-
-    // does this second try catch anything?
-    auto xx = lb;
-    --xx;
-    if (xx != set.end() && freq >= *xx) {
-        isHarmonic = ((freq / *xx) < 1.00001);
-    }
-    if (false) {
-        printf("freqInSet(%f) looked at %f ", freq, *lb);
-        if (xx != set.end()) printf("and %f", *xx);
-
-        printf("\n");
-    }
-    return isHarmonic;
+    double num = (12194 * 12194) * f*f*f*f;
+    double den = (f*f + 20.6*20.6) * sqrt((f*f + 107.2*107.2) * (f*f + 737.9 * 737.9)) * (f*f + 12194 * 12194);
+    double Ra = num / den;
+   // printf("Ra(%f) = %f\n", f, Ra);
+    return Ra * mag;
 }
-
 
 void testAlias(std::function<float()> func, double fundamental, int numSamples)
 {
@@ -318,31 +286,47 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
 
     double totalSignal = 0;
     double totalAlias = 0;
+    double totalSignalA = 0;
+    double totalAliasA = 0;
+    double totalAliasOver5 = 0;
+    double totalAliasBelow5 = 0;
 
     // let's look at every spectrum line
     for (int i=1; i<numSamples/2; ++i) {
         const double freq = FFT::bin2Freq(i, sampleRate, numSamples);
         const double mag = spectrum.getAbs(i);
-        const double db = AudioMath::db(mag);
+    //    const double db = AudioMath::db(mag);
+        const double magA = WeightA(mag, freq);
 
-        const bool isHarmonic = freqIsInSet(freq, frequencies.harmonics);
         const bool isH2 = frequencies.harmonics.find(freq) != frequencies.harmonics.end();
-        const bool isAlias = freqIsInSet(freq, frequencies.alias);
         const bool isA2 = frequencies.alias.find(freq) != frequencies.alias.end();
-        assert(isH2 == isHarmonic);
-        assert(isA2 == isAlias);
+
         assert(!isA2 || !isH2);
+
+        const bool above5k = (freq >= 5000);
+     //   const bool above10k = (freq > 10000);
 
         if (isH2) {
             totalSignal += mag;
+            totalSignalA += magA;
         }
         if (isA2) {
             totalAlias += mag;
+            totalAliasA += magA;
+            if (above5k) {
+                totalAliasOver5 += mag;
+            }else {
+                totalAliasBelow5 += mag;
+            }
         }
     }
 
-    printf("total sig = %f alias = %f ratiodb=%f\n",
-        totalSignal, totalAlias, AudioMath::db(totalAlias / totalSignal));
+    printf("total sig = %f alias = %f ratiodb=%f A=%f\n",
+        totalSignal,
+        totalAlias,
+        AudioMath::db(totalAlias / totalSignal),
+        2 + AudioMath::db(totalAliasA / totalSignalA)
+    );
 }
 
 void printHeader(const char * label, double desired, double actual)
@@ -381,17 +365,13 @@ static void testEven(double normalizedFreq)
     using EVCO = EvenVCO <TestComposite>;
     EVCO vco;
     vco._testFreq = float(sampleRate * normalizedFreq);
-    // vco.set = 1.0f / sampleRate;
     vco.outputs[EVCO::SAW_OUTPUT].active = true;
     vco.outputs[EVCO::SINE_OUTPUT].active = false;
     vco.outputs[EVCO::TRI_OUTPUT].active = false;
     vco.outputs[EVCO::SQUARE_OUTPUT].active = false;
     vco.outputs[EVCO::EVEN_OUTPUT].active = false;
 
-
     testAlias([&vco]() {
-        // const float deltaTime = 1.0f / sampleRate;
-        // vco.process(deltaTime, 0);
         vco.step();
         return 3 * vco.outputs[EVCO::SAW_OUTPUT].value;
         }, freq, numSamples);
