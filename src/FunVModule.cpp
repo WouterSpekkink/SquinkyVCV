@@ -56,6 +56,7 @@ struct FunVWidget : ModuleWidget
 
     void addTop3(FunVModule *, float verticalShift);
     void addMiddle4(FunVModule *, float verticalShift);
+    void addJacks(FunVModule *, float verticalShift);
 
     void addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
     {
@@ -69,14 +70,23 @@ struct FunVWidget : ModuleWidget
 
 void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 {
-    addParam(ParamWidget::create<NKK>(Vec(8, 66 + verticalShift),
+    const float left = 8;
+    const float right = 112;
+    const float center = 49;
+
+    addParam(ParamWidget::create<NKK>(Vec(left, 66 + verticalShift),
         module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(left -6, 48+ verticalShift), "Anlg");
+    addLabel(Vec(left -6, 102+ verticalShift), "Dgtl");
 
-    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(49, 61 + verticalShift),
+    addParam(ParamWidget::create<Rogan3PSBlue>(Vec(center, 61 + verticalShift),
         module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
+    addLabel(Vec(center +6, 40+ verticalShift), "Pitch");
 
-    addParam(ParamWidget::create<NKK>(Vec(112, 66 + verticalShift),
+    addParam(ParamWidget::create<NKK>(Vec(right, 66 + verticalShift),
         module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(right-6, 48+ verticalShift), "Hard");
+    addLabel(Vec(right-6, 102+ verticalShift), "Soft");
 }
 
 void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
@@ -95,6 +105,18 @@ void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
 
 }
 
+void FunVWidget::addJacks(FunVModule * module, float verticalShift)
+{
+    addInput(Port::create<PJ301MPort>(Vec(11, 273), Port::INPUT, module, module->vco.PITCH_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(45, 273), Port::INPUT, module, module->vco.FM_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(80, 273), Port::INPUT, module, module->vco.SYNC_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(114, 273), Port::INPUT, module, module->vco.PW_INPUT));
+
+    addOutput(Port::create<PJ301MPort>(Vec(11, 317), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(45, 317), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(80, 317), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(114, 317), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
+}
 /**
  * Widget constructor will describe my implementation structure and
  * provide meta-data.
@@ -112,6 +134,7 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
 
     addTop3(module, 0);
     addMiddle4(module, 0);
+    addJacks(module, 0);
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
@@ -121,15 +144,7 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
 
 
 
-    addInput(Port::create<PJ301MPort>(Vec(11, 273), Port::INPUT, module, module->vco.PITCH_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(45, 273), Port::INPUT, module, module->vco.FM_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(80, 273), Port::INPUT, module, module->vco.SYNC_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(114, 273), Port::INPUT, module, module->vco.PW_INPUT));
-
-    addOutput(Port::create<PJ301MPort>(Vec(11, 317), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(45, 317), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(80, 317), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(114, 317), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
+ 
 
     //addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(99, 42.5f), module, module->vco.::PHASE_POS_LIGHT));
 }
