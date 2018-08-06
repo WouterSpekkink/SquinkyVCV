@@ -58,13 +58,14 @@ struct FunVWidget : ModuleWidget
     void addMiddle4(FunVModule *, float verticalShift);
     void addJacks(FunVModule *, float verticalShift);
 
-    void addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
+    Label* addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
     {
         Label* label = new Label();
         label->box.pos = v;
         label->text = str;
         label->color = color;
         addChild(label);
+        return label;
     }
 };
 
@@ -81,7 +82,8 @@ void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 
     addParam(ParamWidget::create<Rogan3PSBlue>(Vec(center, 61 + verticalShift),
         module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
-    addLabel(Vec(center +6, 40+ verticalShift), "pitch");
+    auto label = addLabel(Vec(center + 3, 40+ verticalShift), "pitch");
+    label->fontSize = 16;
 
     addParam(ParamWidget::create<NKK>(Vec(right, 66 + verticalShift),
         module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
@@ -93,19 +95,19 @@ void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
 {
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(23, 143 + verticalShift),
         module, module->vco.FINE_PARAM, -1.0f, 1.0f, 0.0f));
-    addLabel(Vec(23, 126 +verticalShift), "fine");
+    addLabel(Vec(25, 124 +verticalShift), "fine");
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 143 + verticalShift),
         module, module->vco.PW_PARAM, 0.0f, 1.0f, 0.5f));
-    addLabel(Vec(91, 126 +verticalShift), "p width");
+    addLabel(Vec(84, 124 +verticalShift), "p width");
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(23, 208 + verticalShift),
         module, module->vco.FM_PARAM, 0.0f, 1.0f, 0.0f));
-    addLabel(Vec(23, 188 +verticalShift), "fm cv");
+    addLabel(Vec(21, 188 +verticalShift), "fm cv");
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 208 + verticalShift),
         module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
-    addLabel(Vec(91, 188 +verticalShift), "pwm cv");
+    addLabel(Vec(84, 188 +verticalShift), "pwm cv");
 
 }
 
