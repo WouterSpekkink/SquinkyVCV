@@ -70,6 +70,7 @@ struct EVWidget : ModuleWidget
 
     void addPWM(EVModule *, float verticalShift);
     void addMiddle(EVModule *, float verticalShift);
+    void addOutputs(EVModule *, float verticalShift);
 };
 
 void EVWidget::addPWM(EVModule * module, float verticalShift)
@@ -92,9 +93,9 @@ void EVWidget::addMiddle(EVModule * module, float verticalShift)
     addInput(Port::create<PJ301MPort>(Vec(8, 120+verticalShift),
         Port::INPUT, module, module->vco.PITCH1_INPUT));
 
-    addInput(Port::create<PJ301MPort>(Vec(29, 157+verticalShift),
+    addInput(Port::create<PJ301MPort>(Vec(31, 157+verticalShift),
         Port::INPUT, module, module->vco.PITCH2_INPUT));
-    addLabel(Vec(29, 180+verticalShift), "cv");
+    addLabel(Vec(31, 180+verticalShift), "cv");
     addInput(Port::create<PJ301MPort>(Vec(58, 194+verticalShift),
         Port::INPUT, module, module->vco.FM_INPUT));
     addLabel(Vec(78, 200+verticalShift), "fm");
@@ -102,6 +103,29 @@ void EVWidget::addMiddle(EVModule * module, float verticalShift)
 
 
 }
+
+void EVWidget::addOutputs(EVModule * module, float verticalShift)
+{
+    const float penultimateRow = 273 + verticalShift;
+    const float penultimateLabelRow = penultimateRow + 24; 
+    
+    addOutput(Port::create<PJ301MPort>(Vec(10, penultimateRow), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+    addLabel(Vec(10, penultimateLabelRow), "tri");
+
+    addOutput(Port::create<PJ301MPort>(Vec(87, penultimateRow), Port::OUTPUT, module, module->vco.SINE_OUTPUT));
+    addLabel(Vec(87, penultimateLabelRow), "sin");
+    
+    const float bottomRow = 317 + verticalShift;            // 320 -> 317 to make room?
+    const float bottomLabelRow = bottomRow + 24;
+
+    addOutput(Port::create<PJ301MPort>(Vec(48, bottomRow), Port::OUTPUT, module, module->vco.EVEN_OUTPUT));
+    addLabel(Vec(48, bottomLabelRow), "even");
+    addOutput(Port::create<PJ301MPort>(Vec(10, bottomRow), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+    addLabel(Vec(10, bottomLabelRow), "saw");
+    addOutput(Port::create<PJ301MPort>(Vec(87, bottomRow), Port::OUTPUT, module, module->vco.SQUARE_OUTPUT));
+    addLabel(Vec(87, bottomLabelRow), "sqr");
+}
+
 
 /**
  * Widget constructor will describe my implementation structure and
@@ -120,6 +144,7 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
 
     addPWM(module, 0);
     addMiddle(module, -8);
+    addOutputs(module, -10);
 
     addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
@@ -130,31 +155,7 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
         module, module->vco.OCTAVE_PARAM, -5.0, 4.0, 0.0));
     auto label = addLabel(Vec(34, 90), "octave");
     label->fontSize = 16;
-   
- 
-    const float penultimateRow = 273;
-    addOutput(Port::create<PJ301MPort>(Vec(10, penultimateRow), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(87, penultimateRow), Port::OUTPUT, module, module->vco.SINE_OUTPUT));
-
-    const float bottomRow = 317;            // 320 -> 317 to make room?
-    addOutput(Port::create<PJ301MPort>(Vec(48, bottomRow), Port::OUTPUT, module, module->vco.EVEN_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(10, bottomRow), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(87, bottomRow), Port::OUTPUT, module, module->vco.SQUARE_OUTPUT));
-
-#if 0
-    addInput(Port::create<PJ301MPort>(
-        Vec(40, 200), Port::INPUT, module, module->vco.CLOCK_INPUT));
-    addOutput(Port::create<PJ301MPort>(
-        Vec(40, 300), Port::OUTPUT, module, module->vco.TRIGGER_OUTPUT));
-
-    // screws
-    addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-#endif
-
-}
+ }
 
 Model *modelEVModule = Model::create<EVModule,
     EVWidget>("Squinky Labs",
