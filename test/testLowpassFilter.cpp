@@ -25,7 +25,7 @@ static void doLowpassTest( std::function<float(float)> filter, T Fc, T expectedS
 
     auto x = Analyzer::getMaxAndShoulders(response, -3);
 
-    const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
+    const double cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
 
     // Is the peak at zero? i.e. no ripple.
     if (std::get<1>(x) == 0) {
@@ -148,7 +148,7 @@ static void test6()
 
 /******************************************************************************************************/
 
-
+#if 0 // not ready for prime time
 template<typename T>
 static void doEllipticTest(std::function<float(float)> filter, T Fc, T expectedSlope)
 {
@@ -202,6 +202,7 @@ static void testElip1()
     doEllipticTest<T>(filter, Fc, -36);
   
 }
+#endif
 
 template<typename T>
 void _testLowpassFilter()
@@ -213,7 +214,6 @@ void _testLowpassFilter()
     test4<T>();
     test5<T>();
     test6<T>();
-    testElip1<T>();
 }
 
 /************ also test decimator here

@@ -47,7 +47,7 @@ public:
     * 2 = high freq
     * dbAtten (typically -3
     */
-    static std::tuple<float, float, float> getMaxAndShouldersFreq(const FFTDataCpx&, float dbAtten, float sampleRate);
+    static std::tuple<double, double, double> getMaxAndShouldersFreq(const FFTDataCpx&, float dbAtten, float sampleRate);
 
     /**
      * Calculates the frequency response of func 

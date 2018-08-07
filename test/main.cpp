@@ -41,8 +41,8 @@ extern void testVCOAlias();
 int main(int argc, char ** argv)
 {
     //testFilterDesign();
-    testVCOAlias();
-#if 0
+   // testVCOAlias();
+
     bool runPerf = false;
     bool extended = false;
     if (argc > 1) {
@@ -110,7 +110,7 @@ int main(int argc, char ** argv)
     if (runPerf) {
         perfTest();
     }
-#endif
+
 
     testFinalLeaks();
 

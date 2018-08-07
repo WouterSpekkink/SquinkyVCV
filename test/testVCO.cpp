@@ -12,18 +12,9 @@
 using EVCO = EvenVCO <TestComposite>;
 using FUN = VoltageControlledOscillator<16,16>;
 
-#if 0
-// Compute frequency, pitch is 1V/oct
-float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
-pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
-pitch += TBase::inputs[FM_INPUT].value / 4.0;
-
-
-// float freq = 261.626 * powf(2.0, pitch);
-#endif
-
 float desiredPitch(const EVCO& vco)
 {
+    // This is just the original code as reference
     float pitch = 1.0f + roundf(vco.params[(int) EVCO::OCTAVE_PARAM].value) + vco.params[(int) EVCO::TUNE_PARAM].value / 12.0f;
     pitch += vco.inputs[(int) EVCO::PITCH1_INPUT].value + vco.inputs[(int) EVCO::PITCH2_INPUT].value;
     pitch += vco.inputs[(int) EVCO::FM_INPUT].value / 4.0f;
@@ -52,38 +43,37 @@ static void testx(float octave, float tune = 0, float pitch1 = 0, float pitch2 =
 
     vco.step();
     const float desired = desiredPitch(vco);
+
     assertClose(vco._freq, desired, 1);     // todo: make better
 }
 
-static void foo()
+static void testInit()
 {
-    float k = 261.626f;
-    float q = log2(k);
-
-    float pitch = 4;
-    float freqOld = k * powf(2.0f, pitch);
-    float freqNew = powf(2.0f, pitch + q);
-    printf("old = %f, new = %f\n", freqOld, freqNew);
-
-    printf("q double = %f\n", log2(261.626));
-
-    //assert(false);
-}
-
-static void test0()
-{
-    testx(3);
-
-#if 1
     EVCO vco;
 
     vco.step();
     const float desired = desiredPitch(vco);
-    assertEQ(vco._freq, desired);
+    assertClose(vco._freq, desired, 1);         // todo: tighten up
+}
+
+static void testOctaves()
+{
+    EVCO vco;
+    for (int octave = -5; octave <= 4; ++octave) {
+        testx(octave);
+    }
+}
+
+static void test0()
+{
+    testOctaves();
+
+#if 1
+
 #endif
 }
 
 void testVCO()
 {
-    test0();
+    testInit();
 }

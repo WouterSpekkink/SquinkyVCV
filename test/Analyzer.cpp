@@ -89,7 +89,7 @@ std::tuple<int, int, int> Analyzer::getMaxAndShoulders(const FFTDataCpx& data, f
     return std::make_tuple(iShoulderLow, maxBin, iShoulderHigh);
 }
 
-std::tuple<float, float, float> Analyzer::getMaxAndShouldersFreq(const FFTDataCpx& data, float atten, float sampleRate)
+std::tuple<double, double, double> Analyzer::getMaxAndShouldersFreq(const FFTDataCpx& data, float atten, float sampleRate)
 {
     auto stats = getMaxAndShoulders(data, atten);
     return  std::make_tuple(FFT::bin2Freq(std::get<0>(stats), sampleRate, data.size()),
@@ -111,8 +111,8 @@ std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, floa
     for (int i = 0; i < data.size() / 2; ++i) {
         const float db = (float) AudioMath::db(std::abs(data.get(i)));
         if ((std::abs(db - lastDb) >= sensitivityDb) && (db > dbMinCutoff)) {
-            float freq = FFT::bin2Freq(i, sampleRate, data.size());
-            FPoint p(freq, db);
+            double freq = FFT::bin2Freq(i, sampleRate, data.size());
+            FPoint p(float(freq), db);
            // printf("feature at bin %d, db=%f raw val=%f\n", i, db, std::abs(data.get(i)));
             ret.push_back(p);
             lastDb = db;
@@ -171,8 +171,8 @@ std::vector<Analyzer::FPoint> Analyzer::getPeaks(const FFTDataCpx& data, float s
 
         if (isPeak) {
         //if ((std::abs(db - lastDb) >= sensitivityDb) && (db > dbMinCutoff)) {
-            float freq = FFT::bin2Freq(i, sampleRate, data.size());
-            FPoint p(freq, (float) db);
+            double freq = FFT::bin2Freq(i, sampleRate, data.size());
+            FPoint p(float(freq), (float) db);
             // printf("feature at bin %d, db=%f raw val=%f\n", i, db, std::abs(data.get(i)));
             ret.push_back(p);
         }
@@ -220,13 +220,13 @@ void Analyzer::getAndPrintFreqOfInterest(const FFTDataCpx& data, float sampleRat
                 a, b, c, d, e
             );
         }
-
-
     }
 
+#if 0
     for (int i = 0; i < data.size() / 2; ++i) {
-        float freq = FFT::bin2Freq(i, sampleRate, data.size());
+        double freq = FFT::bin2Freq(i, sampleRate, data.size());
     }
+#endif
 
 }
 
@@ -362,13 +362,13 @@ void Analyzer::assertSingleFreq(const FFTDataCpx& spectrum, float expectedFreq, 
 {
     assert(expectedFreq < (sampleRate / 2));
     int maxBin = Analyzer::getMax(spectrum);
-    float maxFreq = FFT::bin2Freq(maxBin, sampleRate, spectrum.size());
+    double maxFreq = FFT::bin2Freq(maxBin, sampleRate, spectrum.size());
 
     int nextMaxBin = Analyzer::getMaxExcluding(spectrum, maxBin);
     float maxPower = std::abs(spectrum.get(maxBin));
     float nextMaxPower = std::abs(spectrum.get(nextMaxBin));
 
-    float spuriousDb = (float) AudioMath::db(nextMaxPower / maxPower);
+    double spuriousDb =  AudioMath::db(nextMaxPower / maxPower);
 
     assertClose(maxFreq, expectedFreq, 1);
     assertLE(spuriousDb, 70);
