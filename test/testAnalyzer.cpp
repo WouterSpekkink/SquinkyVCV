@@ -79,14 +79,14 @@ static void testSyncSin()
 
     SinOscillatorParams<float> sinParams;
     SinOscillatorState<float> sinState;
-    SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
+    SinOscillator<float, false>::setFrequency(sinParams, float(actualFreq / sampleRate));
 
     FFTDataCpx spectrum(numSamples);
     Analyzer::getSpectrum(spectrum, false, [&sinState, &sinParams]() {
         return SinOscillator<float, false>::run(sinState, sinParams);
         });
 
-    Analyzer::assertSingleFreq(spectrum, actualFreq, sampleRate);
+    Analyzer::assertSingleFreq(spectrum, float(actualFreq), sampleRate);
 }
 
 

@@ -115,8 +115,7 @@ inline void LookupTableFactory<T>::makeExp2ExHigh(LookupTableParams<T>& params)
 template<typename T>
 inline void LookupTableFactory<T>::makeExp2ExLow(LookupTableParams<T>& params)
 {
-
-    const int bins = 64;
+    const int bins = 128;
     const T xMin = (T) std::log2(exp2ExLowYMin());
     const T xMax = (T) std::log2(exp2ExLowYMax());
     assert(xMin < xMax);

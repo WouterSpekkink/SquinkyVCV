@@ -37,7 +37,7 @@ LowpassStats characterizeLowpassFilter(std::function<float(float)> filter, float
     float minDb = 100;
     for (int i = 0; i < numSamples; ++i) {
         const float db = (float) AudioMath::db(std::abs(response.get(i)));
-        const float freq = FFT::bin2Freq(i, sampleRate, numSamples);
+        const double freq = FFT::bin2Freq(i, sampleRate, numSamples);
 
         if (inPassBand && db < _3DbDown) {
             ret.passBandStop = freq;

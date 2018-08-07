@@ -35,7 +35,7 @@ static void testPureTerm(int term)
 
     SinOscillatorParams<float> sinParams;
     SinOscillatorState<float> sinState;
-    SinOscillator<float, false>::setFrequency(sinParams, actualFreq / sampleRate);
+    SinOscillator<float, false>::setFrequency(sinParams, float(actualFreq / sampleRate));
 
     Poly<double, 11> poly;
     poly.setGain(term, 1);
@@ -48,7 +48,7 @@ static void testPureTerm(int term)
         });
 
     const int order = term + 1;
-    Analyzer::assertSingleFreq(spectrum, actualFreq * order, sampleRate);
+    Analyzer::assertSingleFreq(spectrum, float(actualFreq * order), sampleRate);
 }
 
 static void testTerms()

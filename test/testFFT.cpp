@@ -210,7 +210,7 @@ static void testPinkNoise()
     // pick a starting bin above our 40 hz low freq corner
     const int baseBin = 16;
     //float freqBase = 44100 * baseBin / (float) bins;
-    const float freqBase = FFT::bin2Freq(baseBin, 44100, bins);
+    const double freqBase = FFT::bin2Freq(baseBin, 44100, bins);
     assertGT(freqBase, 80);
 
     // mid-band, quadruple freq should reduce amp by 6db
