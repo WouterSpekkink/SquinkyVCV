@@ -20,7 +20,7 @@ float desiredPitch(const EVCO& vco)
     pitch += vco.inputs[(int) EVCO::FM_INPUT].value / 4.0f;
 
     float freq = 261.626f * powf(2.0f, pitch);
-    printf("theirs: pitch = %f exp = %f\n", pitch, freq);
+   // printf("theirs: pitch = %f exp = %f\n", pitch, freq);
     return freq;
 }
 
@@ -44,9 +44,16 @@ static void testx(float octave, float tune = 0, float pitch1 = 0, float pitch2 =
     vco.step();
     const float desired = desiredPitch(vco);
 
-    assertClose(vco._freq, desired, 1);     // todo: make better
+    printf("test, oct=%f, freq=%.2f desired=%.2f\n", octave, vco._freq, desired);
+    assertClose(vco._freq, desired, 1.5);     // todo: make better
 }
 
+/*
+octave: -5 to 4
+tune: -7 to 7
+pitch1: ? -5,5?
+
+ */
 static void testInit()
 {
     EVCO vco;
@@ -64,16 +71,25 @@ static void testOctaves()
     }
 }
 
-static void test0()
+// test that we go up to 20k
+static void testMaxFreq()
 {
-    testOctaves();
+    testx(4, 7, 0, 0);
+    testx(4, 7, 1, 0);
+    testx(4, 7, 0, 1);
+ 
+}
 
-#if 1
-
-#endif
+static void testMinFreq()
+{
+    testx(-5, -7, 0, 0);
+    testx(-5, -7, -2, 0);
 }
 
 void testVCO()
 {
     testInit();
+    testOctaves();
+    testMaxFreq();
+    testMinFreq();
 }
