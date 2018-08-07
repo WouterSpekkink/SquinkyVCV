@@ -103,6 +103,12 @@ template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2;
 
 template <typename T>
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2exl;
+
+template <typename T>
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2exh;
+
+template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::db2Gain;
 
 template <typename T>

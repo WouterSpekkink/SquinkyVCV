@@ -24,6 +24,16 @@ public:
         return 20 * log(g) / Ln10;
     }
 
+    static double cents(double f1, double f2)
+    {
+        return 1200 * std::log2(f1 / f2);
+    }
+
+    static double acents(double f1, double f2)
+    {
+        return std::abs(cents(f1, f2));
+    }
+
     static double gainFromDb(double db)
     {
         return std::exp(Ln10 * db / 20.0);

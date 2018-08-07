@@ -31,6 +31,13 @@ public:
      * accuracy = 1 cent (1V/octave)
      */
     static std::shared_ptr<LookupTableParams<T>> getExp2();
+#if 0
+    static std::shared_ptr<LookupTableParams<T>> getExp2ExtendedLow();
+    static std::shared_ptr<LookupTableParams<T>> getExp2ExtendedHigh();
+    std::function<T(T)> getExp2Extended();
+#endif
+
+
     static std::shared_ptr<LookupTableParams<T>> getDb2Gain();
 
     /**
@@ -47,6 +54,8 @@ private:
     static std::weak_ptr<LookupTableParams<T>> audioTaper;
     static std::weak_ptr<LookupTableParams<T>> sinLookupTable;
     static std::weak_ptr<LookupTableParams<T>> exp2;
+    static std::weak_ptr<LookupTableParams<T>> exp2exl;
+    static std::weak_ptr<LookupTableParams<T>> exp2exh;
     static std::weak_ptr<LookupTableParams<T>> db2Gain;
     static std::weak_ptr<LookupTableParams<T>> tanh5;
 };

@@ -164,8 +164,8 @@ static void testExpSimpleLookup()
     LookupTableParams<T> lookup;
     LookupTableFactory<T>::makeExp2(lookup);
 
-    const double xMin = LookupTableFactory<T>::expXMin();
-    const double xMax = LookupTableFactory<T>::expXMax();
+    const double xMin = LookupTableFactory<T>::exp2XMin();
+    const double xMax = LookupTableFactory<T>::exp2XMax();
     assert(5 > xMin);
     assert(11 < xMax);
     assertClose(LookupTable<T>::lookup(lookup, 5), std::pow(2, 5), .01);
@@ -193,16 +193,52 @@ static void testExpRange()
 template<typename T>
 static void testExpTolerance(T centsTolerance)
 {
-    const T xMin = (T) LookupTableFactory<T>::expXMin();
-    const T xMax = (T) LookupTableFactory<T>::expXMax();
+    const T xMin = (T) LookupTableFactory<T>::exp2XMin();
+    const T xMax = (T) LookupTableFactory<T>::exp2XMax();
 
     LookupTableParams<T> table;
     LookupTableFactory<T>::makeExp2(table);
     for (T x = xMin; x <= xMax; x += T(.0001)) {
         T y = LookupTable<T>::lookup(table, x);            // and back
         double accurate = std::pow(2.0, x);
-        double errorCents = std::abs(1200.0 * std::log2(y / accurate));
+        double errorCents = AudioMath::acents(y, accurate);
         assertClose(errorCents, 0, centsTolerance);
+    }
+}
+
+template<typename T>
+static void testExp2HiTolerance(T centsTolerance, T hzTolerance)
+{
+    const T xMin = (T) LookupTableFactory<T>::exp2ExHighXMin();
+    const T xMax = (T) LookupTableFactory<T>::exp2ExHighXMax();
+
+    LookupTableParams<T> table;
+    LookupTableFactory<T>::makeExp2ExHigh(table);
+    for (T x = xMin; x <= xMax; x += T(.0001)) {
+        T y = LookupTable<T>::lookup(table, x);            // and back
+        double accurate = std::pow(2.0, x);
+        double errorCents = AudioMath::acents(y, accurate);
+        assertClose(errorCents, 0, centsTolerance);
+        const double errorHz = std::abs(y - accurate);
+        assertClose(errorHz, 0, hzTolerance);
+    }
+}
+
+template<typename T>
+static void testExp2LowTolerance(T centsTolerance, T hzTolerance)
+{
+    const T xMin = (T) LookupTableFactory<T>::exp2ExLowXMin();
+    const T xMax = (T) LookupTableFactory<T>::exp2ExLowXMax();
+
+    LookupTableParams<T> table;
+    LookupTableFactory<T>::makeExp2ExLow(table);
+    for (T x = xMin; x <= xMax; x += T(.0001)) {
+        T y = LookupTable<T>::lookup(table, x);            // and back
+        double accurate = std::pow(2.0, x);
+        double errorCents = AudioMath::acents(y, accurate);
+        assertClose(errorCents, 0, centsTolerance);
+        const double errorHz = std::abs(y - accurate);
+        assertClose(errorHz, 0, hzTolerance);
     }
 }
 
@@ -291,9 +327,13 @@ static void test()
     testDiscrete1<T>();
     testDiscrete2<T>();
     testExpSimpleLookup<T>();
-    testExpTolerance<T>(100);   // 1 semitone
-    testExpTolerance<T>(10);
-    testExpTolerance<T>(1);
+    testExpTolerance<T>(1);     // 1 cent
+    testExp2HiTolerance<T>(100, 10);
+    testExp2HiTolerance<T>(10, 1);
+    testExp2HiTolerance<T>(1, T(.1));
+    testExp2LowTolerance<T>(100, 10);
+    testExp2LowTolerance<T>(10, 1);
+    testExp2LowTolerance<T>(1, T(.1));
     testBipolarSimpleLookup<T>();
     testBipolarTolerance<T>();
     testAudioTaperSimpleLookup<T>();

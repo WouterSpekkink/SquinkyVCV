@@ -44,7 +44,7 @@ static void testx(float octave, float tune = 0, float pitch1 = 0, float pitch2 =
     vco.step();
     const float desired = desiredPitch(vco);
 
-    printf("test, oct=%f, freq=%.2f desired=%.2f\n", octave, vco._freq, desired);
+   // printf("test, oct=%f, freq=%.2f desired=%.2f\n", octave, vco._freq, desired);
     assertClose(vco._freq, desired, 1.5);     // todo: make better
 }
 
