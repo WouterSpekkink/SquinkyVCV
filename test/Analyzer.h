@@ -50,13 +50,13 @@ public:
     static std::tuple<double, double, double> getMaxAndShouldersFreq(const FFTDataCpx&, float dbAtten, float sampleRate);
 
     /**
-     * Calculates the frequency response of func 
+     * Calculates the frequency response of func
      * by calling it with a known test signal.
      */
     static void getFreqResponse(FFTDataCpx& out, std::function<float(float)> func);
 
     /**
-     * Calculates the spectrum of func 
+     * Calculates the spectrum of func
      * by calling it can capturing its output
      */
     static void getSpectrum(FFTDataCpx& out, bool useWindow, std::function<float()> func);
@@ -66,7 +66,7 @@ public:
     static void generateSweep(float sampleRate, float* out, int numSamples, float minFreq, float maxFreq);
 
     /**
-     * Adjusts desiredFreq to a frequency that is close, but is an exact division of 
+     * Adjusts desiredFreq to a frequency that is close, but is an exact division of
      * numSamples.
      */
     static double makeEvenPeriod(double desiredFreq, double sampleRate, int numSamples);

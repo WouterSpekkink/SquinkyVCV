@@ -19,7 +19,7 @@ static void testPeak(std::function<float(float)> filter, float sampleRate, float
     double maxFreq = (FFT::bin2Freq(maxBin, 44100, numSamples) +
         FFT::bin2Freq(maxBin + 1, 44100, numSamples)) / 2;
 
-    const float delta = expectedMax * percentTolerance / 100.f ;      // One percent accuracy
+    const float delta = expectedMax * percentTolerance / 100.f;      // One percent accuracy
 
     // printf("expected: %f actual %f\n", expectedMax, maxFreq);
 

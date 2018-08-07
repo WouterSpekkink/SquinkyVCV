@@ -10,7 +10,7 @@
 
 
 using EVCO = EvenVCO <TestComposite>;
-using FUN = VoltageControlledOscillator<16,16>;
+using FUN = VoltageControlledOscillator<16, 16>;
 
 float desiredPitch(const EVCO& vco)
 {
@@ -77,7 +77,7 @@ static void testMaxFreq()
     testx(4, 7, 0, 0);
     testx(4, 7, 1, 0);
     testx(4, 7, 0, 1);
- 
+
 }
 
 static void testMinFreq()

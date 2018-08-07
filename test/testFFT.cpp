@@ -180,7 +180,7 @@ static void testNoiseRTSub(int bins)
 
     const float peak = getPeak(*dataReal);
 
-    assertClose( peak, 2.0f , .001);
+    assertClose(peak, 2.0f, .001);
 }
 
 static void testNoiseRT()

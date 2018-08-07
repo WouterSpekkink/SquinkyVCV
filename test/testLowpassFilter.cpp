@@ -17,7 +17,7 @@ static void test0()
 
 const float sampleRate = 44100;
 template<typename T>
-static void doLowpassTest( std::function<float(float)> filter, T Fc, T expectedSlope)
+static void doLowpassTest(std::function<float(float)> filter, T Fc, T expectedSlope)
 {
     const int numSamples = 16 * 1024;
     FFTDataCpx response(numSamples);
@@ -152,8 +152,8 @@ static void test6()
 template<typename T>
 static void doEllipticTest(std::function<float(float)> filter, T Fc, T expectedSlope)
 {
-     const int numSamples = 16 * 1024;
-    //const int numSamples = 1024;
+    const int numSamples = 16 * 1024;
+   //const int numSamples = 1024;
     FFTDataCpx response(numSamples);
     Analyzer::getFreqResponse(response, filter);
 
@@ -200,7 +200,7 @@ static void testElip1()
         return x;
     };
     doEllipticTest<T>(filter, Fc, -36);
-  
+
 }
 #endif
 

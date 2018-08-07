@@ -290,7 +290,7 @@ static void ts2()
 
     bool firstTime = true;
     // first time through, 4 clocks of nothing. then clock, 0,0,0
-    for (int i = 0; i< 4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         ts.clock();
         if (firstTime) {
             assert(!ts.getTrigger()); assert(!ts.getEnd());
@@ -330,7 +330,7 @@ static void ts3()
 
 
     bool firstLoop = true;
-    for (int i = 0; i< 4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         //printf("--- loop ----\n");
 
         // 1
@@ -373,11 +373,11 @@ static void ts4()
 
 
     //bool firstLoop = true;
-    for (int i = 0; i< 100; ++i) {
+    for (int i = 0; i < 100; ++i) {
         bool firstTime = (i == 0);
         // repeating pattern of trigg, no, no, no
-        for (int j = 0; j<4; ++j) {
-            for (int k = 0; k<4; ++k) {
+        for (int j = 0; j < 4; ++j) {
+            for (int k = 0; k < 4; ++k) {
                 //	printf("test loop, i=%d, j=%d, k=%d\n", i, j, k);
                 ts.clock();
 
@@ -400,7 +400,7 @@ static void ts4()
 void gdt1()
 {
     assert(StochasticGrammarDictionary::getNumGrammars() > 0);
-    for (int i = 0; i< StochasticGrammarDictionary::getNumGrammars(); ++i) {
+    for (int i = 0; i < StochasticGrammarDictionary::getNumGrammars(); ++i) {
         StochasticGrammarDictionary::Grammar g = StochasticGrammarDictionary::getGrammar(i);
         bool b = ProductionRule::isGrammarValid(g.rules, g.numRules, g.firstRule);
         assert(b);
@@ -419,7 +419,7 @@ static void gtg0()
     GenerativeTriggerGenerator gtg(AudioMath::random(), rules, numRules, key);
     bool yes = false;
     bool no = false;
-    for (int i = 0; i<100000; ++i) {
+    for (int i = 0; i < 100000; ++i) {
         if (gtg.clock())
             yes = true;
         else
@@ -444,7 +444,7 @@ static void gtg1()
     GenerativeTriggerGenerator gtg(AudioMath::random(), rules, numRules, key);
 
     int ct = 0;
-    for (int i = 0; i<10000; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         bool b = gtg.clock();
         if (b) {
             //printf("clocked at %d\n", ct);

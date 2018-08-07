@@ -37,11 +37,11 @@ static void testPitchQuantize()
     SinOscillatorParams<double> params;
     SinOscillatorState<double> state;
     SinOscillator<double, false>::setFrequency(params, 1.0 / 4.0);
-   
+
     // check that spectrum has only a single freq
     std::function<float()> func = [&state, &params]() {
         return float(30 * SinOscillator<double, false>::run(state, params));
-        };
+    };
     FFTDataCpx spectrum(numSamples);
 
 
@@ -50,8 +50,7 @@ static void testPitchQuantize()
         const float abs = spectrum.getAbs(i);
         if (i == 4) {
             assertGE(abs, .5);
-        }
-        else {
+        } else {
             assertLT(abs, 0.000000001);
         }
     }
@@ -94,8 +93,8 @@ inline void FrequencySets::adjustFrequencies()
     int tries = 0;
     while (adjustFrequencies1()) {
         ++tries;
-   }
-   //printf("adjust moved %d\n", tries);
+    }
+    //printf("adjust moved %d\n", tries);
 }
 
 inline bool FrequencySets::adjustFreqHelper(int bin, int tryBin, std::set<double>& set, const FFTDataCpx& spectrum)
@@ -140,7 +139,7 @@ inline bool FrequencySets::adjustFrequencies1()
 
 
 inline FrequencySets::FrequencySets(double fundamental, double sampleRate, const FFTDataCpx& spectrum) :
-      spectrum(spectrum)
+    spectrum(spectrum)
 {
     const double nyquist = sampleRate / 2;
     bool done = false;
@@ -174,9 +173,9 @@ inline void expandHelper(double& maxDb, bool& done, int& i, int deltaI, const FF
             done = true;
         } else {
             //const double oldFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
-           const double newFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
-           if (newFreq < 900 && newFreq > 800)     
-               printf("inserting new freq %f db=%f m=%f\n ", newFreq, db, maxDb);
+            const double newFreq = FFT::bin2Freq(i, sampleRate, spectrum.size());
+            if (newFreq < 900 && newFreq > 800)
+                printf("inserting new freq %f db=%f m=%f\n ", newFreq, db, maxDb);
             maxDb = std::max(maxDb, db);
             f.insert(newFreq);
         }
@@ -197,7 +196,7 @@ inline void FrequencySets::expandFrequencies(std::set<double>& f, const FFTDataC
         // search upward
         bool done;
         int i;
-        for (i = bin + 1, done = false; !done ; ) {
+        for (i = bin + 1, done = false; !done; ) {
             expandHelper(maxDb, done, i, 1, spectrum, f);
         }
 
@@ -225,7 +224,7 @@ inline void FrequencySets::expandFrequencies()
     //dump("before expand freq", spectrum);
     expandFrequencies(harmonics, spectrum);
     expandFrequencies(alias, spectrum);
- 
+
 
     //dump("after expand freq", spectrum);
     assert(checkOverlap());
@@ -292,7 +291,7 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
     double totalAliasBelow5 = 0;
 
     // let's look at every spectrum line
-    for (int i=1; i<numSamples/2; ++i) {
+    for (int i = 1; i < numSamples / 2; ++i) {
         const double freq = FFT::bin2Freq(i, sampleRate, numSamples);
         const double mag = spectrum.getAbs(i);
     //    const double db = AudioMath::db(mag);
@@ -315,7 +314,7 @@ void testAlias(std::function<float()> func, double fundamental, int numSamples)
             totalAliasA += magA;
             if (above5k) {
                 totalAliasOver5 += mag;
-            }else {
+            } else {
                 totalAliasBelow5 += mag;
             }
         }

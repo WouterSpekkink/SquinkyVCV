@@ -55,7 +55,7 @@ static void testTerms()
 {
     for (int i = 0; i < 10; ++i) {
         testPureTerm(i);
-   }    
+    }
 }
 
 void testPoly()

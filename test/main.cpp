@@ -49,8 +49,7 @@ int main(int argc, char ** argv)
         std::string arg = argv[1];
         if (arg == "--ext") {
             extended = true;
-        }
-        else if (arg == "--perf") {
+        } else if (arg == "--perf") {
             runPerf = true;
         }
     }
@@ -77,12 +76,12 @@ int main(int argc, char ** argv)
 
 
     testPoly();
-   
+
 
     testSinOscillator();
     testHilbert();
     testVCO();
-   
+
 
     testFFT();
     testAnalyzer();
@@ -97,7 +96,7 @@ int main(int argc, char ** argv)
 
     testLowpassFilter();
     testFilter();
-    
+
     testStochasticGrammar();
     testGMR();
 

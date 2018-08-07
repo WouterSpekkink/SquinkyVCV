@@ -205,7 +205,7 @@ void Analyzer::getAndPrintFreqOfInterest(const FFTDataCpx& data, float sampleRat
         int bin = FFT::freqToBin((float) freq, sampleRate, data.size());
         if (bin > 2 && bin < data.size() - 2) {
 
-;
+            ;
             double a = AudioMath::db(std::abs(data.get(bin - 2)));
             double b = AudioMath::db(std::abs(data.get(bin - 1)));
             double c = AudioMath::db(std::abs(data.get(bin)));
@@ -265,7 +265,7 @@ void Analyzer::getFreqResponse(FFTDataCpx& out, std::function<float(float)> func
         const cpx x = (std::abs(testSpectrum.get(i)) == 0) ? 0 :
             spectrum.get(i) / testSpectrum.get(i);
         out.set(i, x);
-}
+    }
 
 #if 0
     for (int i = 0; i < numSamples; ++i) {
@@ -368,7 +368,7 @@ void Analyzer::assertSingleFreq(const FFTDataCpx& spectrum, float expectedFreq, 
     float maxPower = std::abs(spectrum.get(maxBin));
     float nextMaxPower = std::abs(spectrum.get(nextMaxBin));
 
-    double spuriousDb =  AudioMath::db(nextMaxPower / maxPower);
+    double spuriousDb = AudioMath::db(nextMaxPower / maxPower);
 
     assertClose(maxFreq, expectedFreq, 1);
     assertLE(spuriousDb, 70);
