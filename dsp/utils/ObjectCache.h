@@ -57,8 +57,6 @@ private:
     static std::weak_ptr<LookupTableParams<T>> exp2;
     static std::weak_ptr<LookupTableParams<T>> exp2ExHigh;
     static std::weak_ptr<LookupTableParams<T>> exp2ExLow;
-   // static std::weak_ptr<LookupTableParams<T>> exp2exl;
-  //  static std::weak_ptr<LookupTableParams<T>> exp2exh;
     static std::weak_ptr<LookupTableParams<T>> db2Gain;
     static std::weak_ptr<LookupTableParams<T>> tanh5;
 };

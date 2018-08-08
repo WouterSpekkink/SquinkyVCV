@@ -49,6 +49,7 @@ public:
     {
         return  2;
     }
+    
     static double exp2ExLowYMax()
     {
         return  400;
@@ -104,7 +105,7 @@ inline void LookupTableFactory<T>::makeExp2(LookupTableParams<T>& params)
 template<typename T>
 inline void LookupTableFactory<T>::makeExp2ExHigh(LookupTableParams<T>& params)
 {
-    const int bins = 256;
+    const int bins = 512;
     const T xMin = (T) std::log2(exp2ExHighYMin());
     const T xMax = (T) std::log2(exp2ExHighYMax());
     assert(xMin < xMax);

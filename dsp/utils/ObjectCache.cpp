@@ -113,20 +113,23 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getTanh5()
     return ret;
 }
 
+/**
+ * Lambda capture two smart pointers to lookup table params,
+ * so lifetime of the lambda control their reft.
+ */
 template <typename T>
 std::function<T(T)> ObjectCache<T>::getExp2Ex()
 {
     std::shared_ptr < LookupTableParams<T>> low = getExp2ExtendedLow();
     std::shared_ptr < LookupTableParams<T>> high = getExp2ExtendedHigh();
-    return [low, high](T x) {
-        auto params = (x < LookupTableFactory<T>::exp2ExHighXMin()) ? low : high;
+    const T xDivide = (T) LookupTableFactory<T>::exp2ExHighXMin();
+    return [low, high, xDivide](T x) {
+        auto params = (x < xDivide) ? low : high;
         return LookupTable<T>::lookup(*params, x, false);
-            
-        //    (x < LookupTableFactory<T>::exp2ExHighXMin()) ? 
     };
 }
 
-// The weak pointer that hold our singletons.
+// The weak pointers that hold our singletons.
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::bipolarAudioTaper;
 
