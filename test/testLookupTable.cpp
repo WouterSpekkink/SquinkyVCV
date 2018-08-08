@@ -379,13 +379,8 @@ static void test()
 
     testExpTolerance<T>(1);     // 1 cent
 
-    // with flawed tests, I was able to get hi: .125, .1 with 256
-    // with fixed test .125, .125 is limit
-    // to hit .07, try move cutoff 400 ->800
     testExp2HiTolerance<T>(.125, T(.05));
     testExp2LowTolerance<T>(.125, T(.05));
-
-    // TODO: why is combined so much worse?
     testExp2CombinedTolerance<T>(.125, T(.5));
 
     testBipolarSimpleLookup<T>();

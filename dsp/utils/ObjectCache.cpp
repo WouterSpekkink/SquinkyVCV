@@ -125,7 +125,7 @@ std::function<T(T)> ObjectCache<T>::getExp2Ex()
     const T xDivide = (T) LookupTableFactory<T>::exp2ExHighXMin();
     return [low, high, xDivide](T x) {
         auto params = (x < xDivide) ? low : high;
-        return LookupTable<T>::lookup(*params, x, false);
+        return LookupTable<T>::lookup(*params, x, true);
     };
 }
 

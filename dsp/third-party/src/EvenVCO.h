@@ -107,7 +107,7 @@ struct EvenVCO : TBase
     float tri = 0.0;
 
     std::shared_ptr<LookupTableParams<float>> sinLookup;
-    std::shared_ptr<LookupTableParams<float>> expLookup;
+    std::function<float(float)> expLookup;
 
     /** Whether we are past the pulse width already */
     bool halfPhase = false;
@@ -172,8 +172,8 @@ inline void EvenVCO<TBase>::initialize()
 
     sinLookup = ObjectCache<float>::getSinLookup();
     // get reference to table of 2 ** x
-    // TODO: this table gives up at low freq - fix that
-    expLookup = ObjectCache<float>::getExp2();
+
+    expLookup = ObjectCache<float>::getExp2Ex();
 }
 
 template <class TBase>
@@ -388,7 +388,7 @@ void EvenVCO<TBase>::step()
     // Note: this lookup may not be accurate enough or cover enough range.
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
-    _freq = LookupTable<float>::lookup(*expLookup, pitch, true);
+    _freq = expLookup(pitch);
     //printf("mine: pitch = %f exp = %f\n", pitch, _freq);
 #else
 
