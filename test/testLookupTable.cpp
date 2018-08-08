@@ -206,9 +206,29 @@ static void testExpTolerance(T centsTolerance)
     }
 }
 
+
+template<typename T>
+static void testExpTolerance2(T centsTolerance, T hzTolerance)
+{
+    const T xMin = (T) LookupTableFactory<T>::exp2XMin();
+    const T xMax = (T) LookupTableFactory<T>::exp2XMax();
+
+    LookupTableParams<T> table;
+    LookupTableFactory<T>::makeExp2(table);
+    for (T x = xMin; x <= xMax; x += T(.0001)) {
+        T y = LookupTable<T>::lookup(table, x);            // and back
+        double accurate = std::pow(2.0, x);
+        double errorCents = AudioMath::acents(y, accurate);
+        assertClose(errorCents, 0, centsTolerance);
+        const double errorHz = std::abs(y - accurate);
+        assertClose(errorHz, 0, hzTolerance);
+    }
+}
+
 template<typename T>
 static void testExp2HiTolerance(T centsTolerance, T hzTolerance)
 {
+
     const T xMin = (T) LookupTableFactory<T>::exp2ExHighXMin();
     const T xMax = (T) LookupTableFactory<T>::exp2ExHighXMax();
 
@@ -220,6 +240,11 @@ static void testExp2HiTolerance(T centsTolerance, T hzTolerance)
         double errorCents = AudioMath::acents(y, accurate);
         assertClose(errorCents, 0, centsTolerance);
         const double errorHz = std::abs(y - accurate);
+
+        // relax limits at high freq
+        if (y > 2000) hzTolerance *= 1.1f;
+        else if (y > 3000) hzTolerance *= 2;
+        else if (y > 5000) hzTolerance *= 4;
         assertClose(errorHz, 0, hzTolerance);
     }
 }
@@ -327,13 +352,11 @@ static void test()
     testDiscrete1<T>();
     testDiscrete2<T>();
     testExpSimpleLookup<T>();
+
     testExpTolerance<T>(1);     // 1 cent
-    testExp2HiTolerance<T>(100, 10);
-    testExp2HiTolerance<T>(10, 1);
-    testExp2HiTolerance<T>(1, T(.1));
-    testExp2LowTolerance<T>(100, 10);
-    testExp2LowTolerance<T>(10, 1);
-    testExp2LowTolerance<T>(1, T(.1));
+    testExp2HiTolerance<T>(.125, T(.1));
+    testExp2LowTolerance<T>(.125, T(.05));
+
     testBipolarSimpleLookup<T>();
     testBipolarTolerance<T>();
     testAudioTaperSimpleLookup<T>();
@@ -342,6 +365,7 @@ static void test()
 
 void testLookupTable()
 {
-    test<float>();
+  
     test<double>();
+    test<float>();
 }

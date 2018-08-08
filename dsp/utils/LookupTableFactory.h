@@ -51,7 +51,7 @@ public:
     }
     static double exp2ExLowYMax()
     {
-        return  200;
+        return  400;
     }
     static double exp2ExLowXMin()
     {
@@ -65,7 +65,7 @@ public:
     static void makeExp2ExHigh(LookupTableParams<T>& params);
     static double exp2ExHighYMin()
     {
-        return  200;
+        return  400;
     }
     static double exp2ExHighYMax()
     {
@@ -88,7 +88,7 @@ public:
 template<typename T>
 inline void LookupTableFactory<T>::makeExp2(LookupTableParams<T>& params)
 {
-    // 128 not enough for one cent
+    // 256 enough for one cent
     const int bins = 256;
     const T xMin = (T) std::log2(exp2YMin());
     const T xMax = (T) std::log2(exp2YMax());
@@ -98,12 +98,13 @@ inline void LookupTableFactory<T>::makeExp2(LookupTableParams<T>& params)
         });
 }
 
+// hit specs with 256 / 128 @200 crossover
+// try 800 ng - need 256/256
+// 400 need 256 / 128
 template<typename T>
 inline void LookupTableFactory<T>::makeExp2ExHigh(LookupTableParams<T>& params)
 {
-    // TODO: shrink this table
-    // 256 can't get .1 hz
-    const int bins = 1024;
+    const int bins = 256;
     const T xMin = (T) std::log2(exp2ExHighYMin());
     const T xMax = (T) std::log2(exp2ExHighYMax());
     assert(xMin < xMax);
@@ -115,7 +116,7 @@ inline void LookupTableFactory<T>::makeExp2ExHigh(LookupTableParams<T>& params)
 template<typename T>
 inline void LookupTableFactory<T>::makeExp2ExLow(LookupTableParams<T>& params)
 {
-    const int bins = 128;
+    const int bins = 256;
     const T xMin = (T) std::log2(exp2ExLowYMin());
     const T xMax = (T) std::log2(exp2ExLowYMax());
     assert(xMin < xMax);
