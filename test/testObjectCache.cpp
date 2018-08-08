@@ -198,6 +198,16 @@ static void testTanh5()
     }
 }
 
+
+template <typename T>
+static void testExp2Ex()
+{
+    auto f = ObjectCache<T>::getExp2Ex();
+    assertEQ(_numLookupParams, 2);
+}
+
+
+
 template <typename T>
 static void test()
 {
@@ -209,6 +219,7 @@ static void test()
     testDb2Gain<T>();
     testDb2Gain2<T>();
     testTanh5<T>();
+    testExp2Ex<T>();
 }
 
 void testObjectCache()

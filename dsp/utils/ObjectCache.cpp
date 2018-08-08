@@ -58,6 +58,30 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getExp2()
     return ret;
 }
 
+template <typename T>
+std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getExp2ExtendedLow()
+{
+    std::shared_ptr< LookupTableParams<T>> ret = exp2ExLow.lock();
+    if (!ret) {
+        ret = std::make_shared<LookupTableParams<T>>();
+        LookupTableFactory<T>::makeExp2ExLow(*ret);
+        exp2ExLow = ret;
+    }
+    return ret;
+}
+
+template <typename T>
+std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getExp2ExtendedHigh()
+{
+    std::shared_ptr< LookupTableParams<T>> ret = exp2ExHigh.lock();
+    if (!ret) {
+        ret = std::make_shared<LookupTableParams<T>>();
+        LookupTableFactory<T>::makeExp2ExHigh(*ret);
+        exp2ExHigh = ret;
+    }
+    return ret;
+}
+
 
 
 template <typename T>
@@ -89,6 +113,19 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getTanh5()
     return ret;
 }
 
+template <typename T>
+std::function<T(T)> ObjectCache<T>::getExp2Ex()
+{
+    std::shared_ptr < LookupTableParams<T>> low = getExp2ExtendedLow();
+    std::shared_ptr < LookupTableParams<T>> high = getExp2ExtendedHigh();
+    return [low, high](T x) {
+        auto params = (x < LookupTableFactory<T>::exp2ExHighXMin()) ? low : high;
+        return LookupTable<T>::lookup(*params, x, false);
+            
+        //    (x < LookupTableFactory<T>::exp2ExHighXMin()) ? 
+    };
+}
+
 // The weak pointer that hold our singletons.
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::bipolarAudioTaper;
@@ -103,10 +140,10 @@ template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2;
 
 template <typename T>
-std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2exl;
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2ExLow;
 
 template <typename T>
-std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2exh;
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2ExHigh;
 
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::db2Gain;
