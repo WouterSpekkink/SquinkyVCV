@@ -384,14 +384,13 @@ void EvenVCO<TBase>::step()
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
-#if 1
-    // Note: this lookup may not be accurate enough or cover enough range.
+#if 0
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
     _freq = expLookup(pitch);
     //printf("mine: pitch = %f exp = %f\n", pitch, _freq);
 #else
-
+    // It turns out this is just as fast as a lookup table
     _freq = 261.626 * powf(2.0, pitch);
     _freq = clamp(_freq, 0.0f, 20000.0f);
 #endif

@@ -133,7 +133,7 @@ struct VoltageControlledOscillator
     {
         sinLookup = ObjectCache<float>::getSinLookup();
 
-    
+
         // first guess - an octave below nyquist .25   
         float cutoff = .25f / float(OVERSAMPLE);
 
@@ -145,10 +145,10 @@ struct VoltageControlledOscillator
 
     // TODO: what is the range of the one in VCV?
     std::default_random_engine generator{99};
-    std::normal_distribution<double> distribution{-1.0, 1.0};
+    std::normal_distribution<double> distribution{0, 1.0};
     float noise()
     {
-        return  (float) distribution(generator);
+        return (float) distribution(generator);
     }
 
     void setPitch(float pitchKnob, float pitchCv)
@@ -165,98 +165,17 @@ struct VoltageControlledOscillator
         }
         pitch += pitchCv;
         // Note C4
-         freq = 261.626f * powf(2.0f, pitch / 12.0f);
+        freq = 261.626f * powf(2.0f, pitch / 12.0f);
     }
     void setPulseWidth(float pulseWidth)
     {
         const float pwMin = 0.01f;
         pw = clamp(pulseWidth, pwMin, 1.0f - pwMin);
     }
-
-    void processSaw(float deltaTime, float syncValue)
-    {
-        assert(sampleTime > 0);
-        if (analog) {
-            // Adjust pitch slew
-            if (++pitchSlewIndex > 32) {
-                const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
-                pitchSlew += (noise() - pitchSlew / pitchSlewTau) *sampleTime;
-                pitchSlewIndex = 0;
-            }
-        }
-
-        // Advance phase
-        float deltaPhaseOver = clamp(freq * deltaTime, 1e-6, 0.5f) * (1.0f / OVERSAMPLE);
-
-        // Detect sync
-        int syncIndex = -1; // Index in the oversample loop where sync occurs [0, OVERSAMPLE)
-        float syncCrossing = 0.0f; // Offset that sync occurs [0.0f, 1.0f)
-        if (syncEnabled) {
-            syncValue -= 0.01f;
-            if (syncValue > 0.0f && lastSyncValue <= 0.0f) {
-                float deltaSync = syncValue - lastSyncValue;
-                syncCrossing = 1.0f - syncValue / deltaSync;
-                syncCrossing *= OVERSAMPLE;
-                syncIndex = (int) syncCrossing;
-                syncCrossing -= syncIndex;
-            }
-            lastSyncValue = syncValue;
-        }
-
-        if (syncDirection)
-            deltaPhaseOver *= -1.0f;
-
-     
-
-        for (int i = 0; i < OVERSAMPLE; i++) {
-#if 0
-            // if (syncEnabled) {
-            if (syncIndex == i) {
-                if (soft) {
-                    syncDirection = !syncDirection;
-                    deltaPhaseOver *= -1.0f;
-                } else {
-                    // phase = syncCrossing * deltaPhase / OVERSAMPLE;
-                    phase = 0.0f;
-                }
-            }
-            // }
-
-
-#endif
-
-
-        //    if (analog) {
-        //        sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
-        //    } else {
-                if (phase < 0.5f)
-                    sawBuffer[i] = 2.f * phase;
-                else
-                    sawBuffer[i] = -2.f + 2.f * phase;
-        //    }
-
-
-            // don't divide by oversample every time.
-            // don't do that expensive mod (TODO: is this correct
-
-            // Advance phase ( I think this could be a normal phase advance
-            //  phase += deltaPhase / OVERSAMPLE;
-            // phase = eucmod(phase, 1.0f);
-            phase += deltaPhaseOver;
-            while (phase > 1.0f) {
-                phase -= 1.0f;
-            }
-            while (phase < 0) {
-                phase += 1.0f;
-            }
-        }
-    }
-
     void process(float deltaTime, float syncValue)
     {
        // processSaw(deltaTime, syncValue);
         assert(sinLookup);
-#if 1
         assert(sampleTime > 0);
         if (analog) {
             // Adjust pitch slew
@@ -297,16 +216,16 @@ struct VoltageControlledOscillator
         for (int i = 0; i < OVERSAMPLE; i++) {
 
            // if (syncEnabled) {
-                if (syncIndex == i) {
-                    if (soft) {
-                        syncDirection = !syncDirection;
-                        deltaPhaseOver *= -1.0f;
-                    } else {
-                        // phase = syncCrossing * deltaPhase / OVERSAMPLE;
-                        phase = 0.0f;
-                    }
+            if (syncIndex == i) {
+                if (soft) {
+                    syncDirection = !syncDirection;
+                    deltaPhaseOver *= -1.0f;
+                } else {
+                    // phase = syncCrossing * deltaPhase / OVERSAMPLE;
+                    phase = 0.0f;
                 }
-           // }
+            }
+       // }
 
             if (sinEnabled) {
                 if (analog) {
@@ -317,12 +236,12 @@ struct VoltageControlledOscillator
                         sinBuffer[i] = -1.f + 16.f * powf(phase - 0.75f, 2);
                     sinBuffer[i] *= 1.08f;
                 } else {
-                   // sinBuffer[i] = sinf(2.f*M_PI * phase);
+                    // sinBuffer[i] = sinf(2.f*M_PI * phase);
                     sinBuffer[i] = LookupTable<float>::lookup(*sinLookup, phase, true);
                 }
             }
 
-  
+
             if (triEnabled) {
                 if (analog) {
                     triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
@@ -346,7 +265,6 @@ struct VoltageControlledOscillator
                         sawBuffer[i] = -2.f + 2.f * phase;
                 }
             }
-     
 
             if (sqEnabled) {
                 sqrBuffer[i] = (phase < pw) ? 1.f : -1.f;
@@ -362,7 +280,7 @@ struct VoltageControlledOscillator
 
             // Advance phase ( I think this could be a normal phase advance
             //  phase += deltaPhase / OVERSAMPLE;
-           // phase = eucmod(phase, 1.0f);
+            // phase = eucmod(phase, 1.0f);
             phase += deltaPhaseOver;
             while (phase > 1.0f) {
                 phase -= 1.0f;
@@ -371,7 +289,6 @@ struct VoltageControlledOscillator
                 phase += 1.0f;
             }
         }
-#endif
     }
 
     float sin()
@@ -384,7 +301,7 @@ struct VoltageControlledOscillator
     }
     float saw()
     {
-       return sawDecimator.process(sawBuffer);
+        return sawDecimator.process(sawBuffer);
     }
     float sqr()
     {
@@ -431,7 +348,21 @@ struct VoltageControlledOscillatorOrig
     std::normal_distribution<double> distribution{-1.0, 1.0};
     float noise()
     {
-        return  (float) distribution(generator);
+        float r = (float) distribution(generator);
+     //   auto r = randomNormal();
+        static double mx = -100;
+        static double mn = 100;
+        if (r > mx) {
+            printf("bgfmax = %f min = %f\n", mx, mn);
+            fflush(stdout);
+            mx = r;
+        }
+        if (r < mn) {
+            printf("bgfmax = %f min = %f\n", mx, mn);
+            fflush(stdout);
+            mn = r;
+        }
+        return r;
     }
 
     void setPitch(float pitchKnob, float pitchCv)
@@ -460,6 +391,7 @@ struct VoltageControlledOscillatorOrig
     {
         assert(sampleTime > 0);
         if (analog) {
+            printf("is analog\n");
             // Adjust pitch slew
             if (++pitchSlewIndex > 32) {
                 const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
