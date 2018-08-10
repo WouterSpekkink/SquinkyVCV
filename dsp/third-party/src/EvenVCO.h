@@ -231,6 +231,7 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step_saw(float deltaPhase)
 {
+#if 1
     phase += deltaPhase;
 
     // Reset phase if at end of cycle
@@ -243,6 +244,7 @@ inline void EvenVCO<TBase>::step_saw(float deltaPhase)
     float saw = -1.0 + 2.0*phase;
     saw += sawMinBLEP.shift();
     TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
+#endif
 }
 
 template <class TBase>
@@ -268,7 +270,7 @@ inline void EvenVCO<TBase>::step_sin(float deltaPhase)
 
 
 template <class TBase>
-void EvenVCO<TBase>::step_tri(float deltaPhase)
+inline void EvenVCO<TBase>::step_tri(float deltaPhase)
 {
     float oldPhase = phase;
     phase += deltaPhase;
@@ -301,7 +303,7 @@ void EvenVCO<TBase>::step_tri(float deltaPhase)
 
 
 template <class TBase>
-void EvenVCO<TBase>::step_sq(float deltaPhase)
+inline void EvenVCO<TBase>::step_sq(float deltaPhase)
 {
    // float oldPhase = phase;
     phase += deltaPhase;
@@ -339,8 +341,11 @@ void EvenVCO<TBase>::step_sq(float deltaPhase)
 }
 
 template <class TBase>
-void EvenVCO<TBase>::step()
+inline void EvenVCO<TBase>::step()
 {
+
+#if 0
+#else
     if (--loopCounter < 0) {
         loopCounter = 16;
 
@@ -378,8 +383,13 @@ void EvenVCO<TBase>::step()
             dispatcher = NUM_OUTPUTS;
         }
     }
+#endif
 
     // Compute frequency, pitch is 1V/oct
+#if 0 // TAKE OUT FREQ
+    _freq = 400;
+    const float deltaPhase = .009;
+#else
     float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
@@ -389,9 +399,12 @@ void EvenVCO<TBase>::step()
 
 
 
+
     // Advance phase
     float f = (_testFreq) ? _testFreq : _freq;
     float deltaPhase = clamp(f * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+#endif
+
 
     // call the dedicated dispatch routines for the special case waveforms.
     switch (dispatcher) {
@@ -419,7 +432,7 @@ void EvenVCO<TBase>::step()
 }
 
 template <class TBase>
-void EvenVCO<TBase>::step_all(float deltaPhase)
+inline void EvenVCO<TBase>::step_all(float deltaPhase)
 {
     float oldPhase = phase;
     phase += deltaPhase;

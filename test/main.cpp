@@ -80,7 +80,7 @@ int main(int argc, char ** argv)
 
     testSinOscillator();
     testHilbert();
-    testVCO();
+   // testVCO();
 
 
     testFFT();

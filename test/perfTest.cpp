@@ -255,13 +255,16 @@ static void testEvenOrig()
 {
     EvenVCO_orig<TestComposite> lfn;
 
-
     lfn.outputs[EvenVCO_orig<TestComposite>::EVEN_OUTPUT].active = true;
     lfn.outputs[EvenVCO_orig<TestComposite>::SINE_OUTPUT].active = true;
     lfn.outputs[EvenVCO_orig<TestComposite>::TRI_OUTPUT].active = true;
     lfn.outputs[EvenVCO_orig<TestComposite>::SQUARE_OUTPUT].active = true;
     lfn.outputs[EvenVCO_orig<TestComposite>::SAW_OUTPUT].active = true;
+
+    for (int i = 0; i < 100; ++i) lfn.step();
+
     MeasureTime<float>::run(overheadOutOnly, "Even orig", [&lfn]() {
+        lfn.inputs[EvenVCO_orig<TestComposite>::PITCH1_INPUT].value = TestBuffers<float>::get();
         lfn.step();
         return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
         }, 1);
@@ -325,7 +328,10 @@ static void testEvenSaw()
     lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
     lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
 
+    for (int i = 0; i < 100; ++i) lfn.step();
+
     MeasureTime<float>::run(overheadOutOnly, "Even, saw only", [&lfn]() {
+        lfn.inputs[EvenVCO_orig<TestComposite>::PITCH1_INPUT].value = TestBuffers<float>::get();
         lfn.step();
         return lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].value;
         }, 1);
@@ -607,6 +613,8 @@ static void testNormal()
 
 void perfTest()
 {
+    printf("starting perf test\n");
+    fflush(stdout);
     setup();
 #if 0
     testAttenuverters();
@@ -619,8 +627,9 @@ void perfTest()
     testNormal();
 #endif
 
-#if 1
     testEvenOrig();
+    testEvenSaw();
+#if 1
     testEven();
     testEvenEven();
     testEvenSin();
@@ -630,6 +639,7 @@ void perfTest()
     testEvenSqSaw();
 #endif
 
+#if 0
     testFunSaw(true);
     testFunSaw(false);
     testFunSin(true);
@@ -643,7 +653,9 @@ void perfTest()
     testCHB();
     testLFN();
     testGMR();
-#if 1
+#endif
+
+#if 0
 
     testVocalFilter();
     testAnimator();
