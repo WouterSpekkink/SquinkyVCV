@@ -77,8 +77,8 @@ void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 
     addParam(ParamWidget::create<NKK>(Vec(left, 66 + verticalShift),
         module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(left -6, 48+ verticalShift), "anlg");
-    addLabel(Vec(left -6, 102+ verticalShift), "dgtl");
+    addLabel(Vec(left -3, 48+ verticalShift), "anlg");
+    addLabel(Vec(left -2, 108+ verticalShift), "dgtl");
 
     addParam(ParamWidget::create<Rogan3PSBlue>(Vec(center, 61 + verticalShift),
         module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
@@ -87,8 +87,8 @@ void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 
     addParam(ParamWidget::create<NKK>(Vec(right, 66 + verticalShift),
         module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(right-6, 48+ verticalShift), "hard");
-    addLabel(Vec(right-6, 102+ verticalShift), "soft");
+    addLabel(Vec(right-4, 48+ verticalShift), "hard");
+    addLabel(Vec(right-0, 108+ verticalShift), "soft");
 }
 
 void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
@@ -103,39 +103,39 @@ void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(23, 208 + verticalShift),
         module, module->vco.FM_PARAM, 0.0f, 1.0f, 0.0f));
-    addLabel(Vec(21, 188 +verticalShift), "fm cv");
+    addLabel(Vec(19, 188 +verticalShift), "fm cv");
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 208 + verticalShift),
         module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
-    addLabel(Vec(84, 188 +verticalShift), "pwm cv");
+    addLabel(Vec(82, 188 +verticalShift), "pwm cv");
 
 }
 
 void FunVWidget::addJacks(FunVModule * module, float verticalShift)
 {
     addInput(Port::create<PJ301MPort>(Vec(11, 273+verticalShift), Port::INPUT, module, module->vco.PITCH_INPUT));
-    addLabel(Vec(7, 255+verticalShift), "v/8");
+    addLabel(Vec(6, 255+verticalShift), "v/8");
 
     addInput(Port::create<PJ301MPort>(Vec(45, 273+verticalShift), Port::INPUT, module, module->vco.FM_INPUT));
-    addLabel(Vec(44, 255+verticalShift), "fm");
+    addLabel(Vec(42, 255+verticalShift), "fm");
 
     addInput(Port::create<PJ301MPort>(Vec(80, 273+verticalShift), Port::INPUT, module, module->vco.SYNC_INPUT));
     addLabel(Vec(70, 255+verticalShift), "sync");
 
     addInput(Port::create<PJ301MPort>(Vec(114, 273+verticalShift), Port::INPUT, module, module->vco.PW_INPUT));
-    addLabel(Vec(104, 255+verticalShift), "pwm");
+    addLabel(Vec(106, 255+verticalShift), "pwm");
 
     addOutput(Port::create<PJ301MPort>(Vec(11, 317+verticalShift), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
     addLabel(Vec(7, 298+verticalShift), "sin");
 
     addOutput(Port::create<PJ301MPort>(Vec(45, 317+verticalShift), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-    addLabel(Vec(40, 298+verticalShift), "tri");
+    addLabel(Vec(42, 298+verticalShift), "tri");
 
     addOutput(Port::create<PJ301MPort>(Vec(80, 317+verticalShift), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
     addLabel(Vec(75, 298+verticalShift), "saw");
 
     addOutput(Port::create<PJ301MPort>(Vec(114, 317+verticalShift), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
-    addLabel(Vec(109, 298+verticalShift), "sqr");
+    addLabel(Vec(111, 298+verticalShift), "sqr");
 }
 /**
  * Widget constructor will describe my implementation structure and
