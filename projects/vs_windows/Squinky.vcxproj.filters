@@ -425,5 +425,8 @@
     <ClInclude Include="..\..\dsp\third-party\src\FunVCO.h">
       <Filter>Header Files\dsp\third-party\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\dsp\third-party\src\EvenVCO_orig.h">
+      <Filter>Header Files\dsp\third-party\src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

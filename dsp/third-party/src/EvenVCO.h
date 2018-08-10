@@ -384,25 +384,16 @@ void EvenVCO<TBase>::step()
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
-#if 0
-    const float q = float(log2(261.626));       // move up to pitch range of even vco
-    pitch += q;
-    _freq = expLookup(pitch);
-    //printf("mine: pitch = %f exp = %f\n", pitch, _freq);
-#else
-    // It turns out this is just as fast as a lookup table
     _freq = 261.626 * powf(2.0, pitch);
     _freq = clamp(_freq, 0.0f, 20000.0f);
-#endif
-    // printf("pitch = %f, freq = %f\n", pitch, freq);
+
 
 
     // Advance phase
     float f = (_testFreq) ? _testFreq : _freq;
     float deltaPhase = clamp(f * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
 
-    /* Idea: just pass in deltaPhase, let everyone to all the calcs themselves
-    */
+    // call the dedicated dispatch routines for the special case waveforms.
     switch (dispatcher) {
         case SAW_OUTPUT:
             step_saw(deltaPhase);

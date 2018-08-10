@@ -4,6 +4,8 @@
 #include <limits>
 
 #include "EvenVCO.h"
+#include "EvenVCO_orig.h"
+
 #include "AudioMath.h"
 #include "BiquadParams.h"
 #include "BiquadFilter.h"
@@ -246,6 +248,22 @@ static void testLFN()
     MeasureTime<float>::run(overheadOutOnly, "lfn", [&lfn]() {
         lfn.step();
         return lfn.outputs[LFN<TestComposite>::OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenOrig()
+{
+    EvenVCO_orig<TestComposite> lfn;
+
+
+    lfn.outputs[EvenVCO_orig<TestComposite>::EVEN_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::SINE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::TRI_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::SAW_OUTPUT].active = true;
+    MeasureTime<float>::run(overheadOutOnly, "Even orig", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
         }, 1);
 }
 
@@ -602,6 +620,7 @@ void perfTest()
 #endif
 
 #if 1
+    testEvenOrig();
     testEven();
     testEvenEven();
     testEvenSin();
@@ -624,7 +643,7 @@ void perfTest()
     testCHB();
     testLFN();
     testGMR();
-#if 0
+#if 1
 
     testVocalFilter();
     testAnimator();
