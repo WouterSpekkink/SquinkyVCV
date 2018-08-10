@@ -179,7 +179,7 @@ struct VoltageControlledOscillator
         assert(sampleTime > 0);
         if (analog) {
             // Adjust pitch slew
-            if (++pitchSlewIndex > 32) {
+            if (++pitchSlewIndex > 64) {
                 const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
                 pitchSlew += (noise() - pitchSlew / pitchSlewTau) *sampleTime;
                 pitchSlewIndex = 0;

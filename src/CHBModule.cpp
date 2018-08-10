@@ -3,7 +3,7 @@
 #include "Squinky.hpp"
 #include "WidgetComposite.h"
 
-
+#ifdef _CHB
 #include "CHB.h"
 
 
@@ -244,3 +244,4 @@ Model *modelCHBModule = Model::create<CHBModule,
     "CHB", EFFECT_TAG, LFO_TAG);
 
 
+#endif

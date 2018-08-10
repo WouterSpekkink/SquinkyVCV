@@ -218,7 +218,7 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
 Model *modelEVModule = Model::create<EVModule,
     EVWidget>("Squinky Labs",
     "squinkylabs-evco",
-    "EVCO", EFFECT_TAG);
+    "EvilVCO", OSCILLATOR_TAG);
 
 #endif
 

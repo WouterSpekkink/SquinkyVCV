@@ -418,7 +418,7 @@ static void testFunSaw(bool isAnalog)
         }, 1);
 }
 
-static void testFunSin()
+static void testFunSin(bool isAnalog)
 {
     FunVCOComposite<TestComposite> lfn;
 
@@ -427,9 +427,12 @@ static void testFunSin()
     lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = false;
     lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = false;
 
+    lfn.params[FunVCOComposite<TestComposite>::MODE_PARAM].value = isAnalog ? 1.0f : 0.f;
+
     lfn.setSampleRate(44100.f);
 
-    MeasureTime<float>::run(overheadOutOnly, "Fun sin", [&lfn]() {
+    std::string title = isAnalog ? "Fun Sin Analog" : "Fun Sin Digital";
+    MeasureTime<float>::run(overheadOutOnly, title.c_str(), [&lfn]() {
         lfn.step();
         return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
         }, 1);
@@ -610,7 +613,8 @@ void perfTest()
 
     testFunSaw(true);
     testFunSaw(false);
-    testFunSin();
+    testFunSin(true);
+    testFunSin(false);
     testFunSq();
     testFun();
     testFunNone();

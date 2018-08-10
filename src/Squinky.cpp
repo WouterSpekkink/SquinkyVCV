@@ -23,7 +23,9 @@ void init(rack::Plugin *p)
     p->addModel(modelTremoloModule);
     p->addModel(modelThreadBoostModule);
     p->addModel(modelLFNModule);
+#ifdef _CHB
     p->addModel(modelCHBModule);
+#endif
 #ifdef _GMR
     p->addModel(modelGMRModule);
 #endif

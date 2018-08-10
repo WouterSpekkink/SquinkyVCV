@@ -168,7 +168,7 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
 Model *modelFunVModule = Model::create<FunVModule,
     FunVWidget>("Squinky Labs",
     "squinkylabs-funv",
-    "FUnV", EFFECT_TAG, LFO_TAG);
+    "Funny VCO", OSCILLATOR_TAG);
 
 #endif
 
