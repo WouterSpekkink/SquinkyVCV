@@ -199,7 +199,7 @@ static void testExpTolerance(T centsTolerance)
 
     LookupTableParams<T> table;
     LookupTableFactory<T>::makeExp2(table);
-    for (T x = xMin; x <= xMax; x += T(.0001)) {
+    for (T x = xMin; x <= xMax; x += T(.001)) {
         T y = LookupTable<T>::lookup(table, x);            // and back
         double accurate = std::pow(2.0, x);
         double errorCents = AudioMath::acents(y, accurate);
@@ -216,7 +216,7 @@ static void testExpTolerance2(T centsTolerance, T hzTolerance)
 
     LookupTableParams<T> table;
     LookupTableFactory<T>::makeExp2(table);
-    for (T x = xMin; x <= xMax; x += T(.0001)) {
+    for (T x = xMin; x <= xMax; x += T(.001)) {
         T y = LookupTable<T>::lookup(table, x);            // and back
         double accurate = std::pow(2.0, x);
         double errorCents = AudioMath::acents(y, accurate);
@@ -236,7 +236,7 @@ static void testExp2HiTolerance(T centsTolerance, T hzTolerance)
     LookupTableParams<T> table;
     LookupTableFactory<T>::makeExp2ExHigh(table);
 
-    for (T x = xMin; x <= xMax; x += T(.0001)) {
+    for (T x = xMin; x <= xMax; x += T(.001)) {
         T y = LookupTable<T>::lookup(table, x);            // and back
         double accurate = std::pow(2.0, x);
         double errorCents = AudioMath::acents(y, accurate);
@@ -263,7 +263,7 @@ static void testExp2LowTolerance(T centsTolerance, T hzTolerance)
     LookupTableParams<T> table;
     LookupTableFactory<T>::makeExp2ExLow(table);
 
-    for (T x = xMin; x <= xMax; x += T(.0001)) {
+    for (T x = xMin; x <= xMax; x += T(.001)) {
         T y = LookupTable<T>::lookup(table, x);            // and back
         double accurate = std::pow(2.0, x);
         double errorCents = AudioMath::acents(y, accurate);
@@ -281,7 +281,7 @@ static void testExp2CombinedTolerance(T centsTolerance, T hzTolerance)
 
    // LookupTableParams<T> table;
     auto exp = ObjectCache<T>::getExp2Ex();
-    for (T x = xMin; x <= xMax; x += T(.0001)) {
+    for (T x = xMin; x <= xMax; x += T(.001)) {
         T y = exp(x);
         double accurate = std::pow(2.0, x);
         double errorCents = AudioMath::acents(y, accurate);
