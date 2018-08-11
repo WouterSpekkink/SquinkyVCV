@@ -128,11 +128,12 @@ struct VoltageControlledOscillator
     float sqrBuffer[OVERSAMPLE] = {};
 
     std::shared_ptr<LookupTableParams<float>> sinLookup;
+    std::function<float(float)> expLookup;
 
     void init()
     {
         sinLookup = ObjectCache<float>::getSinLookup();
-
+        expLookup = ObjectCache<float>::getExp2Ex();
 
         // first guess - an octave below nyquist .25   
         float cutoff = .25f / float(OVERSAMPLE);
@@ -165,7 +166,12 @@ struct VoltageControlledOscillator
         }
         pitch += pitchCv;
         // Note C4
-        freq = 261.626f * powf(2.0f, pitch / 12.0f);
+       // freq = 261.626f * powf(2.0f, pitch / 12.0f);
+
+        const float q = float(log2(261.626));       // move up to pitch range up
+       // pitch += q;
+        pitch = (pitch / 12.0f) + q;
+        freq = expLookup(pitch);
     }
     void setPulseWidth(float pulseWidth)
     {
@@ -207,7 +213,6 @@ struct VoltageControlledOscillator
         if (syncDirection)
             deltaPhaseOver *= -1.0f;
 
-        // this does a divide
         if (sqEnabled) {
             sqrFilter.setCutoff(40.0f * deltaTime);
         }
@@ -240,7 +245,6 @@ struct VoltageControlledOscillator
                     sinBuffer[i] = LookupTable<float>::lookup(*sinLookup, phase, true);
                 }
             }
-
 
             if (triEnabled) {
                 if (analog) {
@@ -276,11 +280,7 @@ struct VoltageControlledOscillator
             }
 
             // don't divide by oversample every time.
-            // don't do that expensive mod (TODO: is this correct
-
-            // Advance phase ( I think this could be a normal phase advance
-            //  phase += deltaPhase / OVERSAMPLE;
-            // phase = eucmod(phase, 1.0f);
+            // don't do that expensive mod (TODO: is this correct?)
             phase += deltaPhaseOver;
             while (phase > 1.0f) {
                 phase -= 1.0f;
@@ -343,26 +343,11 @@ struct VoltageControlledOscillatorOrig
     float sawBuffer[OVERSAMPLE] = {};
     float sqrBuffer[OVERSAMPLE] = {};
 
-    // TODO: what is the range of the one in VCV?
     std::default_random_engine generator{99};
     std::normal_distribution<double> distribution{-1.0, 1.0};
     float noise()
     {
-        float r = (float) distribution(generator);
-     //   auto r = randomNormal();
-        static double mx = -100;
-        static double mn = 100;
-        if (r > mx) {
-            printf("bgfmax = %f min = %f\n", mx, mn);
-            fflush(stdout);
-            mx = r;
-        }
-        if (r < mn) {
-            printf("bgfmax = %f min = %f\n", mx, mn);
-            fflush(stdout);
-            mn = r;
-        }
-        return r;
+        return (float) distribution(generator);
     }
 
     void setPitch(float pitchKnob, float pitchCv)
@@ -387,11 +372,14 @@ struct VoltageControlledOscillatorOrig
         pw = clamp(pulseWidth, pwMin, 1.0f - pwMin);
     }
 
+    void init()
+    {
+    }
+
     void process(float deltaTime, float syncValue)
     {
         assert(sampleTime > 0);
         if (analog) {
-            printf("is analog\n");
             // Adjust pitch slew
             if (++pitchSlewIndex > 32) {
                 const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds

@@ -231,7 +231,6 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step_saw(float deltaPhase)
 {
-#if 1
     phase += deltaPhase;
 
     // Reset phase if at end of cycle
@@ -244,7 +243,6 @@ inline void EvenVCO<TBase>::step_saw(float deltaPhase)
     float saw = -1.0 + 2.0*phase;
     saw += sawMinBLEP.shift();
     TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
-#endif
 }
 
 template <class TBase>
@@ -305,13 +303,7 @@ inline void EvenVCO<TBase>::step_tri(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step_sq(float deltaPhase)
 {
-   // float oldPhase = phase;
     phase += deltaPhase;
-#if 0
-    if (oldPhase < 0.5 && phase >= 0.5) {
-        float crossing = -(phase - 0.5) / deltaPhase;
-    }
-    #endif
 
     // Pulse width
     float pw;
@@ -344,25 +336,14 @@ template <class TBase>
 inline void EvenVCO<TBase>::step()
 {
 
-#if 0
-#else
     if (--loopCounter < 0) {
         loopCounter = 16;
 
-#if 1
         doSaw = TBase::outputs[SAW_OUTPUT].active;
         doEven = TBase::outputs[EVEN_OUTPUT].active;
         doTri = TBase::outputs[TRI_OUTPUT].active;
         doSq = TBase::outputs[SQUARE_OUTPUT].active;
         doSin = TBase::outputs[SINE_OUTPUT].active;
-#else
-        // TEPORARY: just for hacking
-        doSaw = true;
-        doEven = false;
-        doTri = false;
-        doSq = false;
-        doSin = false;
-#endif
 
         if (doSaw && !doEven && !doTri && !doSq && !doSin) {
             dispatcher = SAW_OUTPUT;
@@ -383,28 +364,27 @@ inline void EvenVCO<TBase>::step()
             dispatcher = NUM_OUTPUTS;
         }
     }
-#endif
+
 
     // Compute frequency, pitch is 1V/oct
-#if 0 // TAKE OUT FREQ
-    _freq = 400;
-    const float deltaPhase = .009;
-#else
     float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
+#if 1 // TAKE OUT FREQ
+  //  _freq = 400;
+   // const float deltaPhase = .009;
+    const float q = float(log2(261.626));       // move up to pitch range of even vco
+    pitch += q;
+    _freq = expLookup(pitch);
+#else
     _freq = 261.626 * powf(2.0, pitch);
     _freq = clamp(_freq, 0.0f, 20000.0f);
-
-
-
+#endif
 
     // Advance phase
     float f = (_testFreq) ? _testFreq : _freq;
     float deltaPhase = clamp(f * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
-#endif
-
 
     // call the dedicated dispatch routines for the special case waveforms.
     switch (dispatcher) {

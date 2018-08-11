@@ -627,9 +627,24 @@ void perfTest()
     testNormal();
 #endif
 
+
+    testFunSaw(true);
+    testFunSaw(false);
+#if 0
+    testFunSin(true);
+    testFunSin(false);
+    testFunSq();
+    testFun();
+    testFunNone();
+
+    testEvenSaw();
+
+
+#endif
+
     testEvenOrig();
     testEvenSaw();
-#if 1
+#if 0
     testEven();
     testEvenEven();
     testEvenSin();
@@ -640,22 +655,6 @@ void perfTest()
 #endif
 
 #if 0
-    testFunSaw(true);
-    testFunSaw(false);
-    testFunSin(true);
-    testFunSin(false);
-    testFunSq();
-    testFun();
-    testFunNone();
-
-    testEvenSaw();
-
-    testCHB();
-    testLFN();
-    testGMR();
-#endif
-
-#if 0
 
     testVocalFilter();
     testAnimator();
@@ -663,6 +662,9 @@ void perfTest()
 
     testColors();
     testTremolo();
+    testCHB();
+    testLFN();
+    testGMR();
 #endif
 
    // test1();
