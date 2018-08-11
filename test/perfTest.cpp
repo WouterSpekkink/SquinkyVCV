@@ -4,7 +4,7 @@
 #include <limits>
 
 #include "EvenVCO.h"
-#include "EvenVCO_orig.h"
+//#include "EvenVCO_orig.h"
 
 #include "AudioMath.h"
 #include "BiquadParams.h"
@@ -251,6 +251,7 @@ static void testLFN()
         }, 1);
 }
 
+#if 0
 static void testEvenOrig()
 {
     EvenVCO_orig<TestComposite> lfn;
@@ -269,6 +270,7 @@ static void testEvenOrig()
         return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
         }, 1);
 }
+#endif
 
 static void testEven()
 {
@@ -331,7 +333,7 @@ static void testEvenSaw()
     for (int i = 0; i < 100; ++i) lfn.step();
 
     MeasureTime<float>::run(overheadOutOnly, "Even, saw only", [&lfn]() {
-        lfn.inputs[EvenVCO_orig<TestComposite>::PITCH1_INPUT].value = TestBuffers<float>::get();
+        lfn.inputs[EvenVCO<TestComposite>::PITCH1_INPUT].value = TestBuffers<float>::get();
         lfn.step();
         return lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].value;
         }, 1);
@@ -395,8 +397,10 @@ static void testFun()
     }
 
     lfn.setSampleRate(44100.f);
+    const bool isAnalog = false;
+    lfn.params[FunVCOComposite<TestComposite>::MODE_PARAM].value = isAnalog ? 1.0f : 0.f;
 
-    MeasureTime<float>::run(overheadOutOnly, "Fun all on", [&lfn]() {
+    MeasureTime<float>::run(overheadOutOnly, "Fun all on, digital", [&lfn]() {
         lfn.step();
         return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value +
             lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value +
@@ -630,21 +634,17 @@ void perfTest()
 
     testFunSaw(true);
     testFunSaw(false);
-#if 0
+#if 1
     testFunSin(true);
     testFunSin(false);
     testFunSq();
     testFun();
     testFunNone();
-
-    testEvenSaw();
-
-
 #endif
 
-    testEvenOrig();
+//    testEvenOrig();
     testEvenSaw();
-#if 0
+#if 1
     testEven();
     testEvenEven();
     testEvenSin();

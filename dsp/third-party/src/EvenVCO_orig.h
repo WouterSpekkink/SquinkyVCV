@@ -1,3 +1,9 @@
+/**
+  * This file is the original source for Befaco EvenVCO. It has been modified
+  * slightly to allow it to be compiles in the Squinky Labs test framework.
+  *
+  * This file is only use for before/after profiling of EvilVCO.
+  */
 //#include "Befaco.hpp"
 #include "dsp/minblep.hpp"
 #include "dsp/filter.hpp"

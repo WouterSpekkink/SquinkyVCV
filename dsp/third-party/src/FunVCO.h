@@ -2,10 +2,11 @@
 
 
 #pragma warning (push)
-#pragma warning (disable: 4305)
-#pragma warning (disable: 4244)
+#pragma warning (disable: 4305 4244 4267)
 
+#if !defined(M_PI)
 #define M_PI 3.14159265358979323846264338327950288
+#endif
 
 #include "dsp/filter.hpp"
 #include "dsp/decimator.hpp"

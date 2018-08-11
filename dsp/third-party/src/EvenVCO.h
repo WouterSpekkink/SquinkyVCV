@@ -1,15 +1,20 @@
 /**
  * This file contains a modified version of EvenVCO.cpp, from the
  * Befaco repo. See LICENSE-dist.txt for full license info.
+ *
+ * This code has been modified extensively by Squinky Labs. Mainly modifications were:
+ *      re-code hot-spots to lower CPU usage.
+ *      Fix compiler warnings.
+ *      Make it compile in Visual Studio
  */
 
 // Need to make this compile in MS tools for unit tests
 #if defined(_MSC_VER)
-#define __attribute__(x)
+    #define __attribute__(x)
 #endif
 
 #pragma warning (push)
-#pragma warning ( disable: 4244 )
+#pragma warning ( disable: 4244 4267 )
 
 #include "dsp/minblep.hpp"
 #include "dsp/filter.hpp"
@@ -19,54 +24,6 @@
 
 using namespace rack;
 
-/**
-#define _EVEN
-#define _TRI
-#define _SAW
-#define _SQ
-#define _SIN
-*/
-
-
-/**
- * Before optimization, cpu = 43
- * turn off tri = 42
- * turn off tri and even, 38
- * turn off tri, even, and sin 21
- * turn off tri, even, sin, sqr, saw, 17
- * everything off and no exp, 3
- * even only, no exp or sin 6.7
- * -----------------------------
- * My first version:
- * everything on - 19.6
- * even only - 17.1
- * saw only - 11.4
- *
- * dispatch saw version
- * pitch calc, but no waveform - 6.7
- * saw - 9.7
- * even/sin - 16
- * sin only - 15.9 (let's try putting back std::sin
- *
- * ver1: table for everything
- * even - 18
- * sin - 13
- * saw - 10
- * tri - 14
- * sq - 15
- * sq + saw - 16
- * all - 24
- *
- * comment out pitch calc
- * even - 8
- * sin - 4
- * saw - 3
- * tri - 5
- * sq - 15
-
- * all - 24
- 
- */
 template <class TBase>
 struct EvenVCO : TBase
 {
@@ -103,9 +60,12 @@ struct EvenVCO : TBase
     };
 
     float phase = 0.0;
-    /** The outputs */
     float tri = 0.0;
 
+    /**
+     * References to shared lookup tables.
+     * Destructor will free them automatically.
+     */
     std::shared_ptr<LookupTableParams<float>> sinLookup;
     std::function<float(float)> expLookup;
 
@@ -132,13 +92,22 @@ struct EvenVCO : TBase
     int dispatcher = 0;
     int loopCounter = 0;
 
-    float _freq = 0;   // for testing
-    float _testFreq = 0;
+  
+    /**
+     * To avoid scanning outputs for changes every sample, we
+     * save the state here.
+     */
     bool doSaw = false;
     bool doEven = false;
     bool doTri = false;
     bool doSq = false;
     bool doSin = false;
+
+    /**
+     * Variables added purely to enable unit testing
+     */
+    float _freq = 0;
+    float _testFreq = 0;
 };
 
 template <class TBase>
@@ -152,7 +121,6 @@ inline EvenVCO<TBase>::EvenVCO(struct Module * module) : TBase(module)
 {
     initialize();
 }
-
 
 template <class TBase>
 inline void EvenVCO<TBase>::initialize()
@@ -171,8 +139,6 @@ inline void EvenVCO<TBase>::initialize()
     squareMinBLEP.oversample = 32;
 
     sinLookup = ObjectCache<float>::getSinLookup();
-    // get reference to table of 2 ** x
-
     expLookup = ObjectCache<float>::getExp2Ex();
 }
 
@@ -197,7 +163,6 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
     phase += deltaPhase;
 
     if (oldPhase < 0.5 && phase >= 0.5) {
-        // printf("doing blep\n");
         float crossing = -(phase - 0.5) / deltaPhase;
         doubleSawMinBLEP.jump(crossing, -2.0);
     }
@@ -207,12 +172,10 @@ inline void EvenVCO<TBase>::step_even(float deltaPhase)
         phase -= 1.0;
         float crossing = -phase / deltaPhase;
         doubleSawMinBLEP.jump(crossing, -2.0);
-        //halfPhase = false;
     }
 
 
     //sine = -cosf(2*AudioMath::Pi * phase);
-    // TODO: phase, amp, etc right?
     // want cosine, but only have sine lookup
     float adjPhase = phase + .25f;
     if (adjPhase >= 1) {
@@ -248,7 +211,6 @@ inline void EvenVCO<TBase>::step_saw(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step_sin(float deltaPhase)
 {
-   // float oldPhase = phase;
     phase += deltaPhase;
 
     // Reset phase if at end of cycle
@@ -287,7 +249,6 @@ inline void EvenVCO<TBase>::step_tri(float deltaPhase)
     }
 
     // Outputs
-
     float triSquare = (phase < 0.5) ? -1.0 : 1.0;
     triSquare += triSquareMinBLEP.shift();
 
@@ -295,10 +256,9 @@ inline void EvenVCO<TBase>::step_tri(float deltaPhase)
     tri += 4.0 * triSquare * _freq * TBase::engineGetSampleTime();
     tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
 
-    // Set outputs
+    // Set output
     TBase::outputs[TRI_OUTPUT].value = 5.0*tri;
 }
-
 
 template <class TBase>
 inline void EvenVCO<TBase>::step_sq(float deltaPhase)
@@ -335,7 +295,8 @@ inline void EvenVCO<TBase>::step_sq(float deltaPhase)
 template <class TBase>
 inline void EvenVCO<TBase>::step()
 {
-
+    // We don't need to look for connected outputs every cycle.
+    // do it less often, and store results.
     if (--loopCounter < 0) {
         loopCounter = 16;
 
@@ -365,15 +326,12 @@ inline void EvenVCO<TBase>::step()
         }
     }
 
-
     // Compute frequency, pitch is 1V/oct
     float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
     pitch += TBase::inputs[FM_INPUT].value / 4.0;
 
-#if 1 // TAKE OUT FREQ
-  //  _freq = 400;
-   // const float deltaPhase = .009;
+#if 1 // Use lookup table for pitch lookup
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
     _freq = expLookup(pitch);
@@ -411,6 +369,9 @@ inline void EvenVCO<TBase>::step()
     }
 }
 
+/**
+ * Less optimized version that can do all waveform combinations
+ */
 template <class TBase>
 inline void EvenVCO<TBase>::step_all(float deltaPhase)
 {
@@ -477,8 +438,6 @@ inline void EvenVCO<TBase>::step_all(float deltaPhase)
     float square = 0;
     if (doSin || doEven) {
         //sine = -cosf(2*AudioMath::Pi * phase);
-        // TODO: phase, amp, etc right?
-
         // want cosine, but only have sine lookup
         float adjPhase = phase + .25f;
         if (adjPhase >= 1) {
@@ -511,130 +470,5 @@ inline void EvenVCO<TBase>::step_all(float deltaPhase)
     TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
     TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
 }
-
-
-
-#if 0
-template <class TBase>
-void EvenVCO<TBase>::step_old()
-{
-  //  dispatch = &EvenVCO<TBase>::step_even;
-    const bool doEven = TBase::outputs[EVEN_OUTPUT].active;
-    const bool doTri = TBase::outputs[TRI_OUTPUT].active;
-    const bool doSaw = TBase::outputs[SAW_OUTPUT].active;
-    const bool doSq = TBase::outputs[SQUARE_OUTPUT].active;
-    const bool doSin = TBase::outputs[SINE_OUTPUT].active;
-
-    // Compute frequency, pitch is 1V/oct
-    float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
-    pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
-    pitch += TBase::inputs[FM_INPUT].value / 4.0;
-
-
-   // float freq = 261.626 * powf(2.0, pitch);
-    // TODO: pass in false
-    float freq = LookupTable<float>::lookup(*expLookup, pitch, true);
-    freq = clamp(freq, 0.0f, 20000.0f);
-   // printf("pitch = %f, freq = %f\n", pitch, freq);
-
-
-    // Advance phase
-    float deltaPhase = clamp(freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
-    float oldPhase = phase;
-    phase += deltaPhase;
-
-    if (oldPhase < 0.5 && phase >= 0.5) {
-       // printf("doing blep\n");
-        float crossing = -(phase - 0.5) / deltaPhase;
-
-        // TODO: can we turn this off?
-        triSquareMinBLEP.jump(crossing, 2.0);
-        if (doEven) {
-            doubleSawMinBLEP.jump(crossing, -2.0);
-        }
-    }
-
-        // Pulse width
-    float pw;
-    if (doSq) {
-        pw = TBase::params[PWM_PARAM].value + TBase::inputs[PWM_INPUT].value / 5.0;
-        const float minPw = 0.05f;
-        pw = rescale(clamp(pw, -1.0f, 1.0f), -1.0f, 1.0f, minPw, 1.0f - minPw);
-
-        if (!halfPhase && phase >= pw) {
-
-            float crossing = -(phase - pw) / deltaPhase;
-            squareMinBLEP.jump(crossing, 2.0);
-
-            halfPhase = true;
-        }
-    }
-
-    // Reset phase if at end of cycle
-    if (phase >= 1.0) {
-        phase -= 1.0;
-        float crossing = -phase / deltaPhase;
-        triSquareMinBLEP.jump(crossing, -2.0);
-        if (doEven) {
-            doubleSawMinBLEP.jump(crossing, -2.0);
-        }
-        if (doSq) {
-            squareMinBLEP.jump(crossing, -2.0);
-        }
-        if (doSaw) {
-            sawMinBLEP.jump(crossing, -2.0);
-        }
-        halfPhase = false;
-    }
-
-    // Outputs
-    if (doTri) {
-        float triSquare = (phase < 0.5) ? -1.0 : 1.0;
-        triSquare += triSquareMinBLEP.shift();
-
-        // Integrate square for triangle
-        tri += 4.0 * triSquare * freq * TBase::engineGetSampleTime();
-        tri *= (1.0 - 40.0 * TBase::engineGetSampleTime());
-    }
-
-    float sine = 0;
-    float even = 0;
-    float saw = 0;
-    if (doSin || doEven) {
-        //sine = -cosf(2*AudioMath::Pi * phase);
-        // TODO: phase, amp, etc right?
-
-        // want cosine, but only have sine lookup
-        float adjPhase = phase + .25f;
-        if (adjPhase >= 1) {
-            adjPhase -= 1;
-        }
-        sine = -LookupTable<float>::lookup(*sinLookup, adjPhase, true);
-    }
-    if (doEven) {
-        float doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
-        doubleSaw += doubleSawMinBLEP.shift();
-        even = 0.55 * (doubleSaw + 1.27 * sine);
-    }
-    if (doSaw) {
-        saw = -1.0 + 2.0*phase;
-        saw += sawMinBLEP.shift();
-    }
-    if (doSq) {
-        float square = (phase < pw) ? -1.0 : 1.0;
-        square += squareMinBLEP.shift();
-        TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
-    } else {
-        TBase::outputs[SQUARE_OUTPUT].value = 0;
-    }
-
-    // Set outputs
-    TBase::outputs[TRI_OUTPUT].value = doTri ? 5.0*tri : 0;
-    TBase::outputs[SINE_OUTPUT].value = 5.0*sine;
-    TBase::outputs[EVEN_OUTPUT].value = 5.0*even;
-    TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
-}
-#endif
-
 
 #pragma warning (pop)

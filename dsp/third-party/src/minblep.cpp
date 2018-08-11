@@ -7,6 +7,8 @@
 // Need to make this compile in MS tools for unit tests
 #if defined(_MSC_VER)
 #define __attribute__(x)
+
+#pragma warning(disable: 4244 4838 4305)
 #endif
 
 #include "dsp/minblep.hpp"
