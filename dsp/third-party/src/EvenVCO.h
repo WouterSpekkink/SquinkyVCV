@@ -11,10 +11,10 @@
 // Need to make this compile in MS tools for unit tests
 #if defined(_MSC_VER)
     #define __attribute__(x)
-#endif
 
-#pragma warning (push)
-#pragma warning ( disable: 4244 4267 )
+    #pragma warning (push)
+    #pragma warning ( disable: 4244 4267 )
+#endif
 
 #include "dsp/minblep.hpp"
 #include "dsp/filter.hpp"
@@ -471,4 +471,6 @@ inline void EvenVCO<TBase>::step_all(float deltaPhase)
     TBase::outputs[SQUARE_OUTPUT].value = 5.0*square;
 }
 
+#if defined(_MSC_VER)
 #pragma warning (pop)
+#endif

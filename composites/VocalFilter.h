@@ -72,7 +72,7 @@ public:
     };
 
     void init();
-    void step();
+    void step() override;
 
     float reciprocalSampleRate;
 

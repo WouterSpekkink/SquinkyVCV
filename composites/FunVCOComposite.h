@@ -45,8 +45,6 @@ public:
     };
     enum LightIds
     {
-        PHASE_POS_LIGHT,
-        PHASE_NEG_LIGHT,
         NUM_LIGHTS
     };
 
@@ -89,20 +87,10 @@ inline void FunVCOComposite<TBase>::step()
     oscillator.syncEnabled = TBase::inputs[SYNC_INPUT].active;
 
 #ifndef _ORIGVCO
-
-#if 1   // saw is 260 if we do this
-        // 203 if no process call??
     oscillator.sawEnabled = TBase::outputs[SAW_OUTPUT].active;
     oscillator.sinEnabled = TBase::outputs[SIN_OUTPUT].active;
     oscillator.sqEnabled = TBase::outputs[SQR_OUTPUT].active;
     oscillator.triEnabled = TBase::outputs[TRI_OUTPUT].active;
-  
-#else
-    oscillator.sawEnabled = true;
-    oscillator.sinEnabled = true;
-    oscillator.sqEnabled =  true;
-    oscillator.triEnabled = true;
-#endif
 #endif
 
     oscillator.process(TBase::engineGetSampleTime(), TBase::inputs[SYNC_INPUT].value);
@@ -116,6 +104,4 @@ inline void FunVCOComposite<TBase>::step()
     if (TBase::outputs[SQR_OUTPUT].active)
         TBase::outputs[SQR_OUTPUT].value = 5.0f * oscillator.sqr();
 
-    TBase::lights[PHASE_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0f, oscillator.light()));
-    TBase::lights[PHASE_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0f, -oscillator.light()));
 }

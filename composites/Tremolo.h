@@ -71,7 +71,7 @@ public:
     /**
      * Main processing entry point. Called every sample
      */
-    void step();
+    void step() override;
 
 private:
 

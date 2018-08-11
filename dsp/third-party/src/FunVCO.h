@@ -1,11 +1,20 @@
+/**
+ * This is a modified version of the VCV Fundamental VCO.
+ * See LICENSE-dist.txt for full license info.
+ * This code has been modified extensively by Squinky Labs. Mainly modifications were:
+ *      re-code hot-spots to lower CPU usage.
+ *      Fix compiler warnings.
+ *      Make it compile in Visual Studio
+ */
 #pragma once
 
-
+#if defined(_MSC_VER)
 #pragma warning (push)
 #pragma warning (disable: 4305 4244 4267)
+#endif
 
 #if !defined(M_PI)
-#define M_PI 3.14159265358979323846264338327950288
+    #define M_PI 3.14159265358979323846264338327950288
 #endif
 
 #include "dsp/filter.hpp"
@@ -21,6 +30,8 @@
 extern float sawTable[2048];
 extern float triTable[2048];
 
+// When this is defined, will use Squinky Labs anti-aliasing decimators,
+// rather than  rack::Decimator<>
 #define _USEIIR
 
 template <int OVERSAMPLE>
@@ -47,41 +58,8 @@ public:
 private:
     BiquadParams<float, 3> params;
     BiquadState<float, 3> state;
-
 };
 
-/**
- * orig, all outputs off - 394
- * orig, all outputs on - 809
- * orig, saw only = 492
- *
- * mine 7/27
- * all outputs off - 47
- * all outputs on - 475
- * saw only - 149
- * sin only - 154
- * sq only - 153;
- *
- * why does all off take so long?
- * remove inner loop, all off - 6!!
- * no inner loop, saw only 205
- * inner loop, no decimator saw - 158
-
- * no decimator, no pitch calc.
- * saw - 142
- * all off - 36
- * all on - 624
- *
- * dedicated saw path (used for all
- * saw - 236, 233 optimized
- *
- * IIR Decimators
- * all outputs off - 42
- * all outputs on - 214
- * saw only - 80
- * sin only - 88
- * sq only - 92
- */
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator
 {
@@ -117,8 +95,6 @@ struct VoltageControlledOscillator
 #endif
     RCFilter sqrFilter;
 
-
-
     // For analog detuning effect
     float pitchSlew = 0.0f;
     int pitchSlewIndex = 0;
@@ -128,6 +104,7 @@ struct VoltageControlledOscillator
     float sawBuffer[OVERSAMPLE] = {};
     float sqrBuffer[OVERSAMPLE] = {};
 
+    // Use interpolating lookups for these transcendentals
     std::shared_ptr<LookupTableParams<float>> sinLookup;
     std::function<float(float)> expLookup;
 
@@ -136,7 +113,7 @@ struct VoltageControlledOscillator
         sinLookup = ObjectCache<float>::getSinLookup();
         expLookup = ObjectCache<float>::getExp2Ex();
 
-        // first guess - an octave below nyquist .25   
+        // Set anti-alias 3-db down point an octave below nyquist: .25   
         float cutoff = .25f / float(OVERSAMPLE);
 
         sinDecimator.setCutoff(cutoff);
@@ -145,7 +122,7 @@ struct VoltageControlledOscillator
         triDecimator.setCutoff(cutoff);
     }
 
-    // TODO: what is the range of the one in VCV?
+    // Use the standard c++ library for random generation
     std::default_random_engine generator{99};
     std::normal_distribution<double> distribution{0, 1.0};
     float noise()
@@ -166,22 +143,22 @@ struct VoltageControlledOscillator
             pitch = roundf(pitch);
         }
         pitch += pitchCv;
+
         // Note C4
        // freq = 261.626f * powf(2.0f, pitch / 12.0f);
-
         const float q = float(log2(261.626));       // move up to pitch range up
-       // pitch += q;
         pitch = (pitch / 12.0f) + q;
         freq = expLookup(pitch);
     }
+
     void setPulseWidth(float pulseWidth)
     {
         const float pwMin = 0.01f;
         pw = clamp(pulseWidth, pwMin, 1.0f - pwMin);
     }
+
     void process(float deltaTime, float syncValue)
     {
-       // processSaw(deltaTime, syncValue);
         assert(sinLookup);
         assert(sampleTime > 0);
         if (analog) {
@@ -218,10 +195,7 @@ struct VoltageControlledOscillator
             sqrFilter.setCutoff(40.0f * deltaTime);
         }
 
-
         for (int i = 0; i < OVERSAMPLE; i++) {
-
-           // if (syncEnabled) {
             if (syncIndex == i) {
                 if (soft) {
                     syncDirection = !syncDirection;
@@ -231,7 +205,6 @@ struct VoltageControlledOscillator
                     phase = 0.0f;
                 }
             }
-       // }
 
             if (sinEnabled) {
                 if (analog) {
@@ -281,7 +254,7 @@ struct VoltageControlledOscillator
             }
 
             // don't divide by oversample every time.
-            // don't do that expensive mod (TODO: is this correct?)
+            // don't do that expensive mod
             phase += deltaPhaseOver;
             while (phase > 1.0f) {
                 phase -= 1.0f;
@@ -308,10 +281,12 @@ struct VoltageControlledOscillator
     {
         return sqrDecimator.process(sqrBuffer);
     }
+#if 0
     float light()
     {
         return sinf(2 * M_PI * phase);
     }
+#endif
 };
 
 
@@ -487,5 +462,6 @@ struct VoltageControlledOscillatorOrig
     }
 };
 
-
-#pragma warning(pop)
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif

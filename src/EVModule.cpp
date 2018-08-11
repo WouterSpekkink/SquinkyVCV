@@ -207,7 +207,7 @@ EVWidget::EVWidget(EVModule *module) : ModuleWidget(module)
         module, module->vco.OCTAVE_PARAM, -5.0, 4.0, 0.0);
 
     addParam(octaveKnob);
-    auto label = addLabel(Vec(20, 88), "octave:");
+    addLabel(Vec(20, 88), "octave:");
     //label->fontSize = 16;
 
     octaveLabel = addLabel(Vec(70, 90), "xx");
