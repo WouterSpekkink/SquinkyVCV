@@ -12,7 +12,7 @@ public:
     {
         init();
     }
-	FunVCOComposite(struct Module * module) : TBase(module)
+    FunVCOComposite(struct Module * module) : TBase(module)
     {
         init();
     }
@@ -62,9 +62,9 @@ public:
 
 private:
 #ifdef _ORIGVCO
-    VoltageControlledOscillatorOrig<16,16> oscillator;
+    VoltageControlledOscillatorOrig<16, 16> oscillator;
 #else
-    VoltageControlledOscillator<16,16> oscillator;
+    VoltageControlledOscillator<16, 16> oscillator;
 #endif
 };
 

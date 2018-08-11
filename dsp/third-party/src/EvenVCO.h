@@ -10,10 +10,10 @@
 
 // Need to make this compile in MS tools for unit tests
 #if defined(_MSC_VER)
-    #define __attribute__(x)
+#define __attribute__(x)
 
-    #pragma warning (push)
-    #pragma warning ( disable: 4244 4267 )
+#pragma warning (push)
+#pragma warning ( disable: 4244 4267 )
 #endif
 
 #include "dsp/minblep.hpp"
@@ -92,7 +92,7 @@ struct EvenVCO : TBase
     int dispatcher = 0;
     int loopCounter = 0;
 
-  
+
     /**
      * To avoid scanning outputs for changes every sample, we
      * save the state here.
@@ -457,7 +457,7 @@ inline void EvenVCO<TBase>::step_all(float deltaPhase)
     if (doSq) {
         square = (phase < pw) ? -1.0 : 1.0;
         square += squareMinBLEP.shift();
-       
+
     } else {
         TBase::outputs[SQUARE_OUTPUT].value = 0;
     }

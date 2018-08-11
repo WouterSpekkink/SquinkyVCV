@@ -14,7 +14,7 @@
 #endif
 
 #if !defined(M_PI)
-    #define M_PI 3.14159265358979323846264338327950288
+#define M_PI 3.14159265358979323846264338327950288
 #endif
 
 #include "dsp/filter.hpp"
@@ -463,5 +463,5 @@ struct VoltageControlledOscillatorOrig
 };
 
 #if defined(_MSC_VER)
-    #pragma warning(pop)
+#pragma warning(pop)
 #endif
