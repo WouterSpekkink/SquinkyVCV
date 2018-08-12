@@ -117,7 +117,7 @@ void FunVWidget::addJacks(FunVModule * module, float verticalShift)
     const float outputLabelY = 300;
 
     addInput(Port::create<PJ301MPort>(Vec(col1, 273+verticalShift), Port::INPUT, module, module->vco.PITCH_INPUT));
-    addLabel(Vec(10, 255+verticalShift), "cv");
+    addLabel(Vec(9, 255+verticalShift), "cv");
 
     addInput(Port::create<PJ301MPort>(Vec(col2, 273+verticalShift), Port::INPUT, module, module->vco.FM_INPUT));
     addLabel(Vec(43, 255+verticalShift), "fm");
