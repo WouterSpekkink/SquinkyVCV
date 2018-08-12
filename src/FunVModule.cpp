@@ -6,7 +6,6 @@
 #if 1
 #include "FunVCOComposite.h"
 
-
 /**
  */
 struct FunVModule : Module
@@ -38,7 +37,6 @@ FunVModule::FunVModule()
     vco(this)
 {
     onSampleRateChange();
-    //gmr.init();
 }
 
 void FunVModule::step()
@@ -108,7 +106,6 @@ void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(91, 208 + verticalShift),
         module, module->vco.PWM_PARAM, 0.0f, 1.0f, 0.0f));
     addLabel(Vec(82, 188 +verticalShift), "pwm cv");
-
 }
 
 void FunVWidget::addJacks(FunVModule * module, float verticalShift)
@@ -137,6 +134,7 @@ void FunVWidget::addJacks(FunVModule * module, float verticalShift)
     addOutput(Port::create<PJ301MPort>(Vec(114, 317+verticalShift), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
     addLabel(Vec(111, 298+verticalShift), "sqr");
 }
+
 /**
  * Widget constructor will describe my implementation structure and
  * provide meta-data.
@@ -161,14 +159,12 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-    //addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(99, 42.5f), module, module->vco.::PHASE_POS_LIGHT));
 }
 
 Model *modelFunVModule = Model::create<FunVModule,
     FunVWidget>("Squinky Labs",
     "squinkylabs-funv",
-    "Funny VCO-1", OSCILLATOR_TAG);
+    "Functional VCO-1", OSCILLATOR_TAG);
 
 #endif
 

@@ -47,7 +47,7 @@ static void testx(float octave, float tune = 0, float pitch1 = 0, float pitch2 =
    // printf("test, oct=%f, freq=%.2f desired=%.2f\n", octave, vco._freq, desired);
     if (desired > 20000) {
         // lookup table doesn't go past 20k. that's fine
-        assertGE(vco._freq, 20000-1);
+        assertGE(vco._freq, 20000 - 1);
     } else {
         assertClose(vco._freq, desired, 1.5);     // todo: make better tolerance
     }

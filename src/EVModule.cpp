@@ -3,7 +3,7 @@
 #include "Squinky.hpp"
 #include "WidgetComposite.h"
 
-#if 1
+#ifdef _EV
 
 #include "EvenVCO.h"
 

@@ -1,7 +1,7 @@
 #include "rack.hpp"
 
 //#define _GMR
-#define _CHB
+//#define _CHB
 
 using namespace rack;
 extern Plugin *plugin;
@@ -21,7 +21,9 @@ extern Model *modelGMRModule;
 #ifdef _CPU_HOG
 extern Model *modelCPU_HogModule;
 #endif
+#ifdef _EV
 extern Model *modelEVModule;
+#endif
 extern Model *modelFunVModule;
 
 

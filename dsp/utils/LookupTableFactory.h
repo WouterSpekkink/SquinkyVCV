@@ -49,7 +49,7 @@ public:
     {
         return  2;
     }
-    
+
     static double exp2ExLowYMax()
     {
         return  400;
