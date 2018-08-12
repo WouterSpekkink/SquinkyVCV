@@ -15,7 +15,9 @@ public:
         module(parent)
     {
     }
-    virtual void step();
+    virtual void step()
+    {
+    };
     float engineGetSampleRate()
     {
         return ::engineGetSampleRate();
