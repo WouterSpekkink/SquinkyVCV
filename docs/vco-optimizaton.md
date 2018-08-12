@@ -1,28 +1,23 @@
-# Notes about the creation of Fun-1 and EvilVCO
+# Notes about the creation of Functional VCO-1
 
-## About the Originals
-Both VCV’s Fundamental VCO-1 and Befaco’s EvenVCO are very high quality, excellent sounding VCO’s. They do exactly what they claim to do with very little digital artifacts. Because they are so good, they are very popular. For this reason they seemed like good candidates for a CPU diet. VCV users continue to complain about popping and clicking with large patches, so we hope improvements to these popular modules will help. 
+## About the Original
+Fundamental VCO-1 is a very high quality, excellent sounding VCO. It does exactly what it claim to do with very little digital artifacts. VCO-1 is a very popular module; for this reason it seemed like a good candidate for a CPU diet. VCV users continue to complain about popping and clicking with large patches, so we hope improvements to these popular modules will help. 
 
-Fundamental VCO-1 uses 16X oversampling to generate standard waveforms, in both “analog” and “digital” versions. The oversampling keeps the aliasing low, allows hard and soft sync with low aliasing, and suppresses aliasing from audio rate modulation.
+Fundamental VCO-1 uses 16X oversampling to generate standard waveforms, in both "analog" and "digital" versions. The oversampling keeps the aliasing low, allows hard and soft sync with low aliasing, and suppresses aliasing from audio rate modulation.
 
 As such, Fundamental VCO-1 is a very good substitute for an analog VCO. The only down-side is that the 16X oversampling increases the CPU usage dramatically.
 
-EvenVCO uses a standard MinBLEP algorithm to get the same low aliasing as an oversampled VCO, with less cost in CPU usage. That’s the reason MinBLEP is such a popular algorithm in “Virtual Analog” synthesizers.
-
-In addition, EvenVCO has an ingenious twist – the “even” waveform which consists of the fundamental and only even harmonics. Although EvenVCO has a synch input on the panel, it is not connected to anything. 
-
-In revamping these modules, we wanted to try as much as possible to preserve the sound exactly like the originals. We did not add any new features, or try to make anything “better”. And when we put the code on a diet we did not want to lower the sound quality of these classic modules.
+In revamping this VCO, we wanted to try as much as possible to preserve the sound exactly like the original. We did not add any new features, or try to make anything "better". And when we put the code on a diet we did not want to lower the sound quality of thsse classic module.
 
 ## Initial Measurements
 
 It is difficult to accurately measure the CPU usage of a VCV module, although since version 0.6 there have been CPU meters which are very useful for getting an overall picture of CPU usage. But the CPU meters do not enable stable, accurate, and repeatable measurements.
 
 So we more or less run the plugins in an isolated test framework. This lets us get good measurements. The down side is that the isolated system is different from running in VCV, and the numbers won’t correlate exactly.
-We use an arbitrary scale for our measurements, where “100” means that the plugin under test seems to be using 1% of the available CPU on one core of our quite old Intel Core i5 Windows7 computer.
+We use an arbitrary scale for our measurements, where "100" means that the plugin under test seems to be using 1% of the available CPU on one core of our quite old Intel Core i5 Windows7 computer.
 
 Here are the initial measurements we took before any optimizations were done, along with some Squinky Labs modules for reference:
 
-* EvenVCO: 59.9
 * Fundamental VCO-1, all outputs patched, digital: 798
 * Fundamental VCO-1, saw only, digital: 489
 * Fundamental VCO-1, saw only, analog: 270
@@ -32,7 +27,7 @@ Here are the initial measurements we took before any optimizations were done, al
 * SL Booty Shifter: 11.2
 * SL Colors: 11.6
 
-So, by our standards, EvenVCO is reasonably light-weight. Although it is only a single VCO, the CPU usage is pretty low. In contrast, the Fundamental VCO-1 uses a LOT of CPU. Initially it would seem that it would be easier to speed up VCO-1 than EvenVCO, but that did not turn out to be the case.
+Fundamental VCO-1 uses a LOT of CPU. Since it is so heavy in its CPU usage, we thought it would be easy to make it much faster. But it was not as easy as we had hoped.
 
 ## General approach to optimization
 
@@ -61,27 +56,26 @@ So we ended up doing the following:
 
 Most of this was relatively easy, as we had a lot of the necessary code already from other Squinky Labs modules. It did turn out that our exponential lookup table wasn’t accurate enough for us, so we spent a lot of time making and testing a better one.
 
-## What we did to Fun VCO-1
+## What we did to Fundamental VCO-1
+
 VCO-1 already had some optimization. Although the waveform generation runs for all waveforms the decimation filters are only run for outputs that are connected. The decimation filters are the same ones used by the VCV Rack audio engine, so we assumed they are linear phase FIR filters, as is customary for high quality sample rate conversion.
 
 But, since this is an oversampling VCO, the waveform generation is running at 16X sample rate. Any extra work in this “inner loop” is going to be magnified by 16.
 
 That said, our experiments showed few surprises.
 
-* Since cosf is called all the time in the 16X waveform generation loop, it was a no-brainer to replace it with the same sin lookup table used in most of our modules. Likewise, we made sure that cosf is only called if the SIN output is connected.
-* Again, it was worthwhile getting rid of the powf call, although the gain was not as significant as with EvenVCO, since VCO-1 just uses so much more CPU.
-* As with EvenVCO, we made sure that the waveform generation is only done for waveforms that are connected.
+* Since cosf() is called all the time in the 16X waveform generation loop, it was a no-brainer to replace it with the same sin lookup table we use in most of our modules. Likewise, we made sure that cosf is only called if the SIN output is connected.
+* The powf() call is also slow and it was worthwhile getting rid of the powf call, although the gain was enormous since powf is only called once per sample.
+* We refactored the inner loop to make sure that the waveform generation is only done for waveforms whose output is patched.
 * The decimation filters use a lot of CPU, so we replaced the stock ones with simple 6-pole butterworth lowpass filters.
 * It would of course save CPU to reduce the oversampling rate, but we did not want to decrease the quality.
 
-Again, most of the software required was already in the code-base for our other modules. The one thing that was difficult here was devising test software to measure the aliasing. We wanted to be sure that our faster decimation filters were not increasing the level of aliasing. 
+Again, most of the software required was already in the code-base for our other modules. The one thing that was difficult here was devising test software to measure the aliasing. We wanted to be sure that our faster decimation filters were not increasing the level of aliasing. While this new alias test is not perfect, it did give us confidence that we were not increasing the aliasing with our substituted filters.
 
 ## Results
+
 Before and after:
 
-* EvenVCO, all outputs: 59.9 -> 26.8 (X2.4)
-* EvenVCO, even output: 59.9 -> 20.0 (X3)
-* EvenVCO, sawtooth: 59.9 -> 14.2 (4.2)
 * Fundamental VCO-1, all outputs patched, digital: 798 -> 187.8 (X4.2)
 * Fundamental VCO-1, saw only, digital: 489 -> 83.7 (X5.8)
 * Fundamental VCO-1, saw only, analog: 270 -> 83 (X2.3)
