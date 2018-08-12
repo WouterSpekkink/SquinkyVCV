@@ -75,8 +75,8 @@ void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 
     addParam(ParamWidget::create<NKK>(Vec(left, 66 + verticalShift),
         module, module->vco.MODE_PARAM, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(left -3, 48+ verticalShift), "anlg");
-    addLabel(Vec(left -2, 108+ verticalShift), "dgtl");
+    addLabel(Vec(left -4, 48+ verticalShift), "anlg");
+    addLabel(Vec(left -3, 108+ verticalShift), "dgtl");
 
     addParam(ParamWidget::create<Rogan3PSBlue>(Vec(center, 61 + verticalShift),
         module, module->vco.FREQ_PARAM, -54.0f, 54.0f, 0.0f));
@@ -85,8 +85,8 @@ void FunVWidget::addTop3(FunVModule * module, float verticalShift)
 
     addParam(ParamWidget::create<NKK>(Vec(right, 66 + verticalShift),
         module, module->vco.SYNC_PARAM, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(right-4, 48+ verticalShift), "hard");
-    addLabel(Vec(right-0, 108+ verticalShift), "soft");
+    addLabel(Vec(right-5, 48+ verticalShift), "hard");
+    addLabel(Vec(right-2, 108+ verticalShift), "soft");
 }
 
 void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
@@ -110,29 +110,35 @@ void FunVWidget::addMiddle4(FunVModule * module, float verticalShift)
 
 void FunVWidget::addJacks(FunVModule * module, float verticalShift)
 {
-    addInput(Port::create<PJ301MPort>(Vec(11, 273+verticalShift), Port::INPUT, module, module->vco.PITCH_INPUT));
-    addLabel(Vec(6, 255+verticalShift), "v/8");
+    const float col1 = 12;
+    const float col2 = 46;
+    const float col3 = 81;
+    const float col4 = 115;
+    const float outputLabelY = 300;
 
-    addInput(Port::create<PJ301MPort>(Vec(45, 273+verticalShift), Port::INPUT, module, module->vco.FM_INPUT));
-    addLabel(Vec(42, 255+verticalShift), "fm");
+    addInput(Port::create<PJ301MPort>(Vec(col1, 273+verticalShift), Port::INPUT, module, module->vco.PITCH_INPUT));
+    addLabel(Vec(10, 255+verticalShift), "cv");
 
-    addInput(Port::create<PJ301MPort>(Vec(80, 273+verticalShift), Port::INPUT, module, module->vco.SYNC_INPUT));
-    addLabel(Vec(70, 255+verticalShift), "sync");
+    addInput(Port::create<PJ301MPort>(Vec(col2, 273+verticalShift), Port::INPUT, module, module->vco.FM_INPUT));
+    addLabel(Vec(43, 255+verticalShift), "fm");
 
-    addInput(Port::create<PJ301MPort>(Vec(114, 273+verticalShift), Port::INPUT, module, module->vco.PW_INPUT));
-    addLabel(Vec(106, 255+verticalShift), "pwm");
+    addInput(Port::create<PJ301MPort>(Vec(col3, 273+verticalShift), Port::INPUT, module, module->vco.SYNC_INPUT));
+    addLabel(Vec(72, 255+verticalShift), "sync");
 
-    addOutput(Port::create<PJ301MPort>(Vec(11, 317+verticalShift), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
-    addLabel(Vec(7, 298+verticalShift), "sin");
+    addInput(Port::create<PJ301MPort>(Vec(col4, 273+verticalShift), Port::INPUT, module, module->vco.PW_INPUT));
+    addLabel(Vec(107, 255+verticalShift), "pwm");
 
-    addOutput(Port::create<PJ301MPort>(Vec(45, 317+verticalShift), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
-    addLabel(Vec(42, 298+verticalShift), "tri");
+    addOutput(Port::create<PJ301MPort>(Vec(col1, 317+verticalShift), Port::OUTPUT, module, module->vco.SIN_OUTPUT));
+    addLabel(Vec(8, outputLabelY+verticalShift), "sin", COLOR_WHITE);
 
-    addOutput(Port::create<PJ301MPort>(Vec(80, 317+verticalShift), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
-    addLabel(Vec(75, 298+verticalShift), "saw");
+    addOutput(Port::create<PJ301MPort>(Vec(col2, 317+verticalShift), Port::OUTPUT, module, module->vco.TRI_OUTPUT));
+    addLabel(Vec(44, outputLabelY+verticalShift), "tri", COLOR_WHITE);
 
-    addOutput(Port::create<PJ301MPort>(Vec(114, 317+verticalShift), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
-    addLabel(Vec(111, 298+verticalShift), "sqr");
+    addOutput(Port::create<PJ301MPort>(Vec(col3, 317+verticalShift), Port::OUTPUT, module, module->vco.SAW_OUTPUT));
+    addLabel(Vec(75, outputLabelY+verticalShift), "saw", COLOR_WHITE);
+
+    addOutput(Port::create<PJ301MPort>(Vec(col4, 317+verticalShift), Port::OUTPUT, module, module->vco.SQR_OUTPUT));
+    addLabel(Vec(111, outputLabelY+verticalShift), "sqr", COLOR_WHITE);
 }
 
 /**
@@ -146,7 +152,7 @@ FunVWidget::FunVWidget(FunVModule *module) : ModuleWidget(module)
     {
         SVGPanel *panel = new SVGPanel();
         panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
+        panel->setBackground(SVG::load(assetPlugin(plugin, "res/fun_panel.svg")));
         addChild(panel);
     }
 
