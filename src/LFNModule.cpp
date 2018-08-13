@@ -173,5 +173,5 @@ void LFNLabelUpdater::update(struct LFNWidget& widget)
 Model *modelLFNModule = Model::create<LFNModule,
     LFNWidget>("Squinky Labs",
     "squinkylabs-lfn",
-    "LFN - Random Voltages", EFFECT_TAG, LFO_TAG);
+    "LFN: Random Voltages", NOISE_TAG, RANDOM_TAG, LFO_TAG);
 

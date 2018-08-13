@@ -15,21 +15,24 @@ void init(rack::Plugin *p)
     p->version = TOSTRING(VERSION);
 
     p->addModel(modelBootyModule);
-
-    assert(modelVocalModule);
     p->addModel(modelVocalModule);
     p->addModel(modelVocalFilterModule);
     p->addModel(modelColoredNoiseModule);
     p->addModel(modelTremoloModule);
     p->addModel(modelThreadBoostModule);
     p->addModel(modelLFNModule);
+#ifdef _CHB
+    p->addModel(modelCHBModule);
+#endif
 #ifdef _GMR
     p->addModel(modelGMRModule);
 #endif
-
 #ifdef _CPU_HOG
     assert(modelCPU_HogModule);
     p->addModel(modelCPU_HogModule);
 #endif
-
+    p->addModel(modelFunVModule);
+#ifdef _EV
+    p->addModel(modelEVModule);
+#endif
 }

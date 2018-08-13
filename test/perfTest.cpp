@@ -3,6 +3,9 @@
 #include <cmath>
 #include <limits>
 
+#include "EvenVCO.h"
+//#include "EvenVCO_orig.h"
+
 #include "AudioMath.h"
 #include "BiquadParams.h"
 #include "BiquadFilter.h"
@@ -17,6 +20,9 @@
 #include "VocalFilter.h"
 #include "LFN.h"
 #include "GMR.h"
+#include "CHB.h"
+#include "FunVCOComposite.h"
+
 
 using Shifter = FrequencyShifter<TestComposite>;
 using Animator = VocalAnimator<TestComposite>;
@@ -108,7 +114,9 @@ double overheadOutOnly = 0;
 
 static void setup()
 {
-
+#ifdef _DEBUG
+//    assert(false);  // don't run this in debug
+#endif
     double d = .1;
     const double scale = 1.0 / RAND_MAX;
     overheadInOut = MeasureTime<float>::run(0.0, "test1 (do nothing i/o)", [&d, scale]() {
@@ -243,6 +251,251 @@ static void testLFN()
         }, 1);
 }
 
+#if 0
+static void testEvenOrig()
+{
+    EvenVCO_orig<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO_orig<TestComposite>::EVEN_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::SINE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::TRI_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO_orig<TestComposite>::SAW_OUTPUT].active = true;
+
+    for (int i = 0; i < 100; ++i) lfn.step();
+
+    MeasureTime<float>::run(overheadOutOnly, "Even orig", [&lfn]() {
+        lfn.inputs[EvenVCO_orig<TestComposite>::PITCH1_INPUT].value = TestBuffers<float>::get();
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
+        }, 1);
+}
+#endif
+
+static void testEven()
+{
+    EvenVCO<TestComposite> lfn;
+
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
+    MeasureTime<float>::run(overheadOutOnly, "Even, all outs", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenEven()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, even only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenSin()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, sin only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenSaw()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
+
+    for (int i = 0; i < 100; ++i) lfn.step();
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, saw only", [&lfn]() {
+        lfn.inputs[EvenVCO<TestComposite>::PITCH1_INPUT].value = TestBuffers<float>::get();
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
+
+static void testEvenTri()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, tri only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenSq()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = false;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, Sq only", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
+
+static void testEvenSqSaw()
+{
+    EvenVCO<TestComposite> lfn;
+
+    lfn.outputs[EvenVCO<TestComposite>::EVEN_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SINE_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[EvenVCO<TestComposite>::SQUARE_OUTPUT].active = true;
+    lfn.outputs[EvenVCO<TestComposite>::SAW_OUTPUT].active = true;
+
+    MeasureTime<float>::run(overheadOutOnly, "Even, Sq Saw", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[EvenVCO<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
+
+static void testFun()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    for (int i = 0; i < lfn.NUM_OUTPUTS; ++i) {
+        lfn.outputs[i].active = true;
+    }
+
+    lfn.setSampleRate(44100.f);
+    const bool isAnalog = false;
+    lfn.params[FunVCOComposite<TestComposite>::MODE_PARAM].value = isAnalog ? 1.0f : 0.f;
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun all on, digital", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value +
+            lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value +
+            lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].value +
+            lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunNone()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    for (int i = 0; i < lfn.NUM_OUTPUTS; ++i) {
+        lfn.outputs[i].active = false;
+    }
+
+    lfn.setSampleRate(44100.f);
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun all off", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunSaw(bool isAnalog)
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = true;
+
+    //  oscillator.analog = TBase::params[MODE_PARAM].value > 0.0f;
+    lfn.params[FunVCOComposite<TestComposite>::MODE_PARAM].value = isAnalog ? 1.0f : 0.f;
+
+    lfn.setSampleRate(44100.f);
+
+    std::string title = isAnalog ? "Fun Saw Analog" : "Fun Saw Digital";
+    MeasureTime<float>::run(overheadOutOnly, title.c_str(), [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunSin(bool isAnalog)
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].active = true;
+    lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = false;
+
+    lfn.params[FunVCOComposite<TestComposite>::MODE_PARAM].value = isAnalog ? 1.0f : 0.f;
+
+    lfn.setSampleRate(44100.f);
+
+    std::string title = isAnalog ? "Fun Sin Analog" : "Fun Sin Digital";
+    MeasureTime<float>::run(overheadOutOnly, title.c_str(), [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
+static void testFunSq()
+{
+    FunVCOComposite<TestComposite> lfn;
+
+    lfn.outputs[FunVCOComposite<TestComposite>::SIN_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::TRI_OUTPUT].active = false;
+    lfn.outputs[FunVCOComposite<TestComposite>::SQR_OUTPUT].active = true;
+    lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].active = false;
+
+    lfn.setSampleRate(44100.f);
+
+    MeasureTime<float>::run(overheadOutOnly, "Fun sq", [&lfn]() {
+        lfn.step();
+        return lfn.outputs[FunVCOComposite<TestComposite>::SAW_OUTPUT].value;
+        }, 1);
+}
+
+static void testCHB()
+{
+    CHB<TestComposite> chb;
+
+    chb.setSampleTime(1.0f / 44100.f);
+    chb.init();
+
+    MeasureTime<float>::run(overheadOutOnly, "chb", [&chb]() {
+        chb.step();
+        return chb.outputs[LFN<TestComposite>::OUTPUT].value;
+        }, 1);
+}
+
 static void testGMR()
 {
     GMR<TestComposite> gmr;
@@ -252,7 +505,7 @@ static void testGMR()
 
     MeasureTime<float>::run(overheadOutOnly, "gmr", [&gmr]() {
         gmr.step();
-        return gmr.outputs[GMR<TestComposite>::OUTPUT].value;
+        return gmr.outputs[GMR<TestComposite>::TRIGGER_OUTPUT].value;
         }, 1);
 }
 
@@ -294,21 +547,125 @@ static void testAttenuverters()
 }
 #endif
 
+#if 0
+static void testNoise(bool useDefault)
+{
+
+    std::default_random_engine defaultGenerator{99};
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution<double> distribution{0, 1.0};
+
+    std::string title = useDefault ? "default random" : "fancy random";
+
+    MeasureTime<float>::run(overheadOutOnly, title.c_str(), [useDefault, &distribution, &defaultGenerator, &gen]() {
+        if (useDefault) return distribution(defaultGenerator);
+        else return distribution(gen);
+        }, 1);
+}
+
+
+static uint64_t xoroshiro128plus_state[2] = {};
+
+static uint64_t rotl(const uint64_t x, int k)
+{
+    return (x << k) | (x >> (64 - k));
+}
+
+static uint64_t xoroshiro128plus_next(void)
+{
+    const uint64_t s0 = xoroshiro128plus_state[0];
+    uint64_t s1 = xoroshiro128plus_state[1];
+    const uint64_t result = s0 + s1;
+
+    s1 ^= s0;
+    xoroshiro128plus_state[0] = rotl(s0, 55) ^ s1 ^ (s1 << 14); // a, b
+    xoroshiro128plus_state[1] = rotl(s1, 36); // c
+
+    return result;
+}
+
+float randomUniformX()
+{
+    // 24 bits of granularity is the best that can be done with floats while ensuring that the return value lies in [0.0, 1.0).
+    return (xoroshiro128plus_next() >> (64 - 24)) / powf(2, 24);
+}
+
+float randomNormalX()
+{
+    // Box-Muller transform
+    float radius = sqrtf(-2.f * logf(1.f - randomUniformX()));
+    float theta = 2.f * M_PI * randomUniformX();
+    return radius * sinf(theta);
+
+    // // Central Limit Theorem
+    // const int n = 8;
+    // float sum = 0.0;
+    // for (int i = 0; i < n; i++) {
+    // 	sum += randomUniform();
+    // }
+    // return (sum - n / 2.f) / sqrtf(n / 12.f);
+}
+
+static void testNormal()
+{
+    MeasureTime<float>::run(overheadOutOnly, "normal", []() {
+        return randomNormalX();
+        }, 1);
+}
+#endif
+
 void perfTest()
 {
+    printf("starting perf test\n");
+    fflush(stdout);
     setup();
 #if 0
     testAttenuverters();
     testExpRange();
 #endif
-    testLFN();
-    testGMR();
+
+#if 0
+    testNoise(false);
+    testNoise(true);
+    testNormal();
+#endif
+
+
+    testFunSaw(true);
+    testFunSaw(false);
+#if 1
+    testFunSin(true);
+    testFunSin(false);
+    testFunSq();
+    testFun();
+    testFunNone();
+#endif
+
+//    testEvenOrig();
+    testEvenSaw();
+#if 1
+    testEven();
+    testEvenEven();
+    testEvenSin();
+    testEvenSaw();
+    testEvenTri();
+    testEvenSq();
+    testEvenSqSaw();
+#endif
+
+#if 0
+
     testVocalFilter();
     testAnimator();
     testShifter();
 
     testColors();
     testTremolo();
+    testCHB();
+    testLFN();
+    testGMR();
+#endif
 
    // test1();
 #if 0

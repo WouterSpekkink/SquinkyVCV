@@ -58,6 +58,30 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getExp2()
     return ret;
 }
 
+template <typename T>
+std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getExp2ExtendedLow()
+{
+    std::shared_ptr< LookupTableParams<T>> ret = exp2ExLow.lock();
+    if (!ret) {
+        ret = std::make_shared<LookupTableParams<T>>();
+        LookupTableFactory<T>::makeExp2ExLow(*ret);
+        exp2ExLow = ret;
+    }
+    return ret;
+}
+
+template <typename T>
+std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getExp2ExtendedHigh()
+{
+    std::shared_ptr< LookupTableParams<T>> ret = exp2ExHigh.lock();
+    if (!ret) {
+        ret = std::make_shared<LookupTableParams<T>>();
+        LookupTableFactory<T>::makeExp2ExHigh(*ret);
+        exp2ExHigh = ret;
+    }
+    return ret;
+}
+
 
 
 template <typename T>
@@ -89,7 +113,23 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getTanh5()
     return ret;
 }
 
-// The weak pointer that hold our singletons.
+/**
+ * Lambda capture two smart pointers to lookup table params,
+ * so lifetime of the lambda control their reft.
+ */
+template <typename T>
+std::function<T(T)> ObjectCache<T>::getExp2Ex()
+{
+    std::shared_ptr < LookupTableParams<T>> low = getExp2ExtendedLow();
+    std::shared_ptr < LookupTableParams<T>> high = getExp2ExtendedHigh();
+    const T xDivide = (T) LookupTableFactory<T>::exp2ExHighXMin();
+    return [low, high, xDivide](T x) {
+        auto params = (x < xDivide) ? low : high;
+        return LookupTable<T>::lookup(*params, x, true);
+    };
+}
+
+// The weak pointers that hold our singletons.
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::bipolarAudioTaper;
 
@@ -101,6 +141,12 @@ std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::sinLookupTable;
 
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2;
+
+template <typename T>
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2ExLow;
+
+template <typename T>
+std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::exp2ExHigh;
 
 template <typename T>
 std::weak_ptr<LookupTableParams<T>> ObjectCache<T>::db2Gain;

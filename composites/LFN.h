@@ -113,7 +113,7 @@ public:
     /**
      * Main processing entry point. Called every sample
      */
-    void step();
+    void step() override;
 
     float getBaseFrequency() const
     {
@@ -129,7 +129,7 @@ public:
 private:
     float reciprocalSampleRate = 0;
 
-    Decimator decimator;
+    ::Decimator decimator;
 
     GraphicEq2<5> geq;
 
@@ -138,7 +138,7 @@ private:
      * Tried double for best low frequency performance. It's
      * probably overkill, but calculates plenty fast.
      */
-    using TButter = double;                                 
+    using TButter = double;
     BiquadParams<TButter, 2> lpfParams;
     BiquadState<TButter, 2> lpfState;
 
@@ -170,15 +170,15 @@ private:
      * scaling function for the range / base frequency knob
      * map knob range from .1 Hz to 2.0 Hz
      */
-    std::function<double(double)> rangeFunc = 
-        { AudioMath::makeFunc_Exp(-5, 5, .1, 2) };
+    std::function<double(double)> rangeFunc =
+        {AudioMath::makeFunc_Exp(-5, 5, .1, 2)};
 
     /**
      * Audio taper for the EQ gains. Arbitrary max value selected
      * to give "good" output level.
      */
-    AudioMath::SimpleScaleFun<float> gainScale = 
-        { AudioMath::makeSimpleScalerAudioTaper(0, 35) };
+    AudioMath::SimpleScaleFun<float> gainScale =
+        {AudioMath::makeSimpleScalerAudioTaper(0, 35)};
 };
 
 template <class TBase>
@@ -195,7 +195,7 @@ inline void LFN<TBase>::pollForChangeOnUIThread()
 template <class TBase>
 inline void LFN<TBase>::init()
 {
-    updateLPF(); 
+    updateLPF();
 }
 
 template <class TBase>

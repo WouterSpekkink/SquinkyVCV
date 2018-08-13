@@ -16,9 +16,8 @@ static void test0()
 }
 
 const float sampleRate = 44100;
-//std::function<double(double)>
 template<typename T>
-static void doLowpassTest( std::function<float(float)> filter, T Fc, T expectedSlope)
+static void doLowpassTest(std::function<float(float)> filter, T Fc, T expectedSlope)
 {
     const int numSamples = 16 * 1024;
     FFTDataCpx response(numSamples);
@@ -26,7 +25,7 @@ static void doLowpassTest( std::function<float(float)> filter, T Fc, T expectedS
 
     auto x = Analyzer::getMaxAndShoulders(response, -3);
 
-    const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
+    const double cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
 
     // Is the peak at zero? i.e. no ripple.
     if (std::get<1>(x) == 0) {
@@ -40,8 +39,10 @@ static void doLowpassTest( std::function<float(float)> filter, T Fc, T expectedS
 
     assertClose(cutoff, Fc, 3);    // 3db down at Fc
 
+
     double slope = Analyzer::getSlope(response, (float) Fc * 2, sampleRate);
     assertClose(slope, expectedSlope, 1);          // to get accurate we need to go to higher freq, etc... this is fine
+
 }
 
 
@@ -144,6 +145,64 @@ static void test6()
     };
     doLowpassTest<T>(filter, Fc, -36);
 }
+
+/******************************************************************************************************/
+
+#if 0 // not ready for prime time
+template<typename T>
+static void doEllipticTest(std::function<float(float)> filter, T Fc, T expectedSlope)
+{
+    const int numSamples = 16 * 1024;
+   //const int numSamples = 1024;
+    FFTDataCpx response(numSamples);
+    Analyzer::getFreqResponse(response, filter);
+
+    auto x = Analyzer::getMaxAndShoulders(response, -3);
+
+    const float cutoff = FFT::bin2Freq(std::get<2>(x), sampleRate, numSamples);
+
+
+    // Some higher order filters have a tinny bit of ripple
+    float peakMag = std::abs(response.get(std::get<1>(x)));
+    float zeroMag = std::abs(response.get(0));
+    printf("mag at zero hz = %f, peak mag = %f, -3db at %f\n ",
+        zeroMag, peakMag, cutoff);
+
+    Analyzer::getAndPrintFeatures(response, 1, sampleRate);
+    for (int i = 0; i < numSamples; ++i) {
+
+    }
+    //assertClose(peakMag / zeroMag, 1, .0001);
+
+
+  //  assertClose(cutoff, Fc, 3);    // 3db down at Fc
+
+
+    double slope = Analyzer::getSlope(response, (float) Fc * 2, sampleRate);
+  //  assertClose(slope, expectedSlope, 1);          // to get accurate we need to go to higher freq, etc... this is fine
+
+}
+
+template<typename T>
+static void testElip1()
+{
+    const float Fc = 100;
+    BiquadParams<T, 4> params;
+    BiquadState<T, 4> state;
+
+    T rippleDb = 3;
+    T attenDb = 100000;
+    T ripple = (T) AudioMath::gainFromDb(1);
+    ButterworthFilterDesigner<T>::designEightPoleElliptic(params, Fc / sampleRate, rippleDb, attenDb);
+
+    std::function<float(float)> filter = [&state, &params](float x) {
+        x = (float) BiquadFilter<T>::run(x, state, params);
+        return x;
+    };
+    doEllipticTest<T>(filter, Fc, -36);
+
+}
+#endif
 
 template<typename T>
 void _testLowpassFilter()

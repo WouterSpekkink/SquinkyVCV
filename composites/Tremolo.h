@@ -14,10 +14,10 @@ template <class TBase>
 class Tremolo : public TBase
 {
 public:
-    Tremolo(struct Module * module) : TBase(module)
+    Tremolo(struct Module * module) : TBase(module), gateTrigger(true)
     {
     }
-    Tremolo() : TBase()
+    Tremolo() : TBase(), gateTrigger(true)
     {
     }
     void setSampleRate(float rate)
@@ -71,7 +71,7 @@ public:
     /**
      * Main processing entry point. Called every sample
      */
-    void step();
+    void step() override;
 
 private:
 

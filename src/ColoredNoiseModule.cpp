@@ -240,7 +240,7 @@ ColoredNoiseWidget::ColoredNoiseWidget(ColoredNoiseModule *module) : ModuleWidge
 Model *modelColoredNoiseModule = Model::create<ColoredNoiseModule, ColoredNoiseWidget>(
     "Squinky Labs",
     "squinkylabs-coloredNoise",
-    "Colored Noise", NOISE_TAG);
+    "Colors: Colored Noise", NOISE_TAG);
 
 
 

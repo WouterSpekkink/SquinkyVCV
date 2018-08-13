@@ -32,7 +32,9 @@ public:
         {
             value = (brightness > 0.f) ? brightness * brightness : 0.f;
         }
-        void setBrightnessSmooth(float brightness);
+        void setBrightnessSmooth(float brightness)
+        {
+        }
     };
 
     struct Input
@@ -54,7 +56,7 @@ public:
         /** Voltage of the port. Write-only by Module */
         float value = 0.0;
         /** Whether a wire is plugged in */
-        bool active = false;
+        bool active = true;
         Light plugLights[2];
     };
 
@@ -66,5 +68,9 @@ public:
     float engineGetSampleTime()
     {
         return 1.0f / 44100.0f;
+    }
+
+    virtual void step()
+    {
     }
 };

@@ -88,6 +88,15 @@
     <Filter Include="Header Files\sqsrc\grammar">
       <UniqueIdentifier>{c8db16de-4e6f-4c6d-bd7a-aeb75e464495}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\sqsrc\grammar">
+      <UniqueIdentifier>{d8e54a08-bbcc-4495-8f95-cd2178b57811}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dsp\third-party\src">
+      <UniqueIdentifier>{726b598f-f9ad-4df3-9db8-7cb86dc1cd03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dsp\third-party\src">
+      <UniqueIdentifier>{bcce7e7a-2123-42c9-8557-a31f6444e05e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dsp\third-party\falco\DspFilter.cpp">
@@ -214,6 +223,27 @@
       <Filter>Source Files\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\testLowpassFilter.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sqsrc\grammar\StochasticGrammar.cpp">
+      <Filter>Source Files\sqsrc\grammar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testPoly.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testGMR.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dsp\third-party\src\minblep.cpp">
+      <Filter>Source Files\dsp\third-party\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testVCO.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testFilterDesign.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\testVCOAlias.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -370,6 +400,33 @@
     </ClInclude>
     <ClInclude Include="..\..\composites\LFN.h">
       <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\clock\GenerativeTriggerGenerator.h">
+      <Filter>Header Files\sqsrc\clock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\clock\TriggerSequencer.h">
+      <Filter>Header Files\sqsrc\clock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\utils\poly.h">
+      <Filter>Header Files\dsp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\CHB.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sqsrc\util\TriggerOutput.h">
+      <Filter>Header Files\sqsrc\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\third-party\src\EvenVCO.h">
+      <Filter>Header Files\dsp\third-party\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\FunVCOComposite.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\third-party\src\FunVCO.h">
+      <Filter>Header Files\dsp\third-party\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\third-party\src\EvenVCO_orig.h">
+      <Filter>Header Files\dsp\third-party\src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

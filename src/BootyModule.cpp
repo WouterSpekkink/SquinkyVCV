@@ -211,5 +211,5 @@ BootyWidget::BootyWidget(BootyModule *module) : ModuleWidget(module)
 // (found in `include/tags.hpp`) separated by commas.
 Model *modelBootyModule = Model::create<BootyModule, BootyWidget>("Squinky Labs",
     "squinkylabs-freqshifter",
-    "Booty Frequency Shifter", EFFECT_TAG, RING_MODULATOR_TAG);
+    "Booty Shifter: Frequency Shifter", EFFECT_TAG, RING_MODULATOR_TAG);
 

@@ -31,7 +31,12 @@ extern void testGateTrigger();
 extern void testAnalyzer();
 extern void testFilter();
 extern void testStochasticGrammar();
+extern void testGMR();
 extern void testLowpassFilter();
+extern void testPoly();
+extern void testVCO();
+extern void testFilterDesign();
+extern void testVCOAlias();
 
 int main(int argc, char ** argv)
 {
@@ -41,6 +46,8 @@ int main(int argc, char ** argv)
         std::string arg = argv[1];
         if (arg == "--ext") {
             extended = true;
+        } else if (arg == "--perf") {
+            runPerf = true;
         }
     }
 #ifdef _PERF
@@ -64,12 +71,21 @@ int main(int argc, char ** argv)
     testSaw();
     testClockMult();
 
+
+    testPoly();
+
+
     testSinOscillator();
     testHilbert();
-    testStateVariable();
+    testVCO();
+
 
     testFFT();
     testAnalyzer();
+
+   // printf("skipping lots of tests\n");
+#if 1
+    testStateVariable();
     testFFTCrossFader();
     if (extended) {
         testThread(extended);
@@ -77,19 +93,19 @@ int main(int argc, char ** argv)
 
     testLowpassFilter();
     testFilter();
-    
+
     testStochasticGrammar();
+    testGMR();
 
     // after testing all the components, test composites.
     testTremolo();
     testColoredNoise();
     testFrequencyShifter();
     testVocalAnimator();
-
+#endif
     if (runPerf) {
         perfTest();
     }
-
 
 
     testFinalLeaks();

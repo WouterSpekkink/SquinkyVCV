@@ -24,6 +24,16 @@ public:
         return 20 * log(g) / Ln10;
     }
 
+    static double cents(double f1, double f2)
+    {
+        return 1200 * std::log2(f1 / f2);
+    }
+
+    static double acents(double f1, double f2)
+    {
+        return std::abs(cents(f1, f2));
+    }
+
     static double gainFromDb(double db)
     {
         return std::exp(Ln10 * db / 20.0);
@@ -115,8 +125,6 @@ public:
      */
     static SimpleScaleFun<float> makeSimpleScalerAudioTaper(float y0, float y1);
 
-
-
     template <typename T>
     static std::pair<T, T> getMinMax(const T* data, int numSamples)
     {
@@ -127,5 +135,32 @@ public:
             max = std::max(max, x);
         }
         return std::pair<T, T>(min, max);
+    }
+
+    /**
+     * A random number generator function. uniform random 0..1
+     */
+    using RandomUniformFunc = std::function<float(void)>;
+
+    static RandomUniformFunc random();
+
+
+    /**
+     * Folds numbers between +1 and -1
+     */
+    static inline float fold(float x)
+    {
+        float fold;
+        const float bias = (x < 0) ? -1.f : 1.f;
+        int phase = int((x + bias) / 2.f);
+        bool isEven = !(phase & 1);
+        //  printf(" wrap(%f) phase=%d, isEven=%d", x, phase, isEven);
+        if (isEven) {
+            fold = x - 2.f * phase;
+        } else {
+            fold = -x + 2.f * phase;
+        }
+        // printf(" y=%f\n", wrap);
+        return fold;
     }
 };
