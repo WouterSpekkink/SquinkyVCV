@@ -100,10 +100,10 @@ std::tuple<double, double, double> Analyzer::getMaxAndShouldersFreq(const FFTDat
 
 
 // TODO: pass in cutoff
-std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
+std::vector<Analyzer::FPoint> Analyzer::getFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate, float dbMinCutoff)
 {
    // TODO: pass this in
-    const float dbMinCutoff = -100;
+  //  const float dbMinCutoff = -100;
     assert(sensitivityDb > 0);
     std::vector<FPoint> ret;
     float lastDb = 10000000000;
@@ -180,9 +180,9 @@ std::vector<Analyzer::FPoint> Analyzer::getPeaks(const FFTDataCpx& data, float s
     return ret;
 }
 
-void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate)
+void Analyzer::getAndPrintFeatures(const FFTDataCpx& data, float sensitivityDb, float sampleRate, float dbMinCutoff)
 {
-    auto features = getFeatures(data, sensitivityDb, sampleRate);
+    auto features = getFeatures(data, sensitivityDb, sampleRate, dbMinCutoff);
     printf("there are %d features\n", (int) features.size());
     for (int i = 0; i < (int) features.size(); ++i) {
         printf("feature: freq=%.2f, db=%.2f\n", features[i].freq, features[i].gainDb);
