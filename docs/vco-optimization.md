@@ -2,20 +2,21 @@
 
 ## About the Original
 
-Fundamental VCO-1 is a very high quality, excellent sounding VCO. It does exactly what it claim to do with very little digital artifacts. VCO-1 is a very popular module; for this reason it seemed like a good candidate for a CPU diet. VCV users continue to complain about popping and clicking with large patches, so we hope improvements to this popular module will help.
+Fundamental VCO-1 is a very high quality, excellent sounding VCO. It does exactly what it claims to do with very little digital artifacts. VCO-1 is a very popular module, but it does use a lot of CPU. For this reason it seemed like a good candidate for a CPU diet. VCV users continue to complain about popping and clicking with large patches, so we hope improvements to this popular module will help.
 
 Fundamental VCO-1 uses 16X oversampling to generate standard waveforms, in both "analog" and "digital" versions. The oversampling keeps the aliasing low, allows hard and soft sync with low aliasing, and suppresses aliasing from audio rate modulation.
 
 As such, Fundamental VCO-1 is a very good substitute for an analog VCO. The only down-side is that the 16X oversampling increases the CPU usage dramatically.
 
-In revamping this VCO, we wanted to try as much as possible to preserve the sound exactly like the original. We did not add any new features, or try to make anything "better". And when we put the code on a diet we did not want to lower the sound quality of this classic module.
+In revamping this VCO, we wanted to try as much as possible to preserve the sound exactly like the original. We did not add any new features, or try to make anything "better". And when we put the code on a diet we did not want to lower the sound quality of this workhorse module.
 
 ## Initial Measurements
 
 It is difficult to accurately measure the CPU usage of a VCV module. Since version 0.6 there have been CPU meters which are useful for getting an overall picture of CPU usage; but the CPU meters do not enable stable, accurate, and repeatable measurements.
 
 So we more or less run the plugins in an isolated test framework. This lets us get precise measurements. The down side is that the isolated system is different from running in VCV, and the numbers won’t correlate exactly.
-We use an arbitrary scale for our measurements, where "100" means that the plugin under test seems to be using 1% of the available CPU on one core of our quite old Intel Core i5 Windows7 computer.
+
+We use an arbitrary scale for our measurements, where "100" means that the plugin under test seems to be using 1% of the available CPU on one core of our quite old Intel Core i5 Windows-7 computer.
 
 Here are the initial measurements we took before any optimizations were done, along with some Squinky Labs modules for reference:
 
@@ -28,7 +29,7 @@ Here are the initial measurements we took before any optimizations were done, al
 * SL Booty Shifter: 11.2
 * SL Colors: 11.6
 
-Fundamental VCO-1 uses a LOT of CPU. Since it is so heavy in its CPU usage, we thought it would be easy to make it much faster. But it was not as easy as we had hoped.
+Fundamental VCO-1 uses a *lot* of CPU. Since it is so heavy in its CPU usage, we thought it would be easy to make it much faster. But it was not as easy as we had hoped.
 
 ## General approach to optimization
 
