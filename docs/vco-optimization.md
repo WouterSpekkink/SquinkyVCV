@@ -1,6 +1,7 @@
 # Notes about the creation of Functional VCO-1
 
 ## About the Original
+
 Fundamental VCO-1 is a very high quality, excellent sounding VCO. It does exactly what it claim to do with very little digital artifacts. VCO-1 is a very popular module; for this reason it seemed like a good candidate for a CPU diet. VCV users continue to complain about popping and clicking with large patches, so we hope improvements to these popular modules will help. 
 
 Fundamental VCO-1 uses 16X oversampling to generate standard waveforms, in both "analog" and "digital" versions. The oversampling keeps the aliasing low, allows hard and soft sync with low aliasing, and suppresses aliasing from audio rate modulation.
@@ -42,6 +43,7 @@ Then repeat this process over and over until done.
 EvenVCO has a pretty simple waveform generation loop that runs at sample rate. All waveforms are calculated in that loop, and then all are run though their own MinBLEP modules. There is of course some math to convert all the control voltages and parameters into an oscillator period. This too runs at sample rate.
 
 A few theories suggested themselves right away:
+
 * Cosf (cosine function) is very slow, and is called every sample.
 * Powf (exponential function) is slow, and is called every sample.
 * All of the MinBleps are run every sample, even if their output is not connected.
@@ -50,6 +52,7 @@ A few theories suggested themselves right away:
 Quick experiments showed that removing cosf and replacing it with a constant sped things up a lot. Same with removing powf. Cutting out unused waveform generation and MinBLEP sped things up a lot.
 
 So we ended up doing the following:
+
 * Replace the calls to cosf and expf with lookup tables. We used linear interpolation to make them accurate.
 * Completely refactored the waveform generation so no extra work is done for outputs that are not connected.
 * Made dedicated waveform generation routines for the special case(s) of a single waveform.
