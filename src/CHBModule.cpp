@@ -210,15 +210,15 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
 // NOW the three harmonic macro controls
     addParam(ParamWidget::create<Trimpot>(
-        Vec(50, 150), module, module->chb.PARAM_SLOPE, -5.0f, 5.0f, 0.0f));
+        Vec(50, 150), module, module->chb.PARAM_SLOPE, 0,1,1));
     addLabel(Vec(45, 180), "slope");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(100, 150), module, module->chb.PARAM_MAG_EVEN, -5.0f, 5.0f, 0.0f));
+        Vec(100, 150), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
     addLabel(Vec(95, 180), "even");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(150, 150), module, module->chb.PARAM_MAG_ODD, -5.0f, 5.0f, 0.0f));
+        Vec(150, 150), module, module->chb.PARAM_MAG_ODD, 0,1,1));
     addLabel(Vec(145, 180), "odd");
 
 

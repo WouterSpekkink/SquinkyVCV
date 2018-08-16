@@ -92,10 +92,14 @@ private:
     SinOscillatorParams<float> sinParams;
     SinOscillatorState<float> sinState;
 
+    // just maps 0..1 to 0..1
+    std::shared_ptr<LookupTableParams<float>> audioTaper = {ObjectCache<float>::getAudioTaper()};
+
+    // TODO: use more accurate lookup
     std::shared_ptr<LookupTableParams<float>> pitchExp = {ObjectCache<float>::getExp2()};
 
     /**
-     * do one-time calcuations when sample rate changes
+     * do one-time calculations when sample rate changes
      */
     void internalUpdate();
 
@@ -105,6 +109,13 @@ private:
      * that will be fed to the polynomials
      */
     float getInput();
+
+    void calcVolumes(float *);
+
+    float taper(float raw)
+    {
+       return LookupTable<float>::lookup(*audioTaper, raw, false);
+    }
 
 };
 
@@ -170,13 +181,38 @@ inline float CHB<TBase>::getInput()
 }
 
 template <class TBase>
+inline void CHB<TBase>::calcVolumes(float * volumes)
+{
+    for (int i = 0; i < 11; ++i) {
+       // float rawVal = TBase::params[i + PARAM_H0].value;
+        float val = taper(TBase::params[i + PARAM_H0].value);
+        volumes[i] = val;
+    }
+    {
+        const float even = taper(TBase::params[PARAM_MAG_EVEN].value);
+        const float odd = taper(TBase::params[PARAM_MAG_ODD].value);
+        for (int i = 0; i < 11; ++i) {
+            const float mul = (i & 1) ? odd : even;
+            volumes[i] += mul;
+        }
+    }
+
+}
+
+template <class TBase>
 inline void CHB<TBase>::step()
 {
+    // do all the processing to get the carrier signal
     const float input = getInput();
 
+    float volume[11];
+    calcVolumes(volume);
+
+
     for (int i = 0; i < 11; ++i) {
-        float val = TBase::params[i + PARAM_H0].value;
-        poly.setGain(i, val);
+       // float val = TBase::params[i + PARAM_H0].value;
+      //  poly.setGain(i, val);
+        poly.setGain(i, volume[i]);
     }
    
     float output = poly.run(input);

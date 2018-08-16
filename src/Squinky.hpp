@@ -1,7 +1,7 @@
 #include "rack.hpp"
 
 //#define _GMR
-//#define _CHB
+#define _CHB
 
 using namespace rack;
 extern Plugin *plugin;
