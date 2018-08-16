@@ -183,20 +183,44 @@ inline float CHB<TBase>::getInput()
 template <class TBase>
 inline void CHB<TBase>::calcVolumes(float * volumes)
 {
+    // first get the harmonics knobs, and scale them
     for (int i = 0; i < 11; ++i) {
        // float rawVal = TBase::params[i + PARAM_H0].value;
         float val = taper(TBase::params[i + PARAM_H0].value);
         volumes[i] = val;
     }
+   // printf("knob 0=%f, 3 = %f 4=%f 10=%f\n", volumes[0], volumes[3], volumes[4], volumes[10]);
+
+    // Second: apply the even and odd knobs
     {
         const float even = taper(TBase::params[PARAM_MAG_EVEN].value);
         const float odd = taper(TBase::params[PARAM_MAG_ODD].value);
-        for (int i = 0; i < 11; ++i) {
-            const float mul = (i & 1) ? odd : even;
-            volumes[i] += mul;
+      //  printf("even = %f odd  = %f\n", even, odd);
+        for (int i = 1; i < 11; ++i) {
+            const float mul = (i & 1) ? even : odd;     // 0 = fundamental, 1=even, 2=odd....
+            volumes[i] *= mul;
         }
     }
 
+    // Third: slope
+
+    float octave[11];
+    for (int i = 0; i < 11; ++i) {
+        octave[i] = log2(float(i+1));
+    }
+
+    {
+        const float slopeRaw = TBase::params[PARAM_SLOPE].value;
+        assert(slopeRaw >= 0 && slopeRaw <= 1);
+        const float slope = - slopeRaw * 18;
+      //  printf("slope raw = %f slope = %f\n", slopeRaw, slope);
+        for (int i = 0; i < 11; ++i) {
+            float slopeAttenDb = slope * octave[i];
+            float slopeAtten = (float) AudioMath::gainFromDb(slopeAttenDb);
+            volumes[i] *= slopeAtten;
+          //  printf("i=%d, oct=%.2f slopedb=%.2f atten=%.2f\n", i, octave[i], slopeAttenDb, slopeAtten)
+        }
+    }
 }
 
 template <class TBase>
@@ -207,7 +231,7 @@ inline void CHB<TBase>::step()
 
     float volume[11];
     calcVolumes(volume);
-
+  //  printf("vol 0=%f, 3 = %f 4=%f 10=%f\n", volume[0], volume[3], volume[4], volume[10]);
 
     for (int i = 0; i < 11; ++i) {
        // float val = TBase::params[i + PARAM_H0].value;
