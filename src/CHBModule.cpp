@@ -209,8 +209,12 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 #endif
 
 // NOW the three harmonic macro controls
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(12, 146), Port::INPUT, module, module->chb.SLOPE_INPUT));
+
     addParam(ParamWidget::create<Trimpot>(
-        Vec(50, 150), module, module->chb.PARAM_SLOPE, 0,1,1));
+        Vec(50, 150), module, module->chb.PARAM_SLOPE, -5,5,5));
     addLabel(Vec(45, 180), "slope");
 
     addParam(ParamWidget::create<Trimpot>(

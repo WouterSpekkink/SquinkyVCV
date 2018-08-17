@@ -57,6 +57,7 @@ public:
         CV_INPUT,
         ENV_INPUT,
         AUDIO_INPUT,
+        SLOPE_INPUT,
         NUM_INPUTS
     };
 
@@ -97,6 +98,12 @@ private:
 
     // TODO: use more accurate lookup
     std::shared_ptr<LookupTableParams<float>> pitchExp = {ObjectCache<float>::getExp2()};
+
+    /**
+    * Audio taper for the slope.
+    */
+    AudioMath::ScaleFun<float> slopeScale =
+        {AudioMath::makeLinearScaler<float>(-18, 0)};
 
     /**
      * do one-time calculations when sample rate changes
@@ -210,10 +217,15 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
     }
 
     {
+#if 0
         const float slopeRaw = TBase::params[PARAM_SLOPE].value;
         assert(slopeRaw >= 0 && slopeRaw <= 1);
         const float slope = - slopeRaw * 18;
       //  printf("slope raw = %f slope = %f\n", slopeRaw, slope);
+#endif
+        // TODO: add attenuverter, or make a simple linear scale
+        const float slope = slopeScale(TBase::params[PARAM_SLOPE].value, TBase::inputs[SLOPE_INPUT].value, 1);
+      
         for (int i = 0; i < 11; ++i) {
             float slopeAttenDb = slope * octave[i];
             float slopeAtten = (float) AudioMath::gainFromDb(slopeAttenDb);
