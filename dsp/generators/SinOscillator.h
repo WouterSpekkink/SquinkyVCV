@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 #include "AudioMath.h"
 #include "LookupTable.h"
 #include "ObjectCache.h"
