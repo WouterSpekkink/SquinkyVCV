@@ -18,12 +18,13 @@ public:
      * Overrides of Module functions
      */
     void step() override;
-    void onSampleRateChange() override;
+  //  void onSampleRateChange() override;
 
     CHB<WidgetComposite> chb;
 private:
 };
 
+#if 0
 void CHBModule::onSampleRateChange()
 {
     //float rate = engineGetSampleRate();
@@ -31,6 +32,7 @@ void CHBModule::onSampleRateChange()
     float sampleTime = engineGetSampleTime();
     chb.setSampleTime(sampleTime);
 }
+#endif
 
 CHBModule::CHBModule()
     : Module(chb.NUM_PARAMS,
@@ -39,8 +41,8 @@ CHBModule::CHBModule()
     chb.NUM_LIGHTS),
     chb(this)
 {
-    onSampleRateChange();
-    chb.init();
+   // onSampleRateChange();
+  //  chb.init();
 }
 
 void CHBModule::step()
@@ -189,7 +191,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(150, 100), module, module->chb.PARAM_PITCH, -5.0f, 5.0f, 0));
+        Vec(150, 100), module, module->chb.PARAM_TUNE, -5.0f, 5.0f, 0));
     addLabel(Vec(140, 120), "Pitch");
 
     addParam(ParamWidget::create<Trimpot>(

@@ -28,7 +28,7 @@ public:
 #endif
 
     // must be called after setSampleRate
-    void init();
+ //   void init();
     
 
     enum ParamIds
@@ -164,7 +164,7 @@ inline float CHB<TBase>::getInput()
 
     */
     // Get the frequency from the inputs.
-
+#if 0
     auto p0 = TBase::params[0].value;
     auto p1 = TBase::params[1].value;
 
@@ -172,6 +172,7 @@ inline float CHB<TBase>::getInput()
     auto t = TBase::params[PARAM_TUNE].value;
     auto cv = TBase::inputs[CV_INPUT].value;
     auto pmod = TBase::inputs[PITCH_MOD_INPUT].value;
+#endif
 
     float pitch = 1.0f + roundf(TBase::params[PARAM_OCTAVE].value) + TBase::params[PARAM_TUNE].value / 12.0f;
     pitch += TBase::inputs[CV_INPUT].value;
