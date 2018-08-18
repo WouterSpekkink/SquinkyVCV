@@ -37,6 +37,7 @@ extern void testPoly();
 extern void testVCO();
 extern void testFilterDesign();
 extern void testVCOAlias();
+extern void testSin();
 
 int main(int argc, char ** argv)
 {
@@ -78,6 +79,7 @@ int main(int argc, char ** argv)
     testSinOscillator();
     testHilbert();
     testVCO();
+    testSin();
 
 
     testFFT();

@@ -1,4 +1,5 @@
 # Table of contents
+[Functional VCO-1](#fun) Is an improved version of the Fundamental-VCO1.
 
 [LFN](#lfn) Is a random voltage generator made by running low frequency noise through a graphic equalizer.
 
@@ -17,6 +18,17 @@
 [Attenuverters](#atten)
 
 [CV ranges](#cv)
+
+# Functional VCO-1 <a name="fun"></a>
+
+![Functional image](../docs/functional.png)
+
+Functional VCO-1 works just like its namesake. The control layout is familiar, the sound is the same, but it uses about 1/4 as much CPU as the original.
+
+We "forked" the code to Fundamental VCO-1 and modified it a little bit to make it much more CPU efficient. Now you may use more of them without pops, clicks, and dropouts.
+
+If you would like the details of how we did this, you can [find them here](../docs/vco-optimization.md).
+
 
 # LFN Low Frequency Noise Generator <a name="lfn"></a>
 
