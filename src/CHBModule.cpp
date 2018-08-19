@@ -222,27 +222,22 @@ void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
 
 void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
 {
-    #if 0
-    addInput(Port::create<PJ301MPort>(
-        Vec(pos.y, pos.y), Port::INPUT, module, module->chb.ENV_INPUT));
-    addLabel(Vec(120, pos.y + 60), "EG");
+   addInput(Port::create<PJ301MPort>(
+        Vec(pos.x, pos.y + 7), Port::INPUT, module, module->chb.AUDIO_INPUT));
+    addLabel(Vec(pos.x, pos.y-14), "Ext");
 
     addInput(Port::create<PJ301MPort>(
-        Vec(120, row1), Port::INPUT, module, module->chb.AUDIO_INPUT));
-    addLabel(Vec(115, label1), "In");
-
-
-    addParam(ParamWidget::create<CKSS>(
-        Vec(170, row1), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(160, label1 - 46), "fold");
-    addLabel(Vec(160, label1), "clip");
-
-
+        Vec(pos.x, pos.y + 55), Port::INPUT, module, module->chb.ENV_INPUT));
+    addLabel(Vec(pos.x, pos.y + 36), "EG");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(100, 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
-    addLabel(Vec(95, 120), "Gain");
-    #endif
+        Vec(pos.x, pos.y + 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
+    addLabel(Vec(pos.x, pos.y+85), "Gain");
+
+    addParam(ParamWidget::create<CKSS>(
+        Vec(pos.x, pos.y + 140), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(pos.x, pos.y + 120), "fold");
+    addLabel(Vec(pos.x, pos.y + 160), "clip");
 }
 
 /**
@@ -260,14 +255,10 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
         addChild(panel);
     }
 
-
     const float row1 = 30;
-   // const float label1 = row1 + 25;
-
-
     addVCO(module, Vec(10, row1));
     addMixer(module, Vec(12, 165));
-   // addFolder(module, Vec(120, 90));
+    addFolder(module, Vec(1830, row1));
 
 #if 0
     auto sw = new SQPush();
@@ -282,12 +273,9 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addChild(sw);
 #endif
 
-
     addOutput(Port::create<PJ301MPort>(
         Vec(40, 330), Port::OUTPUT, module, module->chb.OUTPUT));
     addLabel(Vec(35, 355), "Out");
-
-
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
