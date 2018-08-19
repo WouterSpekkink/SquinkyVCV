@@ -164,19 +164,12 @@ inline float CHB<TBase>::getInput()
 
     */
     // Get the frequency from the inputs.
-#if 0
-    auto p0 = TBase::params[0].value;
-    auto p1 = TBase::params[1].value;
 
-    auto o = TBase::params[PARAM_OCTAVE].value;
-    auto t = TBase::params[PARAM_TUNE].value;
-    auto cv = TBase::inputs[CV_INPUT].value;
-    auto pmod = TBase::inputs[PITCH_MOD_INPUT].value;
-#endif
 
     float pitch = 1.0f + roundf(TBase::params[PARAM_OCTAVE].value) + TBase::params[PARAM_TUNE].value / 12.0f;
     pitch += TBase::inputs[CV_INPUT].value;
-    pitch += TBase::inputs[PITCH_MOD_INPUT].value;
+    pitch += .25f * TBase::inputs[PITCH_MOD_INPUT].value *
+        taper(TBase::params[PARAM_PITCH_MOD_TRIM].value);
 
     // TODO: smarter limiting
   //  pitch = std::max(-5.0f, pitch);

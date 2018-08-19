@@ -206,15 +206,15 @@ void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(pos.x + 30 ,trimRow), module, module->chb.PARAM_SLOPE, -5,5,5));
-    addLabel(Vec(pos.x, labelRow), "slope");
+    addLabel(Vec(pos.x+5, labelRow), "slope");
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(pos.x + 60, trimRow), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
-    addLabel(Vec(pos.x+50, labelRow), "even");
+    addLabel(Vec(pos.x+48, labelRow), "even");
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(pos.x+ 90, trimRow), module, module->chb.PARAM_MAG_ODD, 0,1,1));
-    addLabel(Vec(pos.x+86, labelRow), "odd");
+    addLabel(Vec(pos.x+83, labelRow), "odd");
 
     addHarmonics(module, Vec(pos.x, trimRow + 55));
 
@@ -224,20 +224,20 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
 {
    addInput(Port::create<PJ301MPort>(
         Vec(pos.x, pos.y + 7), Port::INPUT, module, module->chb.AUDIO_INPUT));
-    addLabel(Vec(pos.x, pos.y-14), "Ext");
+    addLabel(Vec(pos.x-4, pos.y-14), "Ext");
 
     addInput(Port::create<PJ301MPort>(
         Vec(pos.x, pos.y + 55), Port::INPUT, module, module->chb.ENV_INPUT));
-    addLabel(Vec(pos.x, pos.y + 36), "EG");
+    addLabel(Vec(pos.x-4, pos.y + 36), "EG");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x, pos.y + 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
-    addLabel(Vec(pos.x, pos.y+85), "Gain");
+        Vec(pos.x+3, pos.y + 106), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
+    addLabel(Vec(pos.x-10, pos.y+85), "Gain");
 
     addParam(ParamWidget::create<CKSS>(
-        Vec(pos.x, pos.y + 140), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(pos.x, pos.y + 120), "fold");
-    addLabel(Vec(pos.x, pos.y + 160), "clip");
+        Vec(pos.x+5, pos.y + 148), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(pos.x-6, pos.y + 128), "fold");
+    addLabel(Vec(pos.x-6, pos.y + 168), "clip");
 }
 
 /**
@@ -258,7 +258,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     const float row1 = 30;
     addVCO(module, Vec(10, row1));
     addMixer(module, Vec(12, 165));
-    addFolder(module, Vec(183, row1));
+    addFolder(module, Vec(188, row1));
 
 #if 0
     auto sw = new SQPush();
