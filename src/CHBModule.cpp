@@ -69,6 +69,9 @@ struct CHBWidget : ModuleWidget
 
     void addHarmonics(CHBModule *module, const Vec& pos);
     void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
+    void addVCO(CHBModule *module, const Vec& pos);
+    void addMixer(CHBModule *module, const Vec& pos);
+    void addFolder(CHBModule *module, const Vec& pos);
     void resetMe();
 };
 
@@ -85,6 +88,7 @@ inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
     pos2.y += 40;
     addHarmonicsRow(module, 1, pos2);
 }
+
 inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& pos)
 {
     int firstParam = 0;
@@ -112,6 +116,7 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
             p, module, param, 0.0f, 1.0f, 1.0f));
     }
 }
+
 
 void CHBWidget::resetMe()
 {
@@ -152,6 +157,93 @@ struct SQPush : SVGButton
     std::function<void(void)> clickHandler;
 };
 
+inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
+{
+   // const float row1 = pos.y;
+   // const float label1 = row1 + 25;
+    
+    const float inputRow = pos.y + 7;
+    const float label1 = inputRow-18;
+    //-------------------- make the pitch control column
+    addInput(Port::create<PJ301MPort>(
+        Vec(17 + pos.x, inputRow), Port::INPUT, module, module->chb.CV_INPUT));
+    addLabel(Vec(15+ pos.x, label1), "CV");
+
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(
+        Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE, -5.0f, 4.0f, 0.f));
+    addLabel(Vec(14 + pos.x, pos.y+34), "Oct");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(20 + pos.x, pos.y+98), module, module->chb.PARAM_TUNE, -5.0f, 5.0f, 0));
+    addLabel(Vec(9 + pos.x, pos.y + 80), "Tune");
+
+    //--------------------------- make the mod column
+
+     addInput(Port::create<PJ301MPort>(
+        Vec(60 + pos.x, inputRow), Port::INPUT, module, module->chb.PITCH_MOD_INPUT));
+    addLabel(Vec(53+ pos.x, label1), "Mod");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(60 + pos.x, inputRow+45), module, module->chb.PARAM_PITCH_MOD_TRIM, -1.0f, 1.0f, 0));
+  
+    addInput(Port::create<PJ301MPort>(
+        Vec(100 + pos.x, inputRow), Port::INPUT, module, module->chb.LINEAR_FM_INPUT));
+    addLabel(Vec(93+ pos.x, label1), "LFM");
+
+     addParam(ParamWidget::create<Trimpot>(
+        Vec(100 + pos.x, inputRow+45), module, module->chb.PARAM_LINEAR_FM_TRIM, -1.0f, 1.0f, 0));
+  
+}
+
+void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
+{
+// NOW the three harmonic macro controls
+    float trimRow = pos.y + 30;
+    float labelRow = pos.y + 4;
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(pos.x, trimRow - 4), Port::INPUT, module, module->chb.SLOPE_INPUT));
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(pos.x + 30 ,trimRow), module, module->chb.PARAM_SLOPE, -5,5,5));
+    addLabel(Vec(pos.x, labelRow), "slope");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(pos.x + 60, trimRow), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
+    addLabel(Vec(pos.x+50, labelRow), "even");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(pos.x+ 90, trimRow), module, module->chb.PARAM_MAG_ODD, 0,1,1));
+    addLabel(Vec(pos.x+86, labelRow), "odd");
+
+    addHarmonics(module, Vec(pos.x, trimRow + 55));
+
+}
+
+void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
+{
+    #if 0
+    addInput(Port::create<PJ301MPort>(
+        Vec(pos.y, pos.y), Port::INPUT, module, module->chb.ENV_INPUT));
+    addLabel(Vec(120, pos.y + 60), "EG");
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(120, row1), Port::INPUT, module, module->chb.AUDIO_INPUT));
+    addLabel(Vec(115, label1), "In");
+
+
+    addParam(ParamWidget::create<CKSS>(
+        Vec(170, row1), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(160, label1 - 46), "fold");
+    addLabel(Vec(160, label1), "clip");
+
+
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(100, 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
+    addLabel(Vec(95, 120), "Gain");
+    #endif
+}
 
 /**
  * Widget constructor will describe my implementation structure and
@@ -170,33 +262,13 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
 
     const float row1 = 30;
-    const float label1 = row1 + 25;
-    addInput(Port::create<PJ301MPort>(
-        Vec(20, row1), Port::INPUT, module, module->chb.CV_INPUT));
-    addLabel(Vec(15, label1), "CV");
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(70, row1), Port::INPUT, module, module->chb.ENV_INPUT));
-    addLabel(Vec(65, label1), "EG");
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(120, row1), Port::INPUT, module, module->chb.AUDIO_INPUT));
-    addLabel(Vec(115, label1), "In");
+   // const float label1 = row1 + 25;
 
 
-    addParam(ParamWidget::create<CKSS>(
-        Vec(170, row1), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(160, label1 - 46), "fold");
-    addLabel(Vec(160, label1), "clip");
+    addVCO(module, Vec(10, row1));
+    addMixer(module, Vec(12, 165));
+   // addFolder(module, Vec(120, 90));
 
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(150, 100), module, module->chb.PARAM_TUNE, -5.0f, 5.0f, 0));
-    addLabel(Vec(140, 120), "Pitch");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(100, 100), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
-    addLabel(Vec(95, 120), "Gain");
 #if 0
     auto sw = new SQPush();
    // sw->box.size = Vec();
@@ -210,30 +282,10 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addChild(sw);
 #endif
 
-// NOW the three harmonic macro controls
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(12, 146), Port::INPUT, module, module->chb.SLOPE_INPUT));
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(50, 150), module, module->chb.PARAM_SLOPE, -5,5,5));
-    addLabel(Vec(45, 180), "slope");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(100, 150), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
-    addLabel(Vec(95, 180), "even");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(150, 150), module, module->chb.PARAM_MAG_ODD, 0,1,1));
-    addLabel(Vec(145, 180), "odd");
-
-
-
-    addHarmonics(module, Vec(25, 220));
 
     addOutput(Port::create<PJ301MPort>(
-        Vec(40, 300), Port::OUTPUT, module, module->chb.OUTPUT));
-    addLabel(Vec(35, 325), "Out");
+        Vec(40, 330), Port::OUTPUT, module, module->chb.OUTPUT));
+    addLabel(Vec(35, 355), "Out");
 
 
 
