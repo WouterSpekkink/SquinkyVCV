@@ -258,7 +258,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     const float row1 = 30;
     addVCO(module, Vec(10, row1));
     addMixer(module, Vec(12, 165));
-    addFolder(module, Vec(1830, row1));
+    addFolder(module, Vec(183, row1));
 
 #if 0
     auto sw = new SQPush();
