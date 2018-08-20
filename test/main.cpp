@@ -38,6 +38,7 @@ extern void testVCO();
 extern void testFilterDesign();
 extern void testVCOAlias();
 extern void testSin();
+extern void testMinBLEPVCO();
 
 int main(int argc, char ** argv)
 {
@@ -79,7 +80,8 @@ int main(int argc, char ** argv)
     testSinOscillator();
     testHilbert();
     testVCO();
-    testSin();
+   // testSin();
+    testMinBLEPVCO();
 
 
     testFFT();

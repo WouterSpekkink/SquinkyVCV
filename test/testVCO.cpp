@@ -160,6 +160,16 @@ static void testMinFreqCh()
     testxCh(-5, -7, 0, 0);
     testxCh(-5, -7, -2, 0);
 }
+
+
+static void testClamp()
+{
+    assertEQ(std::clamp(12, 0, 14), 12);
+    assertEQ(std::clamp(12, 0, 10), 10);
+   
+    assertEQ(std::clamp(12, 13, 15), 13);
+}
+
 void testVCO()
 {
     testInitEv();
@@ -170,4 +180,5 @@ void testVCO()
     testMaxFreqCh();
     testMinFreqEv();
     testMinFreqCh();
+    testClamp();
 }

@@ -487,7 +487,7 @@ static void testCHB()
 {
     CHB<TestComposite> chb;
 
-    chb.init();
+//    chb.init();
 
     MeasureTime<float>::run(overheadOutOnly, "chb", [&chb]() {
         chb.step();

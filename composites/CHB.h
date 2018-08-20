@@ -1,11 +1,19 @@
 
 #pragma once
 
+#include <algorithm>
 #include "poly.h"
 #include "ObjectCache.h"
 #include "SinOscillator.h"
 
-
+// until c++17
+namespace std {
+    inline float clamp(float v, float lo, float hi)
+    {
+        assert(lo < hi);
+        return std::min(hi, std::max(v, lo));
+    }
+}
 /**
  */
 template <class TBase>
@@ -156,7 +164,7 @@ template <class TBase>
 inline float CHB<TBase>::getInput()
 {
 
-    assert(engineGetSampleTime() > 0);
+    assert(TBase::engineGetSampleTime() > 0);
     /*
         float pitch = 1.0f + roundf(vco.params[(int) CH::OCTAVE_PARAM].value) + vco.params[(int) CH::TUNE_PARAM].value / 12.0f;
     pitch += vco.inputs[(int) EVCO::PITCH_INPUT].value;
@@ -185,7 +193,7 @@ inline float CHB<TBase>::getInput()
     // Multiply in the Linear FM contribution
     _freq *= 1.0f + TBase::inputs[LINEAR_FM_INPUT].value * taper(TBase::params[PARAM_LINEAR_FM_TRIM].value);
 
-    float time = clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+    float time = std::clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
     
   //  float time = _freq * engineGetSampleTime();
   //  time = std::min(time, .4999f);
