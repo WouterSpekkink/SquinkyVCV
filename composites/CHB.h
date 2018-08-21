@@ -73,23 +73,23 @@ public:
         ENV_INPUT,
         AUDIO_INPUT,
         SLOPE_INPUT,
+        H0_INPUT,
+        H1_INPUT,
+        H2_INPUT,
+        H3_INPUT,
+        H4_INPUT,
+        H5_INPUT,
+        H6_INPUT,
+        H7_INPUT,
+        H8_INPUT,
+        H9_INPUT,
+        H10_INPUT,
         NUM_INPUTS
     };
 
     enum OutputIds
     {
         MIX_OUTPUT,
-        H0_OUTPUT,
-        H1_OUTPUT,
-        H2_OUTPUT,
-        H3_OUTPUT,
-        H4_OUTPUT,
-        H5_OUTPUT,
-        H6_OUTPUT,
-        H7_OUTPUT,
-        H8_OUTPUT,
-        H9_OUTPUT,
-        H10_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -250,7 +250,14 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
     // first get the harmonics knobs, and scale them
     for (int i = 0; i < 11; ++i) {
        // float rawVal = TBase::params[i + PARAM_H0].value;
+#if 0
         float val = taper(TBase::params[i + PARAM_H0].value);
+#else
+        const float val = TBase::inputs[i + H0_INPUT].active ?
+            TBase::inputs[i + H0_INPUT].value * .1f :
+            taper(TBase::params[i + PARAM_H0].value);
+#endif
+
         volumes[i] = val;
     }
    // printf("knob 0=%f, 3 = %f 4=%f 10=%f\n", volumes[0], volumes[3], volumes[4], volumes[10]);

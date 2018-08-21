@@ -93,17 +93,17 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
 {
     int firstParam = 0;
     int lastParam = 0;
-    int firstOutput = 0;
+    int firstInput = 0;
     switch (row) {
         case 0:
             firstParam = module->chb.PARAM_H0;
             lastParam = module->chb.PARAM_H5;
-            firstOutput = module->chb.H0_OUTPUT;
+            firstInput = module->chb.H0_INPUT;
             break;
         case 1:
             firstParam = module->chb.PARAM_H6;
             lastParam = module->chb.PARAM_H10;
-            firstOutput = module->chb.H6_OUTPUT;
+            firstInput = module->chb.H6_INPUT;
             break;
         default:
             assert(false);
@@ -111,8 +111,8 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
 
   //  printf("%d, %d, %d\n", row, firstParam, lastParam); fflush(stdout);
    // return;
-   int output = firstOutput;
-    for (int param = firstParam; param <= lastParam; ++param, ++output) {
+   int input = firstInput;
+    for (int param = firstParam; param <= lastParam; ++param, ++input) {
         Vec pKnob;
         Vec pJack;
         pKnob.x = pos.x + (param - firstParam) * 30;
@@ -122,8 +122,8 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
         pKnob.y += 30;
         pKnob.x += 3;
        
-        addOutput(Port::create<PJ301MPort>(
-            pJack, Port::OUTPUT, module, output));
+        addInput(Port::create<PJ301MPort>(
+            pJack, Port::INPUT, module, input));
         addParam(ParamWidget::create<Trimpot>(
             pKnob, module, param, 0.0f, 1.0f, 1.0f));
     }
