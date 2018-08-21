@@ -85,7 +85,7 @@ inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
 {
     addHarmonicsRow(module, 0, pos);
     Vec pos2 = pos;
-    pos2.y += 40;
+    pos2.y += 60;
     addHarmonicsRow(module, 1, pos2);
 }
 
@@ -93,14 +93,17 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
 {
     int firstParam = 0;
     int lastParam = 0;
+    int firstOutput = 0;
     switch (row) {
         case 0:
             firstParam = module->chb.PARAM_H0;
             lastParam = module->chb.PARAM_H5;
+            firstOutput = module->chb.H0_OUTPUT;
             break;
         case 1:
             firstParam = module->chb.PARAM_H6;
             lastParam = module->chb.PARAM_H10;
+            firstOutput = module->chb.H6_OUTPUT;
             break;
         default:
             assert(false);
@@ -108,12 +111,21 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
 
   //  printf("%d, %d, %d\n", row, firstParam, lastParam); fflush(stdout);
    // return;
-    for (int param = firstParam; param <= lastParam; ++param) {
-        Vec p;
-        p.x = pos.x + (param - firstParam) * 30;
-        p.y = pos.y;
+   int output = firstOutput;
+    for (int param = firstParam; param <= lastParam; ++param, ++output) {
+        Vec pKnob;
+        Vec pJack;
+        pKnob.x = pos.x + (param - firstParam) * 30;
+        pKnob.y = pos.y;
+
+        pJack = pKnob;
+        pKnob.y += 30;
+        pKnob.x += 3;
+       
+        addOutput(Port::create<PJ301MPort>(
+            pJack, Port::OUTPUT, module, output));
         addParam(ParamWidget::create<Trimpot>(
-            p, module, param, 0.0f, 1.0f, 1.0f));
+            pKnob, module, param, 0.0f, 1.0f, 1.0f));
     }
 }
 
@@ -257,7 +269,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
     const float row1 = 30;
     addVCO(module, Vec(10, row1));
-    addMixer(module, Vec(12, 165));
+    addMixer(module, Vec(12, 155));
     addFolder(module, Vec(188, row1));
 
 #if 0
@@ -274,8 +286,8 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 #endif
 
     addOutput(Port::create<PJ301MPort>(
-        Vec(40, 330), Port::OUTPUT, module, module->chb.OUTPUT));
-    addLabel(Vec(35, 355), "Out");
+        Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
+    addLabel(Vec(175, 310), "Out");
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));

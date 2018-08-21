@@ -78,7 +78,18 @@ public:
 
     enum OutputIds
     {
-        OUTPUT,
+        MIX_OUTPUT,
+        H0_OUTPUT,
+        H1_OUTPUT,
+        H2_OUTPUT,
+        H3_OUTPUT,
+        H4_OUTPUT,
+        H5_OUTPUT,
+        H6_OUTPUT,
+        H7_OUTPUT,
+        H8_OUTPUT,
+        H9_OUTPUT,
+        H10_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -298,6 +309,6 @@ inline void CHB<TBase>::step()
     }
    
     float output = poly.run(input);
-    TBase::outputs[OUTPUT].value = output;
+    TBase::outputs[MIX_OUTPUT].value = output;
 }
 
