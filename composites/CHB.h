@@ -250,8 +250,15 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
     // first get the harmonics knobs, and scale them
     for (int i = 0; i < 11; ++i) {
        // float rawVal = TBase::params[i + PARAM_H0].value;
-#if 0
-        float val = taper(TBase::params[i + PARAM_H0].value);
+#if 1
+        float val = taper(TBase::params[i + PARAM_H0].value);       // apply taper to the knobs
+
+        // If input connected, scale and multiply with knob value
+        if (TBase::inputs[i + H0_INPUT].active) {
+           // val *= (TBase::inputs[i + H0_INPUT].value * .1f);
+            const float inputCV = TBase::inputs[i + H0_INPUT].value * .1f;
+            val *= std::max(inputCV, 0.f);
+        }
 #else
         const float val = TBase::inputs[i + H0_INPUT].active ?
             TBase::inputs[i + H0_INPUT].value * .1f :

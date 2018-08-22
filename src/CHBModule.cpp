@@ -72,7 +72,7 @@ struct CHBWidget : ModuleWidget
     void addVCO(CHBModule *module, const Vec& pos);
     void addMixer(CHBModule *module, const Vec& pos);
     void addFolder(CHBModule *module, const Vec& pos);
-    void resetMe();
+    void resetMe(CHBModule *module);
 };
 
 
@@ -109,8 +109,6 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
             assert(false);
     }
 
-  //  printf("%d, %d, %d\n", row, firstParam, lastParam); fflush(stdout);
-   // return;
    int input = firstInput;
     for (int param = firstParam; param <= lastParam; ++param, ++input) {
         Vec pKnob;
@@ -124,19 +122,40 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
        
         addInput(Port::create<PJ301MPort>(
             pJack, Port::INPUT, module, input));
-        addParam(ParamWidget::create<Trimpot>(
-            pKnob, module, param, 0.0f, 1.0f, 1.0f));
+      //  addParam(ParamWidget::create<Trimpot>(
+      //      pKnob, module, param, 0.0f, 1.0f, 1.0f));
+       auto p = ParamWidget::create<Trimpot>(
+           pKnob, module, param, 0.0f, 1.0f, 1.0f);
+        addParam(p);
+
+        std::stringstream str;
+        str << "h_" << param - module->chb.PARAM_H0;
+        p->label = str.str();
     }
 }
 
 
-void CHBWidget::resetMe()
+void CHBWidget::resetMe(CHBModule *module)
 {
-    printf("on click\n"); fflush(stdout);
-   // auto paramNum =CHB<WidgetComposite>::PARAM_H0;
+    float val10=0;
+    for (auto p : params) {
+        std::string s = p->label;
+        if (s == "h_10") {
+            val10 = p->value;
+        }
+    }
 
-    for (auto p : this->params) {
-        p->setValue(p->defaultValue);
+    const bool allUp = val10 < .1;
+    for (auto p : params) {
+        std::string s = p->label;
+        if (s == "h_0") {
+            p->setValue( 1);
+        }
+        if ((s == "h_1") || (s == "h_2") || (s == "h_3") || (s == "h_4") 
+            || (s == "h_5") || (s == "h_6") || (s == "h_7") || (s == "h_8") 
+            || (s == "h_9") || (s == "h_10")) {
+                p->setValue( allUp ? 1 : 0);
+        } 
     }
 }
 
@@ -272,12 +291,12 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addMixer(module, Vec(12, 155));
     addFolder(module, Vec(188, row1));
 
-#if 0
+#if 1
     auto sw = new SQPush();
    // sw->box.size = Vec();
-    sw->box.pos = Vec(20, 120);
+    sw->box.pos = Vec(210, 300);
     sw->onClick([this, module]() {
-        this->resetMe();
+        this->resetMe(module);
 
 
 
@@ -287,7 +306,7 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
 
     addOutput(Port::create<PJ301MPort>(
         Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
-    addLabel(Vec(175, 310), "Out");
+    addLabel(Vec(170, 290), "Out");
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
