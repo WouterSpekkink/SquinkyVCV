@@ -64,7 +64,8 @@ static void test0()
     MinBLEPVCO vco;
 
     // Don't enable any waveforms
-    vco.setSampleTime(sampleTime);
+   // vco.setSampleTime(sampleTime);
+    vco.setNormalizedFreq(1000 * sampleTime);
     vco.step();
 
     // should get nothing out.
@@ -78,12 +79,13 @@ static void test0()
 
 static void testSaw1()
 {
-    printf("**** testSaw1 disabled ******\n");
 #if 0
+    printf("**** testSaw1 disabled ******\n");
+#else
     MinBLEPVCO vco;
 
-    // Don't enable any waveforms
-    vco.setSampleTime(sampleTime);
+
+    vco.setNormalizedFreq(1000 * sampleTime);
     vco.enableWaveform(MinBLEPVCO::Waveform::Saw, true);
     vco.step();
 

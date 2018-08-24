@@ -1,5 +1,27 @@
 #pragma once
 
+
+// Need to make this compile in MS tools for unit tests
+#if defined(_MSC_VER)
+#define __attribute__(x)
+
+#pragma warning (push)
+#pragma warning ( disable: 4244 4267 )
+#endif
+
+#include "dsp/minblep.hpp"
+#include "dsp/filter.hpp"
+
+
+// until c++17
+namespace std {
+    inline float clamp(float v, float lo, float hi)
+    {
+        assert(lo < hi);
+        return std::min(hi, std::max(v, lo));
+    }
+}
+
 /* VCO core using MinBLEP to reduce aliasing.
  * Originally based on Befaco EvenVCO
  */
@@ -8,21 +30,28 @@ class MinBLEPVCO
 {
 public:
     friend class TestMB;
+
+    MinBLEPVCO();
     enum class Waveform {Sin, Square, Saw, Tri, Even, END };
 
     void step();
-   
+#if 0
     void setSampleTime(float time)
     {
         sampleTime = time;
     }
-
+#endif
+    void setNormalizedFreq(float f)
+    {
+        normalizedFreq = std::clamp(f, 1e-6f, 0.5f);
+    }
     void enableWaveform(Waveform wf, bool flag);
    
     float getWaveform(Waveform wf) const
     {
         return waveformOutputs[(int) wf];
     }
+
 
 private:
    // bool waveformEnabled[Waveforms::END] = {false};
@@ -33,8 +62,11 @@ private:
     bool doSquare = false;
     bool doSin = false;
 
+    float phase = 0.0;
 
-    float sampleTime = 0;
+
+   // float sampleTime = 0;
+    float normalizedFreq = 0;
 
     /**
      * It's merely a convenience that we use the waveforms enum for dispatcher.
@@ -43,20 +75,42 @@ private:
     Waveform dispatcher = Waveform::Saw;
     int loopCounter = 0;
 
+    rack::MinBLEP<16> triSquareMinBLEP;
+    rack::MinBLEP<16> triMinBLEP;
+    rack::MinBLEP<16> sineMinBLEP;
+    rack::MinBLEP<16> doubleSawMinBLEP;
+    rack::MinBLEP<16> sawMinBLEP;
+    rack::MinBLEP<16> squareMinBLEP;
+
     /**
      * Waveform generation helper
      */
-    void step_even(float deltaPhase);
-    void step_saw(float deltaPhase);
-    void step_sq(float deltaPhase);
-    void step_sin(float deltaPhase);
-    void step_tri(float deltaPhase);
-    void step_all(float deltaPhase);
+    void step_even();
+    void step_saw();
+    void step_sq();
+    void step_sin();
+    void step_tri();
+    void step_all();
 
     void zeroOutputsExcept(Waveform);
   
 };
 
+inline MinBLEPVCO::MinBLEPVCO()
+{
+    triSquareMinBLEP.minblep = rack::minblep_16_32;
+    triSquareMinBLEP.oversample = 32;
+    triMinBLEP.minblep = rack::minblep_16_32;
+    triMinBLEP.oversample = 32;
+    sineMinBLEP.minblep = rack::minblep_16_32;
+    sineMinBLEP.oversample = 32;
+    doubleSawMinBLEP.minblep = rack::minblep_16_32;
+    doubleSawMinBLEP.oversample = 32;
+    sawMinBLEP.minblep = rack::minblep_16_32;
+    sawMinBLEP.oversample = 32;
+    squareMinBLEP.minblep = rack::minblep_16_32;
+    squareMinBLEP.oversample = 32;
+}
 
 inline void MinBLEPVCO::enableWaveform(Waveform wf, bool flag)
 {
@@ -89,7 +143,8 @@ void MinBLEPVCO::zeroOutputsExcept(Waveform  except)
 
 inline void MinBLEPVCO::step()
 {
-    assert(sampleTime > 0);
+  //  assert(sampleTime > 0);
+   // assert(normalizedFreq > 0);
     // We don't need to look for connected outputs every cycle.
     // do it less often, and store results.
     if (--loopCounter < 0) {
@@ -128,7 +183,7 @@ inline void MinBLEPVCO::step()
         }
     }
 
-#if 0       // TODO:
+#if 0   // Move to composite
     // Compute frequency, pitch is 1V/oct
     float pitch = 1.0 + roundf(TBase::params[OCTAVE_PARAM].value) + TBase::params[TUNE_PARAM].value / 12.0;
     pitch += TBase::inputs[PITCH1_INPUT].value + TBase::inputs[PITCH2_INPUT].value;
@@ -138,17 +193,20 @@ inline void MinBLEPVCO::step()
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
     _freq = expLookup(pitch);
+#endif
 
 
     // Advance phase
-    float f = (_testFreq) ? _testFreq : _freq;
-    float deltaPhase = clamp(f * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+  //  float f = (_testFreq) ? _testFreq : _freq;
+ //   float deltaPhase = clamp(f * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+  //  float deltaPhase = clamp(normalizedFreq)
 
     // call the dedicated dispatch routines for the special case waveforms.
     switch (dispatcher) {
-        case SAW_OUTPUT:
-            step_saw(deltaPhase);
+        case  Waveform::Saw:
+            step_saw();
             break;
+#if 0
         case EVEN_OUTPUT:
             step_even(deltaPhase);
             break;
@@ -164,9 +222,34 @@ inline void MinBLEPVCO::step()
         case NUM_OUTPUTS:
             step_all(deltaPhase);
             break;
+#endif
+        case Waveform::END:
+            break;                  // don't do anything if no outputs
         default:
             assert(false);
     }
-#endif
 }
+
+
+
+inline void MinBLEPVCO::step_saw()
+{
+    phase += normalizedFreq;
+
+    // Reset phase if at end of cycle
+    if (phase >= 1.0) {
+        phase -= 1.0;
+        float crossing = -phase / normalizedFreq;
+        sawMinBLEP.jump(crossing, -2.0);
+    }
+
+    float saw = -1.0 + 2.0*phase;
+    saw += sawMinBLEP.shift();
+  //  TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
+    waveformOutputs[(int)Waveform::Saw] = 5.0*saw;
+}
+
+#if defined(_MSC_VER)
+#pragma warning (pop)
+#endif
 
