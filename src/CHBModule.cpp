@@ -97,12 +97,12 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
     switch (row) {
         case 0:
             firstParam = module->chb.PARAM_H0;
-            lastParam = module->chb.PARAM_H5;
+            lastParam = module->chb.PARAM_H4;
             firstInput = module->chb.H0_INPUT;
             break;
         case 1:
-            firstParam = module->chb.PARAM_H6;
-            lastParam = module->chb.PARAM_H10;
+            firstParam = module->chb.PARAM_H5;
+            lastParam = module->chb.PARAM_H9;
             firstInput = module->chb.H6_INPUT;
             break;
         default:

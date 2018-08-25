@@ -60,10 +60,10 @@ public:
         PARAM_H7,
         PARAM_H8,
         PARAM_H9,
-        PARAM_H10,
 
         NUM_PARAMS
     };
+    const int numHarmonics = 1 + PARAM_H9 - PARAM_H0;
 
     enum InputIds
     {
@@ -248,7 +248,7 @@ template <class TBase>
 inline void CHB<TBase>::calcVolumes(float * volumes)
 {
     // first get the harmonics knobs, and scale them
-    for (int i = 0; i < 11; ++i) {
+    for (int i = 0; i < numHarmonics; ++i) {
        // float rawVal = TBase::params[i + PARAM_H0].value;
 #if 1
         float val = taper(TBase::params[i + PARAM_H0].value);       // apply taper to the knobs
