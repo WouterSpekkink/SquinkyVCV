@@ -79,27 +79,52 @@ static void test0()
 
 static void testSaw1()
 {
-#if 0
-    printf("**** testSaw1 disabled ******\n");
-#else
     MinBLEPVCO vco;
-
 
     vco.setNormalizedFreq(1000 * sampleTime);
     vco.enableWaveform(MinBLEPVCO::Waveform::Saw, true);
     vco.step();
 
-    // should get nothing out.
+    // should get saw out.
     assertEQ(vco.getWaveform(MinBLEPVCO::Waveform::Sin), 0);
     assertEQ(vco.getWaveform(MinBLEPVCO::Waveform::Square), 0);
     assertNE(vco.getWaveform(MinBLEPVCO::Waveform::Saw), 0);
     assertEQ(vco.getWaveform(MinBLEPVCO::Waveform::Tri), 0);
     assertEQ(vco.getWaveform(MinBLEPVCO::Waveform::Even), 0);
+
+}
+
+static void testSync1()
+{
+    printf("\nskipping test sync 1\n");
+#if 0
+    MinBLEPVCO vco;
+
+    vco.setNormalizedFreq(1000 * sampleTime);
+    vco.enableWaveform(MinBLEPVCO::Waveform::Saw, true);
+    vco.syncInput(0);
+    float lastOut = -1000;
+    vco.step();
+
+    // first make sure it's going up.
+    for (int i = 0; i < 10; ++i) {
+        vco.step();
+        const float x = vco.getWaveform(MinBLEPVCO::Waveform::Saw);
+        assertGT(x, lastOut);
+        lastOut = x;
+    }
+
+    vco.syncInput(10);
+    vco.step();
+    const float x = vco.getWaveform(MinBLEPVCO::Waveform::Saw);
+    assertLT(x, lastOut);
 #endif
 }
+
 void testMinBLEPVCO()
 {
     TestMB::test1();
     test0();
     testSaw1();
+    testSync1();
 }

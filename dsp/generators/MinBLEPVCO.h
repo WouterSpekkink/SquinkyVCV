@@ -49,8 +49,14 @@ public:
    
     float getWaveform(Waveform wf) const
     {
+        printf("vco.getWave will ret %f\n", waveformOutputs[(int) wf]);
         return waveformOutputs[(int) wf];
     }
+
+    /**
+     * Send the sync waveform to VCO
+     */
+    void syncInput(float value);
 
 
 private:
@@ -110,6 +116,11 @@ inline MinBLEPVCO::MinBLEPVCO()
     sawMinBLEP.oversample = 32;
     squareMinBLEP.minblep = rack::minblep_16_32;
     squareMinBLEP.oversample = 32;
+}
+
+inline void MinBLEPVCO::syncInput(float value)
+{
+
 }
 
 inline void MinBLEPVCO::enableWaveform(Waveform wf, bool flag)
