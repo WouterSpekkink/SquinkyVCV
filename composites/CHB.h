@@ -37,7 +37,7 @@ public:
 
     // must be called after setSampleRate
  //   void init();
-    
+
 
     enum ParamIds
     {
@@ -71,6 +71,7 @@ public:
         PITCH_MOD_INPUT,
         LINEAR_FM_INPUT,
         ENV_INPUT,
+        GAIN_INPUT,
         AUDIO_INPUT,
         SLOPE_INPUT,
         H0_INPUT,
@@ -103,21 +104,21 @@ public:
      */
     void step() override;
 
-    float _freq=0;
+    float _freq = 0;
 
 private:
 
 
   //  float reciprocalSampleRate = 0;
 
-    /** 
+    /**
      * The waveshaper this is the heart of this module
      */
-    Poly<double, 11> poly;  
+    Poly<double, 11> poly;
 
     /**
      * Internal sine wave oscillator to drive the waveshaper
-     */        
+     */
     SinOscillatorParams<float> sinParams;
     SinOscillatorState<float> sinState;
 
@@ -126,19 +127,18 @@ private:
 
     // TODO: use more accurate lookup
    // std::shared_ptr<LookupTableParams<float>> pitchExp = {ObjectCache<float>::getExp2()};
-    std::function<float(float)> expLookup  = ObjectCache<float>::getExp2Ex();
+    std::function<float(float)> expLookup = ObjectCache<float>::getExp2Ex();
 
     /**
     * Audio taper for the slope.
     */
     AudioMath::ScaleFun<float> slopeScale =
-        {AudioMath::makeLinearScaler<float>(-18, 0)};
+    {AudioMath::makeLinearScaler<float>(-18, 0)};
 
-    /**
-     * do one-time calculations when sample rate changes
-     */
+/**
+ * do one-time calculations when sample rate changes
+ */
     void internalUpdate();
-
 
     /**
      * Do all the processing to get the input waveform
@@ -148,54 +148,29 @@ private:
 
     void calcVolumes(float *);
 
+    /**
+     * Does audio taper
+     * @param raw = 0..1
+     * @return 0..1
+     */
     float taper(float raw)
     {
-       return LookupTable<float>::lookup(*audioTaper, raw, false);
+        return LookupTable<float>::lookup(*audioTaper, raw, false);
     }
-
 };
-
-
-#if 0
-template <class TBase>
-inline void CHB<TBase>::init()
-{
-    internalUpdate();
-}
-
-template <class TBase>
-inline void CHB<TBase>::internalUpdate()
-{
-    // for now, just run at 150 hz
-    SinOscillator<float, false>::setFrequency(sinParams, 150 * reciprocalSampleRate);
-}
-#endif
 
 template <class TBase>
 inline float CHB<TBase>::getInput()
 {
 
     assert(TBase::engineGetSampleTime() > 0);
-    /*
-        float pitch = 1.0f + roundf(vco.params[(int) CH::OCTAVE_PARAM].value) + vco.params[(int) CH::TUNE_PARAM].value / 12.0f;
-    pitch += vco.inputs[(int) EVCO::PITCH_INPUT].value;
-    pitch += vco.inputs[(int) EVCO::PITCH_MOD_INPUT].value / 4.0f;
 
-    */
     // Get the frequency from the inputs.
-
-
     float pitch = 1.0f + roundf(TBase::params[PARAM_OCTAVE].value) + TBase::params[PARAM_TUNE].value / 12.0f;
     pitch += TBase::inputs[CV_INPUT].value;
     pitch += .25f * TBase::inputs[PITCH_MOD_INPUT].value *
         taper(TBase::params[PARAM_PITCH_MOD_TRIM].value);
 
-    // TODO: smarter limiting
-  //  pitch = std::max(-5.0f, pitch);
-  //  pitch = std::min(5.0f, pitch);
-
- //   pitch += 5;     // push it up to reasonable range
-                    // lookup give abs Hz, so div by sample rate for normalized freq
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
  //   _freq = LookupTable<float>::lookup(*pitchExp, pitch);
@@ -205,10 +180,6 @@ inline float CHB<TBase>::getInput()
     _freq *= 1.0f + TBase::inputs[LINEAR_FM_INPUT].value * taper(TBase::params[PARAM_LINEAR_FM_TRIM].value);
 
     float time = std::clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
-    
-  //  float time = _freq * engineGetSampleTime();
-  //  time = std::min(time, .4999f);
-
 
     SinOscillator<float, false>::setFrequency(sinParams, time);
 
@@ -284,19 +255,19 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
 
     float octave[11];
     for (int i = 0; i < 11; ++i) {
-        octave[i] = log2(float(i+1));
+        octave[i] = log2(float(i + 1));
     }
 
     {
 #if 0
         const float slopeRaw = TBase::params[PARAM_SLOPE].value;
         assert(slopeRaw >= 0 && slopeRaw <= 1);
-        const float slope = - slopeRaw * 18;
+        const float slope = -slopeRaw * 18;
       //  printf("slope raw = %f slope = %f\n", slopeRaw, slope);
 #endif
         // TODO: add attenuverter, or make a simple linear scale
         const float slope = slopeScale(TBase::params[PARAM_SLOPE].value, TBase::inputs[SLOPE_INPUT].value, 1);
-      
+
         for (int i = 0; i < 11; ++i) {
             float slopeAttenDb = slope * octave[i];
             float slopeAtten = (float) AudioMath::gainFromDb(slopeAttenDb);
@@ -321,7 +292,7 @@ inline void CHB<TBase>::step()
       //  poly.setGain(i, val);
         poly.setGain(i, volume[i]);
     }
-   
+
     float output = poly.run(input);
     TBase::outputs[MIX_OUTPUT].value = output;
 }

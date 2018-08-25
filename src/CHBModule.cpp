@@ -25,16 +25,6 @@ public:
 private:
 };
 
-#if 0
-void CHBModule::onSampleRateChange()
-{
-    //float rate = engineGetSampleRate();
-    // gmr.setSampleRate(rate);
-    float sampleTime = engineGetSampleTime();
-    chb.setSampleTime(sampleTime);
-}
-#endif
-
 CHBModule::CHBModule()
     : Module(chb.NUM_PARAMS,
     chb.NUM_INPUTS,
@@ -42,8 +32,6 @@ CHBModule::CHBModule()
     chb.NUM_LIGHTS),
     chb(this)
 {
-   // onSampleRateChange();
-  //  chb.init();
 }
 
 void CHBModule::step()
@@ -185,33 +173,6 @@ void CHBWidget::resetMe(CHBModule *module)
     }
 }
 
-#if 0
-void CHBWidget::resetMe(CHBModule *module)
-{
-    float val10=0;
-    for (auto p : params) {
-        std::string s = p->label;
-        if (s == "h_10") {
-            val10 = p->value;
-        }
-    }
-
-    const bool allUp = val10 < .1;
-    for (auto p : params) {
-        std::string s = p->label;
-        if (s == "h_0") {
-            p->setValue( 1);
-        }
-        if ((s == "h_1") || (s == "h_2") || (s == "h_3") || (s == "h_4") 
-            || (s == "h_5") || (s == "h_6") || (s == "h_7") || (s == "h_8") 
-            || (s == "h_9") || (s == "h_10")) {
-                p->setValue( allUp ? 1 : 0);
-        } 
-    }
-}
-#endif
-
-
 /**
  */
 struct SQPush : SVGButton
@@ -250,11 +211,13 @@ inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
     addLabel(Vec(15+ pos.x, label1), "CV");
 
     addParam(ParamWidget::create<RoundBlackSnapKnob>(
-        Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE, -5.0f, 4.0f, 0.f));
+        Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE,
+        -5.0f, 4.0f, 0.f));
     addLabel(Vec(14 + pos.x, pos.y+34), "Oct");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(20 + pos.x, pos.y+98), module, module->chb.PARAM_TUNE, -5.0f, 5.0f, 0));
+        Vec(20 + pos.x, pos.y+98), module, module->chb.PARAM_TUNE,
+        -5.0f, 5.0f, 0));
     addLabel(Vec(9 + pos.x, pos.y + 80), "Tune");
 
     //--------------------------- make the mod column
@@ -264,14 +227,16 @@ inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
     addLabel(Vec(53+ pos.x, label1), "Mod");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(60 + pos.x, inputRow+45), module, module->chb.PARAM_PITCH_MOD_TRIM, -1.0f, 1.0f, 0));
+        Vec(60 + pos.x, inputRow+45), module, module->chb.PARAM_PITCH_MOD_TRIM,
+        0, 1.0f, 1.0f));
   
     addInput(Port::create<PJ301MPort>(
         Vec(100 + pos.x, inputRow), Port::INPUT, module, module->chb.LINEAR_FM_INPUT));
     addLabel(Vec(93+ pos.x, label1), "LFM");
 
      addParam(ParamWidget::create<Trimpot>(
-        Vec(100 + pos.x, inputRow+45), module, module->chb.PARAM_LINEAR_FM_TRIM, -1.0f, 1.0f, 0));
+        Vec(100 + pos.x, inputRow+45), module, module->chb.PARAM_LINEAR_FM_TRIM,
+        0, 1.0f, 1));
 }
 
 void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
@@ -309,8 +274,10 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(pos.x+3, pos.y + 106), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
-    addLabel(Vec(pos.x-10, pos.y+85), "Gain");
-
+    addLabel(Vec(pos.x-20, pos.y+85), "Gain");
+    addInput(Port::create<PJ301MPort>(
+        Vec(pos.x - 32, pos.y+102), Port::INPUT, module, module->chb.GAIN_INPUT));
+    
     addParam(ParamWidget::create<CKSS>(
         Vec(pos.x+5, pos.y + 148), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
     addLabel(Vec(pos.x-6, pos.y + 128), "fold");
@@ -340,14 +307,14 @@ CHBWidget::CHBWidget(CHBModule *module) :
     addFolder(module, Vec(188, row1));
 
     auto sw = new SQPush();
-    sw->box.pos = Vec(210, 300);
+    sw->box.pos = Vec(180, 240);
     sw->onClick([this, module]() {
         this->resetMe(module);
     });
     addChild(sw);
     addOutput(Port::create<PJ301MPort>(
         Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
-    addLabel(Vec(170, 290), "Out");
+    addLabel(Vec(170, 310), "Out");
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
