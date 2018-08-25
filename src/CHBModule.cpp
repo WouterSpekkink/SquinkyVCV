@@ -281,7 +281,10 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
     addParam(ParamWidget::create<CKSS>(
         Vec(pos.x+5, pos.y + 148), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
     addLabel(Vec(pos.x-6, pos.y + 128), "fold");
-    addLabel(Vec(pos.x-6, pos.y + 168), "clip");
+    addLabel(Vec(pos.x-6, pos.y + 180), "clip");
+
+    addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(
+        Vec(pos.x-20, pos.y + 140), module, module->chb.GAIN_GREEN_LIGHT));
 }
 
 /**

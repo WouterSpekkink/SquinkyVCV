@@ -2,6 +2,8 @@
 #pragma once
 
 #include <algorithm>
+
+#include "AudioMath.h"
 #include "poly.h"
 #include "ObjectCache.h"
 #include "SinOscillator.h"
@@ -96,6 +98,8 @@ public:
 
     enum LightIds
     {
+        GAIN_GREEN_LIGHT,
+        GAIN_RED_LIGHT,
         NUM_LIGHTS
     };
 
@@ -107,6 +111,10 @@ public:
     float _freq = 0;
 
 private:
+
+    int clipCount = 0;
+    int signalCount = 0;
+    const int clipDuration = 4000;
 
 
   //  float reciprocalSampleRate = 0;
@@ -125,6 +133,8 @@ private:
     // just maps 0..1 to 0..1
     std::shared_ptr<LookupTableParams<float>> audioTaper = {ObjectCache<float>::getAudioTaper()};
 
+    AudioMath::ScaleFun<float> gainCombiner = AudioMath::makeLinearScaler(0.f, 1.f);
+
     // TODO: use more accurate lookup
    // std::shared_ptr<LookupTableParams<float>> pitchExp = {ObjectCache<float>::getExp2()};
     std::function<float(float)> expLookup = ObjectCache<float>::getExp2Ex();
@@ -135,9 +145,9 @@ private:
     AudioMath::ScaleFun<float> slopeScale =
     {AudioMath::makeLinearScaler<float>(-18, 0)};
 
-/**
- * do one-time calculations when sample rate changes
- */
+    /**
+     * do one-time calculations when sample rate changes
+     */
     void internalUpdate();
 
     /**
@@ -147,6 +157,8 @@ private:
     float getInput();
 
     void calcVolumes(float *);
+
+    void checkClipping(float sample);
 
     /**
      * Does audio taper
@@ -162,7 +174,6 @@ private:
 template <class TBase>
 inline float CHB<TBase>::getInput()
 {
-
     assert(TBase::engineGetSampleTime() > 0);
 
     // Get the frequency from the inputs.
@@ -173,7 +184,6 @@ inline float CHB<TBase>::getInput()
 
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
- //   _freq = LookupTable<float>::lookup(*pitchExp, pitch);
     _freq = expLookup(pitch);
 
     // Multiply in the Linear FM contribution
@@ -183,6 +193,7 @@ inline float CHB<TBase>::getInput()
 
     SinOscillator<float, false>::setFrequency(sinParams, time);
 
+#if 0
     // Get the gain from the envelope generator in
     float EGgain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
     EGgain *= 0.1f;
@@ -199,11 +210,30 @@ inline float CHB<TBase>::getInput()
             knobGain = 1 + gainKnobValue;
         }
     }
-
     // printf("pitch = %f freq = %f gain = %f\n", pitch, frequency, gain);
     float input = EGgain * knobGain * (isExternalAudio ?
         TBase::inputs[AUDIO_INPUT].value :
         SinOscillator<float, false>::run(sinState, sinParams));
+#endif
+    // Get the gain from the envelope generator in
+    // eGain = {0 .. 10.0f }
+    float eGain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
+    const bool isExternalAudio = TBase::inputs[AUDIO_INPUT].active;
+
+    const float gainKnobValue = TBase::params[PARAM_EXTGAIN].value;
+    const float gainCVValue = TBase::inputs[GAIN_INPUT].value;
+    const float combinedGain = gainCombiner(gainCVValue, gainKnobValue, 1.f);
+
+    // tapered gain {0 .. 0.5}
+    const float taperedGain = .5f * taper(combinedGain);
+
+    // final gain 0..5
+    const float finalGain = taperedGain * eGain;
+    float input = finalGain * (isExternalAudio ?
+        TBase::inputs[AUDIO_INPUT].value :
+        SinOscillator<float, false>::run(sinState, sinParams));
+
+    checkClipping(input);
 
     // Now clip or fold to keep in -1...+1
     if (TBase::params[PARAM_FOLD].value > .5) {
@@ -215,29 +245,55 @@ inline float CHB<TBase>::getInput()
     return input;
 }
 
+/**
+ * Desired behavior:
+ *      If we clip, led goes red and stays red for clipDuration
+ *      if not red, sign present goes green
+ *      nothing - turn off
+ */
+template <class TBase>
+inline void CHB<TBase>::checkClipping(float input)
+{
+    if (input > 1) {
+        // if clipping, go red
+        clipCount = clipDuration;
+        TBase::lights[GAIN_RED_LIGHT].value = 10;
+        TBase::lights[GAIN_GREEN_LIGHT].value = 0;
+    } else if (clipCount) {
+        // If red,run down the clock
+        clipCount--;
+        if (clipCount <= 0) {
+            TBase::lights[GAIN_RED_LIGHT].value = 0;
+            TBase::lights[GAIN_GREEN_LIGHT].value = 0;
+        }
+    } else if (input > .3f) {
+        // if signal present
+        signalCount = clipDuration;
+        TBase::lights[GAIN_GREEN_LIGHT].value = 10;
+    } else if (signalCount) {
+        signalCount--;
+        if (signalCount <= 0) {
+            TBase::lights[GAIN_GREEN_LIGHT].value = 0;
+        }
+    }
+}
+
 template <class TBase>
 inline void CHB<TBase>::calcVolumes(float * volumes)
 {
     // first get the harmonics knobs, and scale them
     for (int i = 0; i < numHarmonics; ++i) {
-       // float rawVal = TBase::params[i + PARAM_H0].value;
-#if 1
         float val = taper(TBase::params[i + PARAM_H0].value);       // apply taper to the knobs
 
         // If input connected, scale and multiply with knob value
         if (TBase::inputs[i + H0_INPUT].active) {
-           // val *= (TBase::inputs[i + H0_INPUT].value * .1f);
             const float inputCV = TBase::inputs[i + H0_INPUT].value * .1f;
             val *= std::max(inputCV, 0.f);
         }
-#else
-        const float val = TBase::inputs[i + H0_INPUT].active ?
-            TBase::inputs[i + H0_INPUT].value * .1f :
-            taper(TBase::params[i + PARAM_H0].value);
-#endif
 
         volumes[i] = val;
     }
+
    // printf("knob 0=%f, 3 = %f 4=%f 10=%f\n", volumes[0], volumes[3], volumes[4], volumes[10]);
 
     // Second: apply the even and odd knobs
@@ -285,11 +341,10 @@ inline void CHB<TBase>::step()
 
     float volume[11];
     calcVolumes(volume);
-  //  printf("vol 0=%f, 3 = %f 4=%f 10=%f\n", volume[0], volume[3], volume[4], volume[10]);
+
+    //  printf("vol 0=%f, 3 = %f 4=%f 10=%f\n", volume[0], volume[3], volume[4], volume[10]);
 
     for (int i = 0; i < 11; ++i) {
-       // float val = TBase::params[i + PARAM_H0].value;
-      //  poly.setGain(i, val);
         poly.setGain(i, volume[i]);
     }
 
