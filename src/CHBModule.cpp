@@ -15,6 +15,7 @@ public:
     CHBModule();
     /**
      *
+     *
      * Overrides of Module functions
      */
     void step() override;
@@ -73,14 +74,12 @@ struct CHBWidget : ModuleWidget
     void addMixer(CHBModule *module, const Vec& pos);
     void addFolder(CHBModule *module, const Vec& pos);
     void resetMe(CHBModule *module);
+private:
+    const int numHarmonics;
+    std::vector<ParamWidget* > harmonicParams;
+    std::vector<float> harmonicParamMemory;
 };
 
-
-/*
-    const float knobX = 25;
-    const float knobY= 70;
-    const float knobDY = 45;
-    */
 inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
 {
     addHarmonicsRow(module, 0, pos);
@@ -122,11 +121,11 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
        
         addInput(Port::create<PJ301MPort>(
             pJack, Port::INPUT, module, input));
-      //  addParam(ParamWidget::create<Trimpot>(
-      //      pKnob, module, param, 0.0f, 1.0f, 1.0f));
-       auto p = ParamWidget::create<Trimpot>(
+        auto p = ParamWidget::create<Trimpot>(
            pKnob, module, param, 0.0f, 1.0f, 1.0f);
         addParam(p);
+
+        harmonicParams.push_back(p);
 
         std::stringstream str;
         str << "h_" << param - module->chb.PARAM_H0;
@@ -134,7 +133,59 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
     }
 }
 
+void CHBWidget::resetMe(CHBModule *module)
+{
+    bool isOnlyFundamental = true;
+    bool isAll = true;
+    bool havePreset = !harmonicParamMemory.empty();
+    const float val0 = harmonicParams[0]->value;
+    if (val0 < .99) {
+        isOnlyFundamental = false;
+        isAll = false;
+    }
 
+    for (int i=1; i < numHarmonics; ++i) {
+        const float value = harmonicParams[i]->value;
+        if (value < .9) {
+            isAll = false;
+        }
+
+        if (value > .1) {
+            isOnlyFundamental = false;
+        }
+    }
+
+    if (!isOnlyFundamental && !isAll) {
+        // take snapshot
+        if (harmonicParamMemory.empty()) {
+            harmonicParamMemory.resize(numHarmonics);
+        }
+        for (int i=0; i < numHarmonics; ++i) {
+            harmonicParamMemory[i] = harmonicParams[i]->value;
+        }
+    }
+
+    // fundamental -> all
+    if (isOnlyFundamental) {
+        for (int i=0; i < numHarmonics; ++i) {
+            harmonicParams[i]->setValue(1);
+        }
+    }
+    // all -> preset, if any
+    else if (isAll && havePreset) {
+        for (int i=0; i < numHarmonics; ++i) {
+            harmonicParams[i]->setValue(harmonicParamMemory[i]);
+        }
+    }
+    // preset -> fund. if no preset all -> fund
+    else  {
+        for (int i=0; i < numHarmonics; ++i) {
+            harmonicParams[i]->setValue((i == 0) ? 1 : 0);
+        }
+    }
+}
+
+#if 0
 void CHBWidget::resetMe(CHBModule *module)
 {
     float val10=0;
@@ -158,6 +209,7 @@ void CHBWidget::resetMe(CHBModule *module)
         } 
     }
 }
+#endif
 
 
 /**
@@ -189,10 +241,7 @@ struct SQPush : SVGButton
 };
 
 inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
-{
-   // const float row1 = pos.y;
-   // const float label1 = row1 + 25;
-    
+{  
     const float inputRow = pos.y + 7;
     const float label1 = inputRow-18;
     //-------------------- make the pitch control column
@@ -223,12 +272,10 @@ inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
 
      addParam(ParamWidget::create<Trimpot>(
         Vec(100 + pos.x, inputRow+45), module, module->chb.PARAM_LINEAR_FM_TRIM, -1.0f, 1.0f, 0));
-  
 }
 
 void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
 {
-// NOW the three harmonic macro controls
     float trimRow = pos.y + 30;
     float labelRow = pos.y + 4;
 
@@ -248,7 +295,6 @@ void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
     addLabel(Vec(pos.x+83, labelRow), "odd");
 
     addHarmonics(module, Vec(pos.x, trimRow + 55));
-
 }
 
 void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
@@ -276,7 +322,9 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
  * provide meta-data.
  * This is not shared by all modules in the DLL, just one
  */
-CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
+CHBWidget::CHBWidget(CHBModule *module) : 
+    ModuleWidget(module),
+    numHarmonics(module->chb.numHarmonics)
 {
     box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
@@ -291,19 +339,12 @@ CHBWidget::CHBWidget(CHBModule *module) : ModuleWidget(module)
     addMixer(module, Vec(12, 155));
     addFolder(module, Vec(188, row1));
 
-#if 1
     auto sw = new SQPush();
-   // sw->box.size = Vec();
     sw->box.pos = Vec(210, 300);
     sw->onClick([this, module]() {
         this->resetMe(module);
-
-
-
     });
     addChild(sw);
-#endif
-
     addOutput(Port::create<PJ301MPort>(
         Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
     addLabel(Vec(170, 290), "Out");
