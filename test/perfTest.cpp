@@ -491,7 +491,7 @@ static void testCHB()
 
     MeasureTime<float>::run(overheadOutOnly, "chb", [&chb]() {
         chb.step();
-        return chb.outputs[LFN<TestComposite>::OUTPUT].value;
+        return chb.outputs[CHB<TestComposite>::MIX_OUTPUT].value;
         }, 1);
 }
 
@@ -643,7 +643,7 @@ void perfTest()
 
 //    testEvenOrig();
     testEvenSaw();
-#if 1
+#if 0
     testEven();
     testEvenEven();
     testEvenSin();
@@ -661,10 +661,11 @@ void perfTest()
 
     testColors();
     testTremolo();
-    testCHB();
+   
     testLFN();
     testGMR();
 #endif
+    testCHB();
 
    // test1();
 #if 0
