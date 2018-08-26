@@ -630,7 +630,7 @@ void perfTest()
     testNormal();
 #endif
 
-
+    testCHB();
     testFunSaw(true);
     testFunSaw(false);
 #if 1
@@ -665,7 +665,7 @@ void perfTest()
     testLFN();
     testGMR();
 #endif
-    testCHB();
+   
 
    // test1();
 #if 0

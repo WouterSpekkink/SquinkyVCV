@@ -8,6 +8,8 @@
 #include "ObjectCache.h"
 #include "SinOscillator.h"
 
+using Osc = SinOscillator<float, true>;
+
 // until c++17
 namespace std {
     inline float clamp(float v, float lo, float hi)
@@ -16,6 +18,7 @@ namespace std {
         return std::min(hi, std::max(v, lo));
     }
 }
+
 /**
  */
 template <class TBase>
@@ -28,18 +31,6 @@ public:
     CHB() : TBase()
     {
     }
-
-#if 0
-    void setSampleTime(float time)
-    {
-        reciprocalSampleRate = time;
-        internalUpdate();
-    }
-#endif
-
-    // must be called after setSampleRate
- //   void init();
-
 
     enum ParamIds
     {
@@ -116,9 +107,6 @@ private:
     int signalCount = 0;
     const int clipDuration = 4000;
 
-
-  //  float reciprocalSampleRate = 0;
-
     /**
      * The waveshaper this is the heart of this module
      */
@@ -186,35 +174,16 @@ inline float CHB<TBase>::getInput()
     pitch += q;
     _freq = expLookup(pitch);
 
+    if (_freq < .01) {
+        _freq = .01;
+    }
+
     // Multiply in the Linear FM contribution
     _freq *= 1.0f + TBase::inputs[LINEAR_FM_INPUT].value * taper(TBase::params[PARAM_LINEAR_FM_TRIM].value);
+    float time = std::clamp(_freq * TBase::engineGetSampleTime(), -.5f, 0.5f);
 
-    float time = std::clamp(_freq * TBase::engineGetSampleTime(), 1e-6f, 0.5f);
+    Osc::setFrequency(sinParams, time);
 
-    SinOscillator<float, false>::setFrequency(sinParams, time);
-
-#if 0
-    // Get the gain from the envelope generator in
-    float EGgain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
-    EGgain *= 0.1f;
-
-    const bool isExternalAudio = TBase::inputs[AUDIO_INPUT].active;
-
-    const float gainKnobValue = TBase::params[PARAM_EXTGAIN].value;
-    float knobGain = 1;
-    if (isExternalAudio) {
-        knobGain = gainKnobValue;           // TODO: taper
-    } else {
-        // if using internal sin, never attenuate
-        if (gainKnobValue > 0) {
-            knobGain = 1 + gainKnobValue;
-        }
-    }
-    // printf("pitch = %f freq = %f gain = %f\n", pitch, frequency, gain);
-    float input = EGgain * knobGain * (isExternalAudio ?
-        TBase::inputs[AUDIO_INPUT].value :
-        SinOscillator<float, false>::run(sinState, sinParams));
-#endif
     // Get the gain from the envelope generator in
     // eGain = {0 .. 10.0f }
     float eGain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
@@ -231,9 +200,10 @@ inline float CHB<TBase>::getInput()
     const float finalGain = taperedGain * eGain;
     float input = finalGain * (isExternalAudio ?
         TBase::inputs[AUDIO_INPUT].value :
-        SinOscillator<float, false>::run(sinState, sinParams));
+        Osc::run(sinState, sinParams));
 
     checkClipping(input);
+
 
     // Now clip or fold to keep in -1...+1
     if (TBase::params[PARAM_FOLD].value > .5) {
@@ -242,6 +212,7 @@ inline float CHB<TBase>::getInput()
         input = std::max(input, -1.f);
         input = std::min(input, 1.f);
     }
+
     return input;
 }
 
@@ -315,12 +286,6 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
     }
 
     {
-#if 0
-        const float slopeRaw = TBase::params[PARAM_SLOPE].value;
-        assert(slopeRaw >= 0 && slopeRaw <= 1);
-        const float slope = -slopeRaw * 18;
-      //  printf("slope raw = %f slope = %f\n", slopeRaw, slope);
-#endif
         // TODO: add attenuverter, or make a simple linear scale
         const float slope = slopeScale(TBase::params[PARAM_SLOPE].value, TBase::inputs[SLOPE_INPUT].value, 1);
 
@@ -328,7 +293,6 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
             float slopeAttenDb = slope * octave[i];
             float slopeAtten = (float) AudioMath::gainFromDb(slopeAttenDb);
             volumes[i] *= slopeAtten;
-          //  printf("i=%d, oct=%.2f slopedb=%.2f atten=%.2f\n", i, octave[i], slopeAttenDb, slopeAtten)
         }
     }
 }
@@ -349,6 +313,6 @@ inline void CHB<TBase>::step()
     }
 
     float output = poly.run(input);
-    TBase::outputs[MIX_OUTPUT].value = output;
+    TBase::outputs[MIX_OUTPUT].value = 5.0f * output;
 }
 
