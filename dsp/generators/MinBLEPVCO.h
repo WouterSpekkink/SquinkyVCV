@@ -49,7 +49,7 @@ public:
    
     float getWaveform(Waveform wf) const
     {
-        printf("vco.getWave will ret %f\n", waveformOutputs[(int) wf]);
+       // printf("vco.getWave will ret %f\n", waveformOutputs[(int) wf]);
         return waveformOutputs[(int) wf];
     }
 
