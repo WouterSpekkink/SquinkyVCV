@@ -329,7 +329,7 @@ CHBWidget::CHBWidget(CHBModule *module) :
 Model *modelCHBModule = Model::create<CHBModule,
     CHBWidget>("Squinky Labs",
     "squinkylabs-CHB",
-    "CHB", EFFECT_TAG, LFO_TAG);
+    "CHB", EFFECT_TAG, OSCILLATOR_TAG, WAVESHAPER_TAG);
 
 
 #endif

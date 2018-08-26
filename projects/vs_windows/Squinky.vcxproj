@@ -74,6 +74,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\composites\CHB.h" />
     <ClInclude Include="..\..\composites\ColoredNoise.h" />
+    <ClInclude Include="..\..\composites\ev3.h" />
     <ClInclude Include="..\..\composites\FrequencyShifter.h" />
     <ClInclude Include="..\..\composites\FunVCOComposite.h" />
     <ClInclude Include="..\..\composites\GMR.h" />

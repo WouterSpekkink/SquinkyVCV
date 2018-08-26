@@ -25,6 +25,7 @@ extern Model *modelCPU_HogModule;
 extern Model *modelEVModule;
 #endif
 extern Model *modelFunVModule;
+extern Model *modelEV3Module;
 
 
 

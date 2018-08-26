@@ -35,4 +35,5 @@ void init(rack::Plugin *p)
 #ifdef _EV
     p->addModel(modelEVModule);
 #endif
+    p->addModel(modelEV3Module);
 }
