@@ -4,7 +4,8 @@
 #include "ObjectCache.h"
 
 /**
-*/
+ *
+ */
 template <class TBase>
 class EV3 : public TBase
 {

@@ -437,7 +437,7 @@
     <ClInclude Include="..\..\dsp\generators\MinBLEPVCO.h">
       <Filter>Header Files\dsp\generators</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\composites\ev3.h">
+    <ClInclude Include="..\..\composites\EV3.h">
       <Filter>Header Files\composites</Filter>
     </ClInclude>
   </ItemGroup>
