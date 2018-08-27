@@ -40,12 +40,7 @@ public:
     enum class Waveform {Sin, Square, Saw, Tri, Even, END };
 
     void step();
-#if 0
-    void setSampleTime(float time)
-    {
-        sampleTime = time;
-    }
-#endif
+
     void setNormalizedFreq(float f)
     {
         normalizedFreq = std::clamp(f, 1e-6f, 0.5f);

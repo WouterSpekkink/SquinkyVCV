@@ -126,8 +126,6 @@ private:
 
     AudioMath::ScaleFun<float> gainCombiner = AudioMath::makeLinearScaler(0.f, 1.f);
 
-    // TODO: use more accurate lookup
-   // std::shared_ptr<LookupTableParams<float>> pitchExp = {ObjectCache<float>::getExp2()};
     std::function<float(float)> expLookup = ObjectCache<float>::getExp2Ex();
 
     /**

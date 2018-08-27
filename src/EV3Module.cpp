@@ -62,7 +62,7 @@ void EV3Widget::makeSection(EV3Module *module, int index)
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(pos.x, pos.y+120), module, module->ev3.FINE1_PARAM + delta * index,
-        -5.0f, 5.0f, 0));
+        -1.0f, 1.0f, 0));
     addLabel(Vec(pos.x, pos.y + 100), "Fine");
 
     if (index != 0) {    
