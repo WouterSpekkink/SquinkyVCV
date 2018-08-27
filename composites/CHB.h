@@ -174,8 +174,8 @@ inline float CHB<TBase>::getInput()
     pitch += q;
     _freq = expLookup(pitch);
 
-    if (_freq < .01) {
-        _freq = .01;
+    if (_freq < .01f) {
+        _freq = .01f;
     }
 
     // Multiply in the Linear FM contribution

@@ -17,6 +17,18 @@ public:
 
     enum ParamIds
     {
+        OCTAVE1_PARAM,
+        SEMI1_PARAM,
+        FINE1_PARAM,
+
+        OCTAVE2_PARAM,
+        SEMI2_PARAM,
+        FINE2_PARAM,
+
+        OCTAVE3_PARAM,
+        SEMI3_PARAM,
+        FINE3_PARAM,
+
 
 
         NUM_PARAMS

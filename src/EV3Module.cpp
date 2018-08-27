@@ -29,8 +29,49 @@ void EV3Module::step()
 struct EV3Widget : ModuleWidget
 {
     EV3Widget(EV3Module *);
+    void makeSections(EV3Module *);
+    void makeSection(EV3Module *, int index);
+
+    void addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
+    {
+        Label* label = new Label();
+        label->box.pos = v;
+        label->text = str;
+        label->color = color;
+        addChild(label);
+    }
 };
 
+void EV3Widget::makeSection(EV3Module *module, int index)
+{
+    Vec pos;
+    pos.x = 10 + index * 40;
+    pos.y = 50;
+
+    const int delta = module->ev3.OCTAVE2_PARAM - module->ev3.OCTAVE1_PARAM;
+
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(
+        Vec(pos.x, pos.y + 20), module, module->ev3.OCTAVE1_PARAM + delta * index,
+        -5.0f, 4.0f, 0.f));
+    addLabel(Vec(pos.x, pos.y), "Oct");
+
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(
+        Vec(pos.x, pos.y + 70), module, module->ev3.SEMI1_PARAM + delta * index,
+        0.f, 11.0f, 0.f));
+    addLabel(Vec(pos.x, pos.y +50), "Semi");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(pos.x, pos.y+120), module, module->ev3.FINE1_PARAM + delta * index,
+        -5.0f, 5.0f, 0));
+    addLabel(Vec(pos.x, pos.y + 100), "Fine");
+}
+
+void EV3Widget::makeSections(EV3Module *module)
+{
+    makeSection(module, 0);
+    makeSection(module, 1);
+    makeSection(module, 2);
+}
 
 /**
  * Widget constructor will describe my implementation structure and
@@ -47,6 +88,8 @@ EV3Widget::EV3Widget(EV3Module *module) :
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
         addChild(panel);
     }
+
+    makeSections(module);
 }
 
 

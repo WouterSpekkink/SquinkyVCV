@@ -22,6 +22,7 @@
 #include "GMR.h"
 #include "CHB.h"
 #include "FunVCOComposite.h"
+#include "ev3.h"
 
 
 using Shifter = FrequencyShifter<TestComposite>;
@@ -495,6 +496,17 @@ static void testCHB()
         }, 1);
 }
 
+static void testEV3()
+{
+    EV3<TestComposite> ev3;
+
+    //    chb.init();
+
+    MeasureTime<float>::run(overheadOutOnly, "ev3", [&ev3]() {
+        ev3.step();
+        return ev3.outputs[EV3<TestComposite>::MIX_OUTPUT].value;
+        }, 1);
+}
 static void testGMR()
 {
     GMR<TestComposite> gmr;
@@ -631,6 +643,7 @@ void perfTest()
 #endif
 
     testCHB();
+    testEV3();
     testFunSaw(true);
     testFunSaw(false);
 #if 1
