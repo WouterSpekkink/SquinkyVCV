@@ -41,6 +41,7 @@ public:
  
     enum InputIds
     {
+        CV1_INPUT,
         NUM_INPUTS
     };
 
@@ -56,6 +57,7 @@ public:
     };
 
     void step() override;
+ 
 private:
     void processPitchInputs();
     void processPitchInputs(int osc);
@@ -71,6 +73,11 @@ inline void EV3<TBase>::step()
 {
     processPitchInputs();
     stepVCOs();
+    float mix = 0;
+    for (int i = 0; i < 3; ++i) {
+        mix += vcos[i].getWaveform();
+    }
+    TBase::outputs[MIX_OUTPUT].value = mix;
 }
 
 template <class TBase>
@@ -97,8 +104,8 @@ inline void EV3<TBase>::processPitchInputs(int osc)
 
     float pitch = 1.0f + roundf(TBase::params[OCTAVE1_PARAM + delta].value) +
         TBase::params[SEMI1_PARAM + delta].value / 12.0f +
-        TBase::params[FINE1_PARAM + delta].value;
-
+        TBase::params[FINE1_PARAM + delta].value / 12.0f;
+    pitch += TBase::inputs[CV1_INPUT].value;
 #if 0
     pitch += TBase::inputs[CV_INPUT].value;
     pitch += .25f * TBase::inputs[PITCH_MOD_INPUT].value *

@@ -103,6 +103,10 @@ EV3Widget::EV3Widget(EV3Module *module) :
     addOutput(Port::create<PJ301MPort>(
         Vec(140, 330), Port::OUTPUT, module, module->ev3.MIX_OUTPUT));
     addLabel(Vec(130, 310), "Out");
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(20, 330), Port::INPUT, module, module->ev3.CV1_INPUT));
+    addLabel(Vec(20, 310), "CV");
 }
 
 

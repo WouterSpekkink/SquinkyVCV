@@ -47,10 +47,11 @@ public:
     }
     void enableWaveform(Waveform wf, bool flag);
    
-    float getWaveform(Waveform wf) const
+    float getWaveform() const
     {
        // printf("vco.getWave will ret %f\n", waveformOutputs[(int) wf]);
-        return waveformOutputs[(int) wf];
+      //  return waveformOutputs[(int) wf];
+        return output;
     }
 
     /**
@@ -61,7 +62,8 @@ public:
 
 private:
    // bool waveformEnabled[Waveforms::END] = {false};
-    float waveformOutputs[(int)Waveform::END] = {0};
+  //  float waveformOutputs[(int)Waveform::END] = {0};
+    float output = 0;
     bool doSaw = false;
     bool doEven = false;
     bool doTri = false;
@@ -98,7 +100,7 @@ private:
     void step_tri();
     void step_all();
 
-    void zeroOutputsExcept(Waveform);
+   // void zeroOutputsExcept(Waveform);
   
 };
 
@@ -135,7 +137,7 @@ inline void MinBLEPVCO::enableWaveform(Waveform wf, bool flag)
    
 }
 
-
+#if 0
 inline void MinBLEPVCO::zeroOutputsExcept(Waveform  except)
 {
     for (int i = 0; i < (int) Waveform::END; ++i) {
@@ -149,6 +151,7 @@ inline void MinBLEPVCO::zeroOutputsExcept(Waveform  except)
         }
     }
 }
+#endif
 
 
 
@@ -176,19 +179,19 @@ inline void MinBLEPVCO::step()
          */
         if (doSaw && !doEven && !doTri && !doSquare && !doSin) {
             dispatcher = Waveform::Saw;
-            zeroOutputsExcept(dispatcher);
+     //       zeroOutputsExcept(dispatcher);
         } else if (!doSaw && doEven && !doTri && !doSquare) {
             dispatcher = Waveform::Even;
-            zeroOutputsExcept(dispatcher);
+      //      zeroOutputsExcept(dispatcher);
         } else if (!doSaw && !doEven && !doTri && !doSquare && doSin) {
             dispatcher = Waveform::Sin;
-            zeroOutputsExcept(dispatcher);
+       //     zeroOutputsExcept(dispatcher);
         } else if (!doSaw && !doEven && doTri && !doSquare && !doSin) {
             dispatcher = Waveform::Tri;
-            zeroOutputsExcept(dispatcher);
+       //     zeroOutputsExcept(dispatcher);
         } else if (!doSaw && !doEven && !doTri && doSquare && !doSin) {
             dispatcher = Waveform::Square;
-            zeroOutputsExcept(dispatcher);
+         //   zeroOutputsExcept(dispatcher);
         } else {
             dispatcher = Waveform::END;
         }
@@ -257,7 +260,7 @@ inline void MinBLEPVCO::step_saw()
     float saw = -1.0 + 2.0*phase;
     saw += sawMinBLEP.shift();
   //  TBase::outputs[SAW_OUTPUT].value = 5.0*saw;
-    waveformOutputs[(int)Waveform::Saw] = 5.0*saw;
+    output = 5.0*saw;
 }
 
 #if defined(_MSC_VER)
