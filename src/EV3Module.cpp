@@ -64,6 +64,15 @@ void EV3Widget::makeSection(EV3Module *module, int index)
         Vec(pos.x, pos.y+120), module, module->ev3.FINE1_PARAM + delta * index,
         -5.0f, 5.0f, 0));
     addLabel(Vec(pos.x, pos.y + 100), "Fine");
+
+    if (index != 0) {    
+        addParam(ParamWidget::create<CKSS>(
+            Vec(pos.x, pos.y + 160), module, module->ev3.SYNC1_PARAM + delta * index,
+            0.0f, 1.0f, 1.0f));
+        addLabel(Vec(pos.x-6, pos.y + 138), "on");
+        addLabel(Vec(pos.x-6, pos.y + 190), "off");
+    }
+
 }
 
 void EV3Widget::makeSections(EV3Module *module)
@@ -90,6 +99,10 @@ EV3Widget::EV3Widget(EV3Module *module) :
     }
 
     makeSections(module);
+
+    addOutput(Port::create<PJ301MPort>(
+        Vec(140, 330), Port::OUTPUT, module, module->ev3.MIX_OUTPUT));
+    addLabel(Vec(130, 310), "Out");
 }
 
 
