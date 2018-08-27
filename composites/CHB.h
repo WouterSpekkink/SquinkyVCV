@@ -10,7 +10,9 @@
 
 using Osc = SinOscillator<float, true>;
 
-// until c++17
+
+#ifndef _CLAMP
+#define _CLAMP
 namespace std {
     inline float clamp(float v, float lo, float hi)
     {
@@ -18,6 +20,7 @@ namespace std {
         return std::min(hi, std::max(v, lo));
     }
 }
+#endif
 
 /**
  */

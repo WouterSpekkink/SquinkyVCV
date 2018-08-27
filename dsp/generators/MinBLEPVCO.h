@@ -14,6 +14,9 @@
 
 
 // until c++17
+
+#ifndef _CLAMP
+#define _CLAMP
 namespace std {
     inline float clamp(float v, float lo, float hi)
     {
@@ -21,6 +24,8 @@ namespace std {
         return std::min(hi, std::max(v, lo));
     }
 }
+#endif
+
 
 /* VCO core using MinBLEP to reduce aliasing.
  * Originally based on Befaco EvenVCO
@@ -136,7 +141,7 @@ inline void MinBLEPVCO::enableWaveform(Waveform wf, bool flag)
 }
 
 
-void MinBLEPVCO::zeroOutputsExcept(Waveform  except)
+inline void MinBLEPVCO::zeroOutputsExcept(Waveform  except)
 {
     for (int i = 0; i < (int) Waveform::END; ++i) {
         const Waveform wf = Waveform(i);

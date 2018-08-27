@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MinBLEPVCO.h"
 /**
 */
 template <class TBase>
@@ -48,7 +49,36 @@ public:
 
     enum LightIds
     {
-
         NUM_LIGHTS
     };
+
+    void step() override;
+private:
+    void processPitchInputs();
+    void processPitchInputs(int osc);
+
+    MinBLEPVCO vcos[3];
+
+
 };
+
+template <class TBase>
+inline void EV3<TBase>::step()
+{
+    processPitchInputs();
+}
+
+
+template <class TBase>
+inline void EV3<TBase>::processPitchInputs()
+{
+    processPitchInputs(0);
+    processPitchInputs(1);
+    processPitchInputs(2);
+}
+
+template <class TBase>
+inline void EV3<TBase>::processPitchInputs(int osc)
+{
+}
+
