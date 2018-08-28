@@ -7,6 +7,8 @@
 #include "CHB.h"
 
 
+
+
 /**
  */
 struct CHBModule : Module
@@ -39,14 +41,54 @@ void CHBModule::step()
     chb.step();
 }
 
+
+
+/**
+ * A very basic momentary push button.
+ */
+struct SQPush : SVGButton
+{
+    SQPush()
+    {
+        setSVGs(
+            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
+            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
+        );
+    }
+
+    void onDragEnd(EventDragEnd &e) override
+    {
+        SVGButton::onDragEnd(e);
+        if (clickHandler) {
+            clickHandler();
+        }
+    }
+
+    /**
+     * User of button passes in a callback lamba here
+     */
+    void onClick(std::function<void(void)> callback)
+    {
+        clickHandler = callback;
+    }
+
+    std::function<void(void)> clickHandler;
+};
+
 ////////////////////
 // module widget
 ////////////////////
 
 struct CHBWidget : ModuleWidget
 {
+    friend struct CHBEconomyItem;
     CHBWidget(CHBModule *);
 
+    Menu* createContextMenu() override;
+
+    /**
+     * Helper to add a text label to this widget
+     */
     void addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
     {
         Label* label = new Label();
@@ -63,10 +105,38 @@ struct CHBWidget : ModuleWidget
     void addFolder(CHBModule *module, const Vec& pos);
     void resetMe(CHBModule *module);
 private:
+    bool fake;
+    bool isEconomy() const { return fake; }
+    void setEconomy(bool b) { fake = b; }
     const int numHarmonics;
+    CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
     std::vector<float> harmonicParamMemory;
 };
+
+struct CHBEconomyItem : MenuItem {
+    void onAction(EventAction &e) override {
+        const bool econ = !theWidget->isEconomy();
+        theWidget->setEconomy(econ);
+	}
+
+	void step() override {
+        rightText = CHECKMARK(theWidget->isEconomy());
+    }
+
+    CHBWidget* theWidget = nullptr;
+};
+
+ inline Menu* CHBWidget::createContextMenu()
+ {
+    Menu* theMenu = ModuleWidget::createContextMenu();
+    CHBEconomyItem * item = new CHBEconomyItem();
+	item->text = "CPU Economy Mode";
+    item->theWidget = this;
+	theMenu->addChild(item);
+
+    return theMenu;
+ }
 
 inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
 {
@@ -173,34 +243,6 @@ void CHBWidget::resetMe(CHBModule *module)
     }
 }
 
-/**
- */
-struct SQPush : SVGButton
-{
-    SQPush()
-    {
-        setSVGs(
-            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
-            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
-        );
-    }
-
-    void onDragEnd(EventDragEnd &e) override
-    {
-        SVGButton::onDragEnd(e);
-        if (clickHandler) {
-            clickHandler();
-        }
-    }
-
-    void onClick(std::function<void(void)> callback)
-    {
-        clickHandler = callback;
-    }
-
-    std::function<void(void)> clickHandler;
-};
-
 inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
 {  
     const float inputRow = pos.y + 7;
@@ -294,7 +336,8 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
  */
 CHBWidget::CHBWidget(CHBModule *module) : 
     ModuleWidget(module),
-    numHarmonics(module->chb.numHarmonics)
+    numHarmonics(module->chb.numHarmonics),
+    module(module)
 {
     box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
     {
