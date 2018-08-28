@@ -111,9 +111,12 @@ public:
 
 private:
     bool economyMode = false;
+    int cycleCount = 1;
     int clipCount = 0;
     int signalCount = 0;
     const int clipDuration = 4000;
+    float finalGain = 0;
+    bool isExternalAudio = false;
 
     /**
      * The waveshaper this is the heart of this module
@@ -127,6 +130,8 @@ private:
     float _octave[11];
     float getOctave(int mult) const ;
     void init();
+
+    float _volume[11] = {0};
 
     /**
      * Internal sine wave oscillator to drive the waveshaper
@@ -226,20 +231,22 @@ inline float CHB<TBase>::getInput()
 
     Osc::setFrequency(sinParams, time);
 
+    if (cycleCount == 0) {
     // Get the gain from the envelope generator in
     // eGain = {0 .. 10.0f }
-    float eGain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
-    const bool isExternalAudio = TBase::inputs[AUDIO_INPUT].active;
+        float eGain = TBase::inputs[ENV_INPUT].active ? TBase::inputs[ENV_INPUT].value : 10.f;
+        isExternalAudio = TBase::inputs[AUDIO_INPUT].active;
 
-    const float gainKnobValue = TBase::params[PARAM_EXTGAIN].value;
-    const float gainCVValue = TBase::inputs[GAIN_INPUT].value;
-    const float combinedGain = gainCombiner(gainCVValue, gainKnobValue, 1.f);
+        const float gainKnobValue = TBase::params[PARAM_EXTGAIN].value;
+        const float gainCVValue = TBase::inputs[GAIN_INPUT].value;
+        const float combinedGain = gainCombiner(gainCVValue, gainKnobValue, 1.f);
 
-    // tapered gain {0 .. 0.5}
-    const float taperedGain = .5f * taper(combinedGain);
+        // tapered gain {0 .. 0.5}
+        const float taperedGain = .5f * taper(combinedGain);
 
-    // final gain 0..5
-    const float finalGain = taperedGain * eGain;
+        // final gain 0..5
+        finalGain = taperedGain * eGain;
+    }
     float input = finalGain * (isExternalAudio ?
         TBase::inputs[AUDIO_INPUT].value :
         Osc::run(sinState, sinParams));
@@ -336,16 +343,25 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
 template <class TBase>
 inline void CHB<TBase>::step()
 {
+    if (economyMode) {
+        if (--cycleCount < 0) {
+            cycleCount = 3;
+        }
+    } else {
+        cycleCount = 0;
+    }
+   
+    fflush(stdout);
     // do all the processing to get the carrier signal
     const float input = getInput();
 
-    float volume[11];
-    calcVolumes(volume);
+   // float volume[11];
+    if (cycleCount == 0) {
+        calcVolumes(_volume);
 
-    //  printf("vol 0=%f, 3 = %f 4=%f 10=%f\n", volume[0], volume[3], volume[4], volume[10]);
-
-    for (int i = 0; i < 11; ++i) {
-        poly.setGain(i, volume[i]);
+        for (int i = 0; i < 11; ++i) {
+            poly.setGain(i, _volume[i]);
+        }
     }
 
     float output = poly.run(input);
