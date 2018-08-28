@@ -106,37 +106,46 @@ struct CHBWidget : ModuleWidget
     void resetMe(CHBModule *module);
 private:
     bool fake;
-    bool isEconomy() const { return module->chb.isEconomy(); }
-    void setEconomy(bool b) { module->chb.setEconomy(b); }
+    bool isEconomy() const
+    {
+        return module->chb.isEconomy();
+    }
+    void setEconomy(bool b)
+    {
+        module->chb.setEconomy(b);
+    }
     const int numHarmonics;
     CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
     std::vector<float> harmonicParamMemory;
 };
 
-struct CHBEconomyItem : MenuItem {
-    void onAction(EventAction &e) override {
+struct CHBEconomyItem : MenuItem
+{
+    void onAction(EventAction &e) override
+    {
         const bool econ = !theWidget->isEconomy();
         theWidget->setEconomy(econ);
-	}
+    }
 
-	void step() override {
+    void step() override
+    {
         rightText = CHECKMARK(theWidget->isEconomy());
     }
 
     CHBWidget* theWidget = nullptr;
 };
 
- inline Menu* CHBWidget::createContextMenu()
- {
+inline Menu* CHBWidget::createContextMenu()
+{
     Menu* theMenu = ModuleWidget::createContextMenu();
     CHBEconomyItem * item = new CHBEconomyItem();
-	item->text = "CPU Economy Mode";
+    item->text = "CPU Economy Mode";
     item->theWidget = this;
-	theMenu->addChild(item);
+    theMenu->addChild(item);
 
     return theMenu;
- }
+}
 
 inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
 {
@@ -166,7 +175,7 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
             assert(false);
     }
 
-   int input = firstInput;
+    int input = firstInput;
     for (int param = firstParam; param <= lastParam; ++param, ++input) {
         Vec pKnob;
         Vec pJack;
@@ -176,11 +185,11 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
         pJack = pKnob;
         pKnob.y += 30;
         pKnob.x += 3;
-       
+
         addInput(Port::create<PJ301MPort>(
             pJack, Port::INPUT, module, input));
         auto p = ParamWidget::create<Trimpot>(
-           pKnob, module, param, 0.0f, 1.0f, 1.0f);
+            pKnob, module, param, 0.0f, 1.0f, 1.0f);
         addParam(p);
 
         harmonicParams.push_back(p);
@@ -202,7 +211,7 @@ void CHBWidget::resetMe(CHBModule *module)
         isAll = false;
     }
 
-    for (int i=1; i < numHarmonics; ++i) {
+    for (int i = 1; i < numHarmonics; ++i) {
         const float value = harmonicParams[i]->value;
         if (value < .9) {
             isAll = false;
@@ -218,66 +227,66 @@ void CHBWidget::resetMe(CHBModule *module)
         if (harmonicParamMemory.empty()) {
             harmonicParamMemory.resize(numHarmonics);
         }
-        for (int i=0; i < numHarmonics; ++i) {
+        for (int i = 0; i < numHarmonics; ++i) {
             harmonicParamMemory[i] = harmonicParams[i]->value;
         }
     }
 
     // fundamental -> all
     if (isOnlyFundamental) {
-        for (int i=0; i < numHarmonics; ++i) {
+        for (int i = 0; i < numHarmonics; ++i) {
             harmonicParams[i]->setValue(1);
         }
     }
     // all -> preset, if any
     else if (isAll && havePreset) {
-        for (int i=0; i < numHarmonics; ++i) {
+        for (int i = 0; i < numHarmonics; ++i) {
             harmonicParams[i]->setValue(harmonicParamMemory[i]);
         }
     }
     // preset -> fund. if no preset all -> fund
-    else  {
-        for (int i=0; i < numHarmonics; ++i) {
+    else {
+        for (int i = 0; i < numHarmonics; ++i) {
             harmonicParams[i]->setValue((i == 0) ? 1 : 0);
         }
     }
 }
 
 inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
-{  
+{
     const float inputRow = pos.y + 7;
-    const float label1 = inputRow-18;
+    const float label1 = inputRow - 18;
     //-------------------- make the pitch control column
     addInput(Port::create<PJ301MPort>(
         Vec(17 + pos.x, inputRow), Port::INPUT, module, module->chb.CV_INPUT));
-    addLabel(Vec(15+ pos.x, label1), "CV");
+    addLabel(Vec(15 + pos.x, label1), "CV");
 
     addParam(ParamWidget::create<RoundBlackSnapKnob>(
         Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE,
         -5.0f, 4.0f, 0.f));
-    addLabel(Vec(14 + pos.x, pos.y+34), "Oct");
+    addLabel(Vec(14 + pos.x, pos.y + 34), "Oct");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(20 + pos.x, pos.y+98), module, module->chb.PARAM_TUNE,
+        Vec(20 + pos.x, pos.y + 98), module, module->chb.PARAM_TUNE,
         -5.0f, 5.0f, 0));
     addLabel(Vec(9 + pos.x, pos.y + 80), "Tune");
 
     //--------------------------- make the mod column
 
-     addInput(Port::create<PJ301MPort>(
+    addInput(Port::create<PJ301MPort>(
         Vec(60 + pos.x, inputRow), Port::INPUT, module, module->chb.PITCH_MOD_INPUT));
-    addLabel(Vec(53+ pos.x, label1), "Mod");
+    addLabel(Vec(53 + pos.x, label1), "Mod");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(60 + pos.x, inputRow+45), module, module->chb.PARAM_PITCH_MOD_TRIM,
+        Vec(60 + pos.x, inputRow + 45), module, module->chb.PARAM_PITCH_MOD_TRIM,
         0, 1.0f, 1.0f));
-  
+
     addInput(Port::create<PJ301MPort>(
         Vec(100 + pos.x, inputRow), Port::INPUT, module, module->chb.LINEAR_FM_INPUT));
-    addLabel(Vec(93+ pos.x, label1), "LFM");
+    addLabel(Vec(93 + pos.x, label1), "LFM");
 
-     addParam(ParamWidget::create<Trimpot>(
-        Vec(100 + pos.x, inputRow+45), module, module->chb.PARAM_LINEAR_FM_TRIM,
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(100 + pos.x, inputRow + 45), module, module->chb.PARAM_LINEAR_FM_TRIM,
         0, 1.0f, 1));
 }
 
@@ -290,43 +299,43 @@ void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
         Vec(pos.x, trimRow - 4), Port::INPUT, module, module->chb.SLOPE_INPUT));
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x + 30 ,trimRow), module, module->chb.PARAM_SLOPE, -5,5,5));
-    addLabel(Vec(pos.x+5, labelRow), "slope");
+        Vec(pos.x + 30, trimRow), module, module->chb.PARAM_SLOPE, -5, 5, 5));
+    addLabel(Vec(pos.x + 5, labelRow), "slope");
 
     addParam(ParamWidget::create<Trimpot>(
         Vec(pos.x + 60, trimRow), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
-    addLabel(Vec(pos.x+48, labelRow), "even");
+    addLabel(Vec(pos.x + 48, labelRow), "even");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x+ 90, trimRow), module, module->chb.PARAM_MAG_ODD, 0,1,1));
-    addLabel(Vec(pos.x+83, labelRow), "odd");
+        Vec(pos.x + 90, trimRow), module, module->chb.PARAM_MAG_ODD, 0, 1, 1));
+    addLabel(Vec(pos.x + 83, labelRow), "odd");
 
     addHarmonics(module, Vec(pos.x, trimRow + 55));
 }
 
 void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
 {
-   addInput(Port::create<PJ301MPort>(
+    addInput(Port::create<PJ301MPort>(
         Vec(pos.x, pos.y + 7), Port::INPUT, module, module->chb.AUDIO_INPUT));
-    addLabel(Vec(pos.x-4, pos.y-14), "Ext");
+    addLabel(Vec(pos.x - 4, pos.y - 14), "Ext");
 
     addInput(Port::create<PJ301MPort>(
         Vec(pos.x, pos.y + 55), Port::INPUT, module, module->chb.ENV_INPUT));
-    addLabel(Vec(pos.x-4, pos.y + 36), "EG");
+    addLabel(Vec(pos.x - 4, pos.y + 36), "EG");
 
     addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x+3, pos.y + 106), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
-    addLabel(Vec(pos.x-20, pos.y+85), "Gain");
+        Vec(pos.x + 3, pos.y + 106), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
+    addLabel(Vec(pos.x - 20, pos.y + 85), "Gain");
     addInput(Port::create<PJ301MPort>(
-        Vec(pos.x - 32, pos.y+102), Port::INPUT, module, module->chb.GAIN_INPUT));
-    
+        Vec(pos.x - 32, pos.y + 102), Port::INPUT, module, module->chb.GAIN_INPUT));
+
     addParam(ParamWidget::create<CKSS>(
-        Vec(pos.x+5, pos.y + 148), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(pos.x-6, pos.y + 128), "fold");
-    addLabel(Vec(pos.x-6, pos.y + 180), "clip");
+        Vec(pos.x + 5, pos.y + 148), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
+    addLabel(Vec(pos.x - 6, pos.y + 128), "fold");
+    addLabel(Vec(pos.x - 6, pos.y + 180), "clip");
 
     addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(
-        Vec(pos.x-20, pos.y + 140), module, module->chb.GAIN_GREEN_LIGHT));
+        Vec(pos.x - 20, pos.y + 140), module, module->chb.GAIN_GREEN_LIGHT));
 }
 
 /**
@@ -334,7 +343,7 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
  * provide meta-data.
  * This is not shared by all modules in the DLL, just one
  */
-CHBWidget::CHBWidget(CHBModule *module) : 
+CHBWidget::CHBWidget(CHBModule *module) :
     ModuleWidget(module),
     numHarmonics(module->chb.numHarmonics),
     module(module)
