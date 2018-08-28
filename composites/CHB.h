@@ -30,9 +30,11 @@ class CHB : public TBase
 public:
     CHB(struct Module * module) : TBase(module)
     {
+        init();
     }
     CHB() : TBase()
     {
+        init();
     }
 
     enum ParamIds
@@ -115,6 +117,14 @@ private:
      */
     Poly<double, 11> poly;
 
+    /*
+     * maps freq multiple to "octave".
+     * In other words, log base 12.
+     */
+    float _octave[11];
+    float getOctave(int mult) const ;
+    void init();
+
     /**
      * Internal sine wave oscillator to drive the waveshaper
      */
@@ -127,6 +137,7 @@ private:
     AudioMath::ScaleFun<float> gainCombiner = AudioMath::makeLinearScaler(0.f, 1.f);
 
     std::function<float(float)> expLookup = ObjectCache<float>::getExp2Ex();
+    std::shared_ptr<LookupTableParams<float>> db2gain = ObjectCache<float>::getDb2Gain();
 
     /**
     * Audio taper for the slope.
@@ -159,6 +170,21 @@ private:
         return LookupTable<float>::lookup(*audioTaper, raw, false);
     }
 };
+
+template <class TBase>
+inline void  CHB<TBase>::init()
+{
+    for (int i = 0; i < 11; ++i) {
+        _octave[i] = log2(float(i + 1));
+    }
+}
+
+template <class TBase>
+inline float  CHB<TBase>::getOctave(int i) const
+{
+    assert(i >= 0 && i < 11);
+    return _octave[i];
+}
 
 template <class TBase>
 inline float CHB<TBase>::getInput()
@@ -280,19 +306,13 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
     }
 
     // Third: slope
-
-    float octave[11];
-    for (int i = 0; i < 11; ++i) {
-        octave[i] = log2(float(i + 1));
-    }
-
     {
         // TODO: add attenuverter, or make a simple linear scale
         const float slope = slopeScale(TBase::params[PARAM_SLOPE].value, TBase::inputs[SLOPE_INPUT].value, 1);
 
         for (int i = 0; i < 11; ++i) {
-            float slopeAttenDb = slope * octave[i];
-            float slopeAtten = (float) AudioMath::gainFromDb(slopeAttenDb);
+            float slopeAttenDb = slope * getOctave(i);
+            float slopeAtten = LookupTable<float>::lookup(*db2gain, slopeAttenDb);
             volumes[i] *= slopeAtten;
         }
     }

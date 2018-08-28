@@ -116,7 +116,7 @@ inline void EV3<TBase>::processPitchInputs(int osc)
     const float q = float(log2(261.626));       // move up to pitch range of even vco
     pitch += q;
     const float freq = expLookup(pitch);
-    vcos[osc].setNormalizedFreq(engineGetSampleTime() * freq);
+    vcos[osc].setNormalizedFreq(TBase::engineGetSampleTime() * freq);
 }
 
 template <class TBase>
