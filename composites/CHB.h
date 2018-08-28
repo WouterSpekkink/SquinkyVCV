@@ -104,10 +104,13 @@ public:
      */
     void step() override;
 
+    void setEconomy(bool);
+    bool isEconomy() const;
+
     float _freq = 0;
 
 private:
-
+    bool economyMode = false;
     int clipCount = 0;
     int signalCount = 0;
     const int clipDuration = 4000;
@@ -184,6 +187,18 @@ inline float  CHB<TBase>::getOctave(int i) const
 {
     assert(i >= 0 && i < 11);
     return _octave[i];
+}
+
+template <class TBase>
+inline  void CHB<TBase>::setEconomy(bool b)
+{
+    economyMode = b;
+}
+
+template <class TBase>
+inline bool CHB<TBase>::isEconomy() const
+{
+    return economyMode;
 }
 
 template <class TBase>

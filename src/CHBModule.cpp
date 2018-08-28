@@ -106,8 +106,8 @@ struct CHBWidget : ModuleWidget
     void resetMe(CHBModule *module);
 private:
     bool fake;
-    bool isEconomy() const { return fake; }
-    void setEconomy(bool b) { fake = b; }
+    bool isEconomy() const { return module->chb.isEconomy(); }
+    void setEconomy(bool b) { module->chb.setEconomy(b); }
     const int numHarmonics;
     CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
