@@ -28,6 +28,14 @@ struct Blue30Knob : SVGKnob {
 	}
 };
 
+struct NKKSmall : SVGSwitch, ToggleSwitch {
+	NKKSmall() {
+		addFrame(SVG::load(assetPlugin(plugin, "res/NKKSmall_0.svg")));
+		addFrame(SVG::load(assetPlugin(plugin, "res/NKKSmall_1.svg")));
+		addFrame(SVG::load(assetPlugin(plugin, "res/NKKSmall_2.svg")));
+	}
+};
+
 
 /**
  * A very basic momentary push button.

@@ -54,7 +54,7 @@ struct CHBWidget : ModuleWidget
     friend struct CHBEconomyItem;
     CHBWidget(CHBModule *);
 
-    Menu* createContextMenu() override;
+   // Menu* createContextMenu() override;
 
     /**
      * Helper to add a text label to this widget
@@ -68,14 +68,15 @@ struct CHBWidget : ModuleWidget
         addChild(label);
     }
 
-    void addHarmonics(CHBModule *module, const Vec& pos);
-    void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
-    void addVCO(CHBModule *module, const Vec& pos);
-    void addMixer(CHBModule *module, const Vec& pos);
-    void addFolder(CHBModule *module, const Vec& pos);
+    void addHarmonics(CHBModule *module);
+  //  void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
+ //   void addVCO(CHBModule *module, const Vec& pos);
+ //   void addMixer(CHBModule *module, const Vec& pos);
+ //   void addFolder(CHBModule *module, const Vec& pos);
     void resetMe(CHBModule *module);
 private:
     bool fake;
+    #if 0
     bool isEconomy() const
     {
         return module->chb.isEconomy();
@@ -84,12 +85,14 @@ private:
     {
         module->chb.setEconomy(b);
     }
+    #endif
     const int numHarmonics;
     CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
     std::vector<float> harmonicParamMemory;
 };
 
+#if 0
 struct CHBEconomyItem : MenuItem
 {
     void onAction(EventAction &e) override
@@ -116,7 +119,35 @@ inline Menu* CHBWidget::createContextMenu()
 
     return theMenu;
 }
+#endif
 
+const float colHarmonicsJacks = 8;
+const float rowFirstHarmonicJackY = 30;
+const float harmonicJackSpacing = 10;
+const float harmonicTrimDeltaY = 10;
+
+inline void CHBWidget::addHarmonics(CHBModule *module)
+{
+    for (int i=0; i< numHarmonics; ++i) {
+        const float row = rowFirstHarmonicJackY + i * harmonicJackSpacing;
+
+        addInput(Port::create<PJ301MPort>(
+            Vec(colHarmonicsJacks, row),
+            Port::INPUT,
+            module,
+            module->chb.PARAM_H0+i));
+            #if 0
+        auto p = ParamWidget::create<BlueTrimmer>(
+            pKnob, module, param, 0.0f, 1.0f, 1.0f);
+        addParam(p);
+
+        harmonicParams.push_back(p);
+        #endif
+
+    }
+}
+
+#if 0
 inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
 {
     addHarmonicsRow(module, 0, pos);
@@ -171,6 +202,7 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
         p->label = str.str();
     }
 }
+#endif
 
 void CHBWidget::resetMe(CHBModule *module)
 {
@@ -224,6 +256,7 @@ void CHBWidget::resetMe(CHBModule *module)
     }
 }
 
+#if 0
 inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
 {
     const float inputRow = pos.y + 7;
@@ -261,7 +294,9 @@ inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
         Vec(100 + pos.x, inputRow + 45), module, module->chb.PARAM_LINEAR_FM_TRIM,
         0, 1.0f, 1));
 }
+#endif
 
+#if 0
 void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
 {
     float trimRow = pos.y + 30;
@@ -284,7 +319,9 @@ void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
 
     addHarmonics(module, Vec(pos.x, trimRow + 55));
 }
+#endif
 
+#if 0
 void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
 {
     addInput(Port::create<PJ301MPort>(
@@ -301,14 +338,15 @@ void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
     addInput(Port::create<PJ301MPort>(
         Vec(pos.x - 32, pos.y + 102), Port::INPUT, module, module->chb.GAIN_INPUT));
 
-    addParam(ParamWidget::create<CKSS>(
-        Vec(pos.x + 5, pos.y + 148), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
+    addParam(ParamWidget::create<NKKSmall>(
+        Vec(pos.x + 5, pos.y + 150), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
     addLabel(Vec(pos.x - 6, pos.y + 128), "fold");
     addLabel(Vec(pos.x - 6, pos.y + 180), "clip");
 
     addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(
         Vec(pos.x - 20, pos.y + 140), module, module->chb.GAIN_GREEN_LIGHT));
 }
+#endif
 
 /**
  * Widget constructor will describe my implementation structure and
@@ -327,7 +365,8 @@ CHBWidget::CHBWidget(CHBModule *module) :
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/chb_panel.svg")));
         addChild(panel);
     }
-
+    addHarmonics(module);
+#if 0
     const float row1 = 30;
     addVCO(module, Vec(10, row1));
     addMixer(module, Vec(12, 155));
@@ -342,6 +381,7 @@ CHBWidget::CHBWidget(CHBModule *module) :
     addOutput(Port::create<PJ301MPort>(
         Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
     addLabel(Vec(170, 310), "Out");
+    #endif
 
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
