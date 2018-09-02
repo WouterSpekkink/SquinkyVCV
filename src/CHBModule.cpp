@@ -1,7 +1,11 @@
 
-#include <sstream>
+
+
 #include "Squinky.hpp"
+#include "SQWidgets.h"
 #include "WidgetComposite.h"
+
+#include <sstream>
 
 #ifdef _CHB
 #include "CHB.h"
@@ -155,6 +159,8 @@ inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
     addHarmonicsRow(module, 1, pos2);
 }
 
+
+
 inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& pos)
 {
     int firstParam = 0;
@@ -188,7 +194,7 @@ inline void CHBWidget::addHarmonicsRow(CHBModule *module, int row, const Vec& po
 
         addInput(Port::create<PJ301MPort>(
             pJack, Port::INPUT, module, input));
-        auto p = ParamWidget::create<Trimpot>(
+        auto p = ParamWidget::create<BlueTrimmer>(
             pKnob, module, param, 0.0f, 1.0f, 1.0f);
         addParam(p);
 
@@ -306,7 +312,7 @@ void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
         Vec(pos.x + 60, trimRow), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
     addLabel(Vec(pos.x + 48, labelRow), "even");
 
-    addParam(ParamWidget::create<Trimpot>(
+    addParam(ParamWidget::create<Blue30Knob>(
         Vec(pos.x + 90, trimRow), module, module->chb.PARAM_MAG_ODD, 0, 1, 1));
     addLabel(Vec(pos.x + 83, labelRow), "odd");
 
