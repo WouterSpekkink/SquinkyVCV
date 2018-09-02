@@ -45,40 +45,6 @@ void CHBModule::step()
     chb.step();
 }
 
-
-
-/**
- * A very basic momentary push button.
- */
-struct SQPush : SVGButton
-{
-    SQPush()
-    {
-        setSVGs(
-            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
-            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
-        );
-    }
-
-    void onDragEnd(EventDragEnd &e) override
-    {
-        SVGButton::onDragEnd(e);
-        if (clickHandler) {
-            clickHandler();
-        }
-    }
-
-    /**
-     * User of button passes in a callback lamba here
-     */
-    void onClick(std::function<void(void)> callback)
-    {
-        clickHandler = callback;
-    }
-
-    std::function<void(void)> clickHandler;
-};
-
 ////////////////////
 // module widget
 ////////////////////
