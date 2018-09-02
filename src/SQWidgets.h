@@ -37,8 +37,10 @@ struct SQPush : SVGButton
     SQPush()
     {
         setSVGs(
-            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
-            SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
+            SVG::load(assetPlugin(plugin, "res/BluePush_0.svg")),
+            SVG::load(assetPlugin(plugin, "res/BluePush_1.svg"))
+          //  SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
+          //  SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
         );
     }
 
