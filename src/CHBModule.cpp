@@ -148,6 +148,9 @@ const float row3 = 228;
 const float row4 = 287;
 const float row5 = 332;
 
+const float labelAboveKnob = 32;
+const float labelAboveJack = 30;
+
 inline void CHBWidget::addHarmonics(CHBModule *module)
 {
     for (int i=0; i< numHarmonics; ++i) {
@@ -175,21 +178,28 @@ inline void CHBWidget::addVCOKnobs(CHBModule *module)
         module,
         module->chb.PARAM_OCTAVE,
         -5.0f, 4.0f, 0.f));
-     addParam(createParamCentered<Blue30Knob>(
+    addLabel(Vec(col2-26, row1 - labelAboveKnob), "Octave");
+
+    addParam(createParamCentered<Blue30Knob>(
         Vec(col3, row1),
         module,
         module->chb.PARAM_TUNE,
         -5.0f, 5.0f, 0));
-     addParam(createParamCentered<Blue30Knob>(
+    addLabel(Vec(col3-26, row1 - labelAboveKnob), "Tune");
+
+    addParam(createParamCentered<Blue30Knob>(
         Vec(col2, row2),
         module,
         module->chb.PARAM_PITCH_MOD_TRIM,
         0, 1.0f, 1.0f));
-     addParam(createParamCentered<Blue30Knob>(
+    addLabel(Vec(col2-18, row2 - labelAboveKnob), "Mod");
+
+    addParam(createParamCentered<Blue30Knob>(
         Vec(col3, row2),
         module,
         module->chb.PARAM_LINEAR_FM_TRIM,
         0, 1.0f, 1.0f));
+    addLabel(Vec(col3-18, row2 - labelAboveKnob), "LFM");
 }
 
 inline void CHBWidget::addOtherKnobs(CHBModule *module)
@@ -200,6 +210,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_EXTGAIN,
         -5.0f, 5.0f, 0.f));
+    addLabel(Vec(col1-20, 165 - labelAboveKnob), "Gain");
 
     // slopw
    addParam(createParamCentered<Blue30Knob>(
@@ -207,6 +218,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_SLOPE,
         -5, 5, 5));
+    addLabel(Vec(185-24, 188 - labelAboveKnob), "Slope");
     
     //even
    addParam(createParamCentered<Blue30Knob>(
@@ -214,6 +226,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
          module->chb.PARAM_MAG_EVEN,
           0, 1, 1));
+    addLabel(Vec(col2-20, row3 - labelAboveKnob), "Even");
 
     //odd
     addParam(createParamCentered<Blue30Knob>(
@@ -221,6 +234,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_ODD,
         0, 1, 1));
+     addLabel(Vec(col3-20, row3 - labelAboveKnob), "Odd");
 }
 
 void CHBWidget::addMisc(CHBModule *module)
@@ -233,6 +247,8 @@ void CHBWidget::addMisc(CHBModule *module)
         this->resetMe(module);
     });
     addChild(sw);
+
+    addLabel(Vec(col1-24, 104 - labelAboveKnob), "Preset");
     
 
     addParam(createParamCentered<NKKSmall>(
@@ -240,23 +256,54 @@ void CHBWidget::addMisc(CHBModule *module)
         module,
         module->chb.PARAM_FOLD,
         0.0f, 1.0f, 1.0f));
-   // addLabel(Vec(pos.x - 6, pos.y + 128), "fold");
-   // addLabel(Vec(pos.x - 6, pos.y + 180), "clip");
+    addLabel(Vec(col1-20, 219 - 40), "Fold");
+    addLabel(Vec(col1-20, 219 + 10), "Clip");
+   
 }
+
+static const char* labels[] = {
+    "V/Oct",
+    "Mod",
+    "LFM",
+    "Slope",
+    "Ext In",
+    "Gain",
+    "EG",
+    "Out",
+    };
+static const int offsets[] = {
+    -1,
+    0,
+    3,
+    -4,
+    -4,
+    -2,
+    4,
+    2
+};
 
 void CHBWidget::addBottomJacks(CHBModule *module)
 {
     const int deltaX = .5f + ((col3 - col1) / 3.0);
     for (int jackRow=0; jackRow<2; ++jackRow) {
         for (int jackCol=0; jackCol < 4; ++jackCol) {
-            Vec pos(col1 + deltaX * jackCol,
+            const Vec pos(col1 + deltaX * jackCol,
                 jackRow == 0 ? row4 : row5);
-            printf("col=%d, row=%d, pos =%f, %f\n", jackCol, jackRow, pos.x, pos.y);
-            fflush(stdout);
+            const int index = jackCol + 4 * jackRow;
+
+           // printf("col=%d, row=%d, pos =%f, %f\n", jackCol, jackRow, pos.x, pos.y);
+           // fflush(stdout);
+           auto color = COLOR_BLACK;
+           if (index == 7) {
+               color = COLOR_WHITE;
+           }
             addInput(createInputCentered<PJ301MPort>(
                 pos,
                 module, 
-                module->chb.H0_INPUT));            
+                module->chb.H0_INPUT));
+            addLabel( Vec(pos.x-20+offsets[index], pos.y -labelAboveJack),
+                labels[index],
+                color);       
         }
     }
 }
