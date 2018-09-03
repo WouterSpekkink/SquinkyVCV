@@ -70,11 +70,13 @@ struct CHBWidget : ModuleWidget
     void resetMe(CHBModule *module);
 private:
     bool fake;
+    const float defaultGainParam = .620;
 
     const int numHarmonics;
     CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
     std::vector<float> harmonicParamMemory;
+    ParamWidget* gainParam=nullptr;
 };
 
 /**
@@ -153,11 +155,14 @@ inline void CHBWidget::addVCOKnobs(CHBModule *module)
 inline void CHBWidget::addOtherKnobs(CHBModule *module)
 {
     // gain
-    addParam(createParamCentered<Blue30Knob>(
+
+    gainParam = createParamCentered<Blue30Knob>(
         Vec(col1, 165),
         module,
         module->chb.PARAM_EXTGAIN,
-        -5.0f, 5.0f, 0.f));
+        -5.0f, 5.0f, defaultGainParam);
+    addParam(gainParam);
+
     addLabel(Vec(col1 - 20, 165 - labelAboveKnob), "Gain");
 
     // slope
@@ -328,6 +333,8 @@ void CHBWidget::resetMe(CHBModule *module)
             harmonicParams[i]->setValue((i == 0) ? 1 : 0);
         }
     }
+
+    gainParam->setValue(defaultGainParam);
 }
 
 /**

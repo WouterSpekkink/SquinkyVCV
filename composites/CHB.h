@@ -103,13 +103,13 @@ public:
      */
     void step() override;
 
-    void setEconomy(bool);
-    bool isEconomy() const;
+  //  void setEconomy(bool);
+  //  bool isEconomy() const;
 
     float _freq = 0;
 
 private:
-    bool economyMode = false;
+    const bool economyMode = true;        // let's default to economy mode
     int cycleCount = 1;
     int clipCount = 0;
     int signalCount = 0;
@@ -193,6 +193,7 @@ inline float  CHB<TBase>::getOctave(int i) const
     return _octave[i];
 }
 
+#if 0
 template <class TBase>
 inline  void CHB<TBase>::setEconomy(bool b)
 {
@@ -204,6 +205,7 @@ inline bool CHB<TBase>::isEconomy() const
 {
     return economyMode;
 }
+#endif
 
 template <class TBase>
 inline float CHB<TBase>::getInput()
@@ -246,6 +248,7 @@ inline float CHB<TBase>::getInput()
         // final gain 0..5
         finalGain = taperedGain * eGain;
     }
+
     float input = finalGain * (isExternalAudio ?
         TBase::inputs[AUDIO_INPUT].value :
         Osc::run(sinState, sinParams));
@@ -317,7 +320,6 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
     {
         const float even = taper(TBase::params[PARAM_MAG_EVEN].value);
         const float odd = taper(TBase::params[PARAM_MAG_ODD].value);
-      //  printf("even = %f odd  = %f\n", even, odd);
         for (int i = 1; i < 11; ++i) {
             const float mul = (i & 1) ? even : odd;     // 0 = fundamental, 1=even, 2=odd....
             volumes[i] *= mul;
@@ -347,9 +349,21 @@ inline void CHB<TBase>::step()
         cycleCount = 0;
     }
    
-    fflush(stdout);
     // do all the processing to get the carrier signal
     const float input = getInput();
+
+#if 0
+    {
+        static float high=0;
+        static float low=0;
+        if (input<low || input > high) {
+            high = std::max(high, input);
+            low = std::min(low, input);
+            printf("%f, %f\n", high, low);
+            fflush(stdout);
+        }
+    }
+    #endif
 
    // float volume[11];
     if (cycleCount == 0) {
