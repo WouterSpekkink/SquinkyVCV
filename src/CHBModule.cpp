@@ -121,28 +121,34 @@ inline Menu* CHBWidget::createContextMenu()
 }
 #endif
 
-const float colHarmonicsJacks = 8;
-const float rowFirstHarmonicJackY = 30;
-const float harmonicJackSpacing = 10;
-const float harmonicTrimDeltaY = 10;
+/**
+ * Global coordinate contstants
+ */
+const float colHarmonicsJacks = 21;
+const float rowFirstHarmonicJackY = 47;
+const float harmonicJackSpacing = 32;
+const float harmonicTrimDeltaY = 27;
 
 inline void CHBWidget::addHarmonics(CHBModule *module)
 {
     for (int i=0; i< numHarmonics; ++i) {
         const float row = rowFirstHarmonicJackY + i * harmonicJackSpacing;
 
-        addInput(Port::create<PJ301MPort>(
+        addInput(createInputCentered<PJ301MPort>(
             Vec(colHarmonicsJacks, row),
-            Port::INPUT,
+            module, 
+            module->chb.H0_INPUT+i));
+       // addInput(input);
+
+        auto p = createParamCentered<BlueTrimmer>(
+            Vec(colHarmonicsJacks + harmonicTrimDeltaY, row), 
             module,
-            module->chb.PARAM_H0+i));
-            #if 0
-        auto p = ParamWidget::create<BlueTrimmer>(
-            pKnob, module, param, 0.0f, 1.0f, 1.0f);
+            module->chb.PARAM_H0+i,
+            0.0f, 1.0f, 1.0f);
         addParam(p);
 
         harmonicParams.push_back(p);
-        #endif
+  
 
     }
 }
