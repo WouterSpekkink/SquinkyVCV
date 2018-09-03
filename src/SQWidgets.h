@@ -48,9 +48,11 @@ struct SQPush : SVGButton
         setSVGs(
             SVG::load(assetPlugin(plugin, "res/BluePush_0.svg")),
             SVG::load(assetPlugin(plugin, "res/BluePush_1.svg"))
-          //  SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_0.svg")),
-          //  SVG::load(assetGlobal("res/ComponentLibrary/BefacoPush_1.svg"))
         );
+    }
+    void center(Vec& pos)
+    {
+        this->box.pos = pos.minus(this->box.size.div(2));
     }
 
     void onDragEnd(EventDragEnd &e) override
