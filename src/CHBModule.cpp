@@ -83,7 +83,7 @@ struct CHBWidget : ModuleWidget
     void resetMe(CHBModule *module);
 private:
     bool fake;
-    #if 0
+#if 0
     bool isEconomy() const
     {
         return module->chb.isEconomy();
@@ -92,7 +92,7 @@ private:
     {
         module->chb.setEconomy(b);
     }
-    #endif
+#endif
     const int numHarmonics;
     CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
@@ -153,17 +153,17 @@ const float labelAboveJack = 30;
 
 inline void CHBWidget::addHarmonics(CHBModule *module)
 {
-    for (int i=0; i< numHarmonics; ++i) {
+    for (int i = 0; i < numHarmonics; ++i) {
         const float row = rowFirstHarmonicJackY + i * harmonicJackSpacing;
         addInput(createInputCentered<PJ301MPort>(
             Vec(colHarmonicsJacks, row),
-            module, 
-            module->chb.H0_INPUT+i));
+            module,
+            module->chb.H0_INPUT + i));
 
         auto p = createParamCentered<BlueTrimmer>(
-            Vec(colHarmonicsJacks + harmonicTrimDeltaY, row), 
+            Vec(colHarmonicsJacks + harmonicTrimDeltaY, row),
             module,
-            module->chb.PARAM_H0+i,
+            module->chb.PARAM_H0 + i,
             0.0f, 1.0f, 1.0f);
         addParam(p);
         harmonicParams.push_back(p);
@@ -178,55 +178,55 @@ inline void CHBWidget::addVCOKnobs(CHBModule *module)
         module,
         module->chb.PARAM_OCTAVE,
         -5.0f, 4.0f, 0.f));
-    addLabel(Vec(col2-26, row1 - labelAboveKnob), "Octave");
+    addLabel(Vec(col2 - 26, row1 - labelAboveKnob), "Octave");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col3, row1),
         module,
         module->chb.PARAM_TUNE,
         -5.0f, 5.0f, 0));
-    addLabel(Vec(col3-26, row1 - labelAboveKnob), "Tune");
+    addLabel(Vec(col3 - 26, row1 - labelAboveKnob), "Tune");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col2, row2),
         module,
         module->chb.PARAM_PITCH_MOD_TRIM,
-        0, 1.0f, 1.0f));
-    addLabel(Vec(col2-18, row2 - labelAboveKnob), "Mod");
+        0, 1.0f, 0.0f));
+    addLabel(Vec(col2 - 18, row2 - labelAboveKnob), "Mod");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col3, row2),
         module,
         module->chb.PARAM_LINEAR_FM_TRIM,
-        0, 1.0f, 1.0f));
-    addLabel(Vec(col3-18, row2 - labelAboveKnob), "LFM");
+        0, 1.0f, 0.0f));
+    addLabel(Vec(col3 - 18, row2 - labelAboveKnob), "LFM");
 }
 
 inline void CHBWidget::addOtherKnobs(CHBModule *module)
 {
     // gain
-     addParam(createParamCentered<Blue30Knob>(
+    addParam(createParamCentered<Blue30Knob>(
         Vec(col1, 165),
         module,
         module->chb.PARAM_EXTGAIN,
         -5.0f, 5.0f, 0.f));
-    addLabel(Vec(col1-20, 165 - labelAboveKnob), "Gain");
+    addLabel(Vec(col1 - 20, 165 - labelAboveKnob), "Gain");
 
     // slopw
-   addParam(createParamCentered<Blue30Knob>(
+    addParam(createParamCentered<Blue30Knob>(
         Vec(185, 188),
         module,
         module->chb.PARAM_SLOPE,
         -5, 5, 5));
-    addLabel(Vec(185-24, 188 - labelAboveKnob), "Slope");
-    
+    addLabel(Vec(185 - 24, 188 - labelAboveKnob), "Slope");
+
     //even
-   addParam(createParamCentered<Blue30Knob>(
+    addParam(createParamCentered<Blue30Knob>(
         Vec(col2, row3),
         module,
-         module->chb.PARAM_MAG_EVEN,
-          0, 1, 1));
-    addLabel(Vec(col2-20, row3 - labelAboveKnob), "Even");
+        module->chb.PARAM_MAG_EVEN,
+        0, 1, 1));
+    addLabel(Vec(col2 - 20, row3 - labelAboveKnob), "Even");
 
     //odd
     addParam(createParamCentered<Blue30Knob>(
@@ -234,12 +234,12 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_ODD,
         0, 1, 1));
-     addLabel(Vec(col3-20, row3 - labelAboveKnob), "Odd");
+    addLabel(Vec(col3 - 20, row3 - labelAboveKnob), "Odd");
 }
 
 void CHBWidget::addMisc(CHBModule *module)
 {
-    
+
     auto sw = new SQPush();
     Vec pos(col1, 104);
     sw->center(pos);
@@ -247,18 +247,15 @@ void CHBWidget::addMisc(CHBModule *module)
         this->resetMe(module);
     });
     addChild(sw);
+    addLabel(Vec(col1 - 24, 104 - labelAboveKnob), "Preset");
 
-    addLabel(Vec(col1-24, 104 - labelAboveKnob), "Preset");
-    
-
-    addParam(createParamCentered<NKKSmall>(
+    addParam(createParamCentered<CKSS>(
         Vec(col1, 219),
         module,
         module->chb.PARAM_FOLD,
         0.0f, 1.0f, 1.0f));
-    addLabel(Vec(col1-20, 219 - 40), "Fold");
-    addLabel(Vec(col1-20, 219 + 10), "Clip");
-   
+    addLabel(Vec(col1 - 20, 219 - 30), "Fold");
+    addLabel(Vec(col1 - 20, 219 + 10), "Clip");
 }
 
 static const char* labels[] = {
@@ -270,7 +267,7 @@ static const char* labels[] = {
     "Gain",
     "EG",
     "Out",
-    };
+};
 static const int offsets[] = {
     -1,
     0,
@@ -296,34 +293,32 @@ static const int ids[] = {
 void CHBWidget::addBottomJacks(CHBModule *module)
 {
     const int deltaX = .5f + ((col3 - col1) / 3.0);
-    for (int jackRow=0; jackRow<2; ++jackRow) {
-        for (int jackCol=0; jackCol < 4; ++jackCol) {
+    for (int jackRow = 0; jackRow < 2; ++jackRow) {
+        for (int jackCol = 0; jackCol < 4; ++jackCol) {
             const Vec pos(col1 + deltaX * jackCol,
                 jackRow == 0 ? row4 : row5);
             const int index = jackCol + 4 * jackRow;
 
-           // printf("col=%d, row=%d, pos =%f, %f\n", jackCol, jackRow, pos.x, pos.y);
-           // fflush(stdout);
-           auto color = COLOR_BLACK;
-           if (index == 7) {
-               color = COLOR_WHITE;
+            auto color = COLOR_BLACK;
+            if (index == 7) {
+                color = COLOR_WHITE;
             }
 
             const int id = ids[index];
             if (index == 7) {
                 addOutput(createOutputCentered<PJ301MPort>(
                     pos,
-                    module, 
+                    module,
                     id));
             } else {
                 addInput(createInputCentered<PJ301MPort>(
                     pos,
-                    module, 
+                    module,
                     id));
             }
-            addLabel( Vec(pos.x-20+offsets[index], pos.y -labelAboveJack),
+            addLabel(Vec(pos.x - 20 + offsets[index], pos.y - labelAboveJack),
                 labels[index],
-                color);       
+                color);
         }
     }
 }
@@ -471,10 +466,6 @@ void CHBWidget::resetMe(CHBModule *module)
     }
 }
 
-
-
-
-
 /**
  * Widget constructor will describe my implementation structure and
  * provide meta-data.
@@ -494,10 +485,10 @@ CHBWidget::CHBWidget(CHBModule *module) :
     }
     addHarmonics(module);
     addVCOKnobs(module);
-    addOtherKnobs( module);
+    addOtherKnobs(module);
     addMisc(module);
-    addBottomJacks( module);
-    
+    addBottomJacks(module);
+
 #if 0
     const float row1 = 30;
     addVCO(module, Vec(10, row1));
@@ -513,9 +504,9 @@ CHBWidget::CHBWidget(CHBModule *module) :
     addOutput(Port::create<PJ301MPort>(
         Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
     addLabel(Vec(170, 310), "Out");
-    #endif
+#endif
 
-    // screws
+// screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
