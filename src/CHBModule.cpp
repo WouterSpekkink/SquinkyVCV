@@ -282,6 +282,17 @@ static const int offsets[] = {
     2
 };
 
+static const int ids[] = {
+    CHB<WidgetComposite>::CV_INPUT,
+    CHB<WidgetComposite>::PITCH_MOD_INPUT,
+    CHB<WidgetComposite>::LINEAR_FM_INPUT,
+    CHB<WidgetComposite>::SLOPE_INPUT,
+    CHB<WidgetComposite>::AUDIO_INPUT,
+    CHB<WidgetComposite>::GAIN_INPUT,
+    CHB<WidgetComposite>::ENV_INPUT,
+    CHB<WidgetComposite>::MIX_OUTPUT
+};
+
 void CHBWidget::addBottomJacks(CHBModule *module)
 {
     const int deltaX = .5f + ((col3 - col1) / 3.0);
@@ -296,11 +307,20 @@ void CHBWidget::addBottomJacks(CHBModule *module)
            auto color = COLOR_BLACK;
            if (index == 7) {
                color = COLOR_WHITE;
-           }
-            addInput(createInputCentered<PJ301MPort>(
-                pos,
-                module, 
-                module->chb.H0_INPUT));
+            }
+
+            const int id = ids[index];
+            if (index == 7) {
+                addOutput(createOutputCentered<PJ301MPort>(
+                    pos,
+                    module, 
+                    id));
+            } else {
+                addInput(createInputCentered<PJ301MPort>(
+                    pos,
+                    module, 
+                    id));
+            }
             addLabel( Vec(pos.x-20+offsets[index], pos.y -labelAboveJack),
                 labels[index],
                 color);       
