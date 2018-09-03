@@ -10,9 +10,6 @@
 #ifdef _CHB
 #include "CHB.h"
 
-
-
-
 /**
  */
 struct CHBModule : Module
@@ -25,7 +22,6 @@ public:
      * Overrides of Module functions
      */
     void step() override;
-  //  void onSampleRateChange() override;
 
     CHB<WidgetComposite> chb;
 private:
@@ -54,8 +50,6 @@ struct CHBWidget : ModuleWidget
     friend struct CHBEconomyItem;
     CHBWidget(CHBModule *);
 
-   // Menu* createContextMenu() override;
-
     /**
      * Helper to add a text label to this widget
      */
@@ -73,60 +67,15 @@ struct CHBWidget : ModuleWidget
     void addOtherKnobs(CHBModule *module);
     void addMisc(CHBModule *module);
     void addBottomJacks(CHBModule *module);
-
-
-  //  void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
- //   void addVCO(CHBModule *module, const Vec& pos);
- //   void addMixer(CHBModule *module, const Vec& pos);
- //   void addFolder(CHBModule *module, const Vec& pos);
-
     void resetMe(CHBModule *module);
 private:
     bool fake;
-#if 0
-    bool isEconomy() const
-    {
-        return module->chb.isEconomy();
-    }
-    void setEconomy(bool b)
-    {
-        module->chb.setEconomy(b);
-    }
-#endif
+
     const int numHarmonics;
     CHBModule* const module;
     std::vector<ParamWidget* > harmonicParams;
     std::vector<float> harmonicParamMemory;
 };
-
-#if 0
-struct CHBEconomyItem : MenuItem
-{
-    void onAction(EventAction &e) override
-    {
-        const bool econ = !theWidget->isEconomy();
-        theWidget->setEconomy(econ);
-    }
-
-    void step() override
-    {
-        rightText = CHECKMARK(theWidget->isEconomy());
-    }
-
-    CHBWidget* theWidget = nullptr;
-};
-
-inline Menu* CHBWidget::createContextMenu()
-{
-    Menu* theMenu = ModuleWidget::createContextMenu();
-    CHBEconomyItem * item = new CHBEconomyItem();
-    item->text = "CPU Economy Mode";
-    item->theWidget = this;
-    theMenu->addChild(item);
-
-    return theMenu;
-}
-#endif
 
 /**
  * Global coordinate contstants
@@ -170,10 +119,9 @@ inline void CHBWidget::addHarmonics(CHBModule *module)
     }
 }
 
-
 inline void CHBWidget::addVCOKnobs(CHBModule *module)
 {
-    addParam(createParamCentered<Blue30Knob>(
+    addParam(createParamCentered<Blue30SnapKnob>(
         Vec(col2, row1),
         module,
         module->chb.PARAM_OCTAVE,
@@ -212,7 +160,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         -5.0f, 5.0f, 0.f));
     addLabel(Vec(col1 - 20, 165 - labelAboveKnob), "Gain");
 
-    // slopw
+    // slope
     addParam(createParamCentered<Blue30Knob>(
         Vec(185, 188),
         module,
@@ -239,23 +187,30 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
 
 void CHBWidget::addMisc(CHBModule *module)
 {
-
     auto sw = new SQPush();
     Vec pos(col1, 104);
     sw->center(pos);
     sw->onClick([this, module]() {
         this->resetMe(module);
     });
+
     addChild(sw);
     addLabel(Vec(col1 - 24, 104 - labelAboveKnob), "Preset");
 
+    const float switchY = 219;
     addParam(createParamCentered<CKSS>(
-        Vec(col1, 219),
+        Vec(col1, switchY),
         module,
         module->chb.PARAM_FOLD,
-        0.0f, 1.0f, 1.0f));
+        0.0f, 1.0f, 0.0f));
     addLabel(Vec(col1 - 20, 219 - 30), "Fold");
     addLabel(Vec(col1 - 20, 219 + 10), "Clip");
+
+ //  Vec(col1, 165),
+    addChild(createLightCentered<SmallLight<GreenRedLight>>(
+        Vec(col1-16, switchY),
+        module,
+        module->chb.GAIN_GREEN_LIGHT));
 }
 
 static const char* labels[] = {
@@ -322,97 +277,6 @@ void CHBWidget::addBottomJacks(CHBModule *module)
         }
     }
 }
-#if 0
-void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
-{
-    float trimRow = pos.y + 30;
-    float labelRow = pos.y + 4;
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(pos.x, trimRow - 4), Port::INPUT, module, module->chb.SLOPE_INPUT));
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x + 30, trimRow), module, module->chb.PARAM_SLOPE, -5, 5, 5));
-    addLabel(Vec(pos.x + 5, labelRow), "slope");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x + 60, trimRow), module, module->chb.PARAM_MAG_EVEN, 0, 1, 1));
-    addLabel(Vec(pos.x + 48, labelRow), "even");
-
-    addParam(ParamWidget::create<Blue30Knob>(
-        Vec(pos.x + 90, trimRow), module, module->chb.PARAM_MAG_ODD, 0, 1, 1));
-    addLabel(Vec(pos.x + 83, labelRow), "odd");
-
-    addHarmonics(module, Vec(pos.x, trimRow + 55));
-}
-#endif
-
-#if 0
-void CHBWidget::addFolder(CHBModule *module, const Vec& pos)
-{
-    addInput(Port::create<PJ301MPort>(
-        Vec(pos.x, pos.y + 7), Port::INPUT, module, module->chb.AUDIO_INPUT));
-    addLabel(Vec(pos.x - 4, pos.y - 14), "Ext");
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(pos.x, pos.y + 55), Port::INPUT, module, module->chb.ENV_INPUT));
-    addLabel(Vec(pos.x - 4, pos.y + 36), "EG");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(pos.x + 3, pos.y + 106), module, module->chb.PARAM_EXTGAIN, -5.0f, 5.0f, 0));
-    addLabel(Vec(pos.x - 20, pos.y + 85), "Gain");
-    addInput(Port::create<PJ301MPort>(
-        Vec(pos.x - 32, pos.y + 102), Port::INPUT, module, module->chb.GAIN_INPUT));
-
-    addParam(ParamWidget::create<NKKSmall>(
-        Vec(pos.x + 5, pos.y + 150), module, module->chb.PARAM_FOLD, 0.0f, 1.0f, 1.0f));
-    addLabel(Vec(pos.x - 6, pos.y + 128), "fold");
-    addLabel(Vec(pos.x - 6, pos.y + 180), "clip");
-
-    addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(
-        Vec(pos.x - 20, pos.y + 140), module, module->chb.GAIN_GREEN_LIGHT));
-}
-#endif
-
-#if 0
-inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
-{
-    const float inputRow = pos.y + 7;
-    const float label1 = inputRow - 18;
-    //-------------------- make the pitch control column
-    addInput(Port::create<PJ301MPort>(
-        Vec(17 + pos.x, inputRow), Port::INPUT, module, module->chb.CV_INPUT));
-    addLabel(Vec(15 + pos.x, label1), "CV");
-
-    addParam(ParamWidget::create<RoundBlackSnapKnob>(
-        Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE,
-        -5.0f, 4.0f, 0.f));
-    addLabel(Vec(14 + pos.x, pos.y + 34), "Oct");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(20 + pos.x, pos.y + 98), module, module->chb.PARAM_TUNE,
-        -5.0f, 5.0f, 0));
-    addLabel(Vec(9 + pos.x, pos.y + 80), "Tune");
-
-    //--------------------------- make the mod column
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(60 + pos.x, inputRow), Port::INPUT, module, module->chb.PITCH_MOD_INPUT));
-    addLabel(Vec(53 + pos.x, label1), "Mod");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(60 + pos.x, inputRow + 45), module, module->chb.PARAM_PITCH_MOD_TRIM,
-        0, 1.0f, 1.0f));
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(100 + pos.x, inputRow), Port::INPUT, module, module->chb.LINEAR_FM_INPUT));
-    addLabel(Vec(93 + pos.x, label1), "LFM");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(100 + pos.x, inputRow + 45), module, module->chb.PARAM_LINEAR_FM_TRIM,
-        0, 1.0f, 1));
-}
-#endif
 
 void CHBWidget::resetMe(CHBModule *module)
 {
@@ -489,34 +353,16 @@ CHBWidget::CHBWidget(CHBModule *module) :
     addMisc(module);
     addBottomJacks(module);
 
-#if 0
-    const float row1 = 30;
-    addVCO(module, Vec(10, row1));
-    addMixer(module, Vec(12, 155));
-    addFolder(module, Vec(188, row1));
-
-    auto sw = new SQPush();
-    sw->box.pos = Vec(180, 240);
-    sw->onClick([this, module]() {
-        this->resetMe(module);
-    });
-    addChild(sw);
-    addOutput(Port::create<PJ301MPort>(
-        Vec(180, 330), Port::OUTPUT, module, module->chb.MIX_OUTPUT));
-    addLabel(Vec(170, 310), "Out");
-#endif
-
-// screws
+    // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH))); 
 }
 
 Model *modelCHBModule = Model::create<CHBModule,
     CHBWidget>("Squinky Labs",
     "squinkylabs-CHB",
-    "CHB", EFFECT_TAG, OSCILLATOR_TAG, WAVESHAPER_TAG);
-
+    "Chebyshev: Polynomial Wavetable VCO", EFFECT_TAG, OSCILLATOR_TAG, WAVESHAPER_TAG);
 
 #endif

@@ -29,6 +29,13 @@ struct Blue30Knob : SVGKnob {
 	}
 };
 
+struct Blue30SnapKnob : Blue30Knob {
+	Blue30SnapKnob() {
+		snap = true;
+		smooth = false;
+	}
+};
+
 struct NKKSmall : SVGSwitch, ToggleSwitch {
 	NKKSmall() {
 		addFrame(SVG::load(assetPlugin(plugin, "res/NKKSmall_0.svg")));

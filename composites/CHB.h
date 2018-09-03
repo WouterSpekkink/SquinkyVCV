@@ -10,7 +10,6 @@
 
 using Osc = SinOscillator<float, true>;
 
-
 #ifndef _CLAMP
 #define _CLAMP
 namespace std {
@@ -148,8 +147,8 @@ private:
     std::shared_ptr<LookupTableParams<float>> db2gain = ObjectCache<float>::getDb2Gain();
 
     /**
-    * Audio taper for the slope.
-    */
+     * Audio taper for the slope.
+     */
     AudioMath::ScaleFun<float> slopeScale =
     {AudioMath::makeLinearScaler<float>(-18, 0)};
 
@@ -314,8 +313,6 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
         volumes[i] = val;
     }
 
-   // printf("knob 0=%f, 3 = %f 4=%f 10=%f\n", volumes[0], volumes[3], volumes[4], volumes[10]);
-
     // Second: apply the even and odd knobs
     {
         const float even = taper(TBase::params[PARAM_MAG_EVEN].value);
@@ -329,7 +326,6 @@ inline void CHB<TBase>::calcVolumes(float * volumes)
 
     // Third: slope
     {
-        // TODO: add attenuverter, or make a simple linear scale
         const float slope = slopeScale(TBase::params[PARAM_SLOPE].value, TBase::inputs[SLOPE_INPUT].value, 1);
 
         for (int i = 0; i < 11; ++i) {
