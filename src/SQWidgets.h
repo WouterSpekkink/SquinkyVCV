@@ -11,7 +11,7 @@
  */
 struct BlueTrimmer : SVGKnob {
 	BlueTrimmer() {
-        printf("ctrol of blue trimmer\n"); fflush(stdout);
+      //  printf("ctrol of blue trimmer\n"); fflush(stdout);
 		minAngle = -0.75*M_PI;
 		maxAngle = 0.75*M_PI;
 		setSVG(SVG::load(assetPlugin(plugin, "res/BlueTrimmer.svg")));

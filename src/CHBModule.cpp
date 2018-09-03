@@ -69,10 +69,17 @@ struct CHBWidget : ModuleWidget
     }
 
     void addHarmonics(CHBModule *module);
+    void addVCOKnobs(CHBModule *module);
+    void addOtherKnobs(CHBModule *module);
+    void addMisc(CHBModule *module);
+    void addBottomJacks(CHBModule *module);
+
+
   //  void addHarmonicsRow(CHBModule *module, int row, const Vec& pos);
  //   void addVCO(CHBModule *module, const Vec& pos);
  //   void addMixer(CHBModule *module, const Vec& pos);
  //   void addFolder(CHBModule *module, const Vec& pos);
+
     void resetMe(CHBModule *module);
 private:
     bool fake;
@@ -129,16 +136,24 @@ const float rowFirstHarmonicJackY = 47;
 const float harmonicJackSpacing = 32;
 const float harmonicTrimDeltaY = 27;
 
+// columns of knobs
+const float col1 = 75;
+const float col2 = 150;
+const float col3 = 214;
+
+// rows of knobs
+const float row1 = 75;
+const float row2 = 131;
+
+
 inline void CHBWidget::addHarmonics(CHBModule *module)
 {
     for (int i=0; i< numHarmonics; ++i) {
         const float row = rowFirstHarmonicJackY + i * harmonicJackSpacing;
-
         addInput(createInputCentered<PJ301MPort>(
             Vec(colHarmonicsJacks, row),
             module, 
             module->chb.H0_INPUT+i));
-       // addInput(input);
 
         auto p = createParamCentered<BlueTrimmer>(
             Vec(colHarmonicsJacks + harmonicTrimDeltaY, row), 
@@ -146,12 +161,74 @@ inline void CHBWidget::addHarmonics(CHBModule *module)
             module->chb.PARAM_H0+i,
             0.0f, 1.0f, 1.0f);
         addParam(p);
-
         harmonicParams.push_back(p);
-  
-
     }
 }
+
+
+inline void CHBWidget::addVCOKnobs(CHBModule *module)
+{
+    addParam(createParamCentered<Blue30Knob>(
+        Vec(col2, row1),
+        module,
+        module->chb.PARAM_OCTAVE,
+        -5.0f, 4.0f, 0.f));
+     addParam(createParamCentered<Blue30Knob>(
+        Vec(col3, row1),
+        module,
+        module->chb.PARAM_TUNE,
+        -5.0f, 5.0f, 0));
+     addParam(createParamCentered<Blue30Knob>(
+        Vec(col2, row2),
+        module,
+        module->chb.PARAM_PITCH_MOD_TRIM,
+        0, 1.0f, 1.0f));
+     addParam(createParamCentered<Blue30Knob>(
+        Vec(col3, row2),
+        module,
+        module->chb.PARAM_LINEAR_FM_TRIM,
+        0, 1.0f, 1.0f));
+}
+
+#if 0
+inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
+{
+    const float inputRow = pos.y + 7;
+    const float label1 = inputRow - 18;
+    //-------------------- make the pitch control column
+    addInput(Port::create<PJ301MPort>(
+        Vec(17 + pos.x, inputRow), Port::INPUT, module, module->chb.CV_INPUT));
+    addLabel(Vec(15 + pos.x, label1), "CV");
+
+    addParam(ParamWidget::create<RoundBlackSnapKnob>(
+        Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE,
+        -5.0f, 4.0f, 0.f));
+    addLabel(Vec(14 + pos.x, pos.y + 34), "Oct");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(20 + pos.x, pos.y + 98), module, module->chb.PARAM_TUNE,
+        -5.0f, 5.0f, 0));
+    addLabel(Vec(9 + pos.x, pos.y + 80), "Tune");
+
+    //--------------------------- make the mod column
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(60 + pos.x, inputRow), Port::INPUT, module, module->chb.PITCH_MOD_INPUT));
+    addLabel(Vec(53 + pos.x, label1), "Mod");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(60 + pos.x, inputRow + 45), module, module->chb.PARAM_PITCH_MOD_TRIM,
+        0, 1.0f, 1.0f));
+
+    addInput(Port::create<PJ301MPort>(
+        Vec(100 + pos.x, inputRow), Port::INPUT, module, module->chb.LINEAR_FM_INPUT));
+    addLabel(Vec(93 + pos.x, label1), "LFM");
+
+    addParam(ParamWidget::create<Trimpot>(
+        Vec(100 + pos.x, inputRow + 45), module, module->chb.PARAM_LINEAR_FM_TRIM,
+        0, 1.0f, 1));
+}
+#endif
 
 #if 0
 inline void CHBWidget::addHarmonics(CHBModule *module, const Vec& pos)
@@ -262,45 +339,6 @@ void CHBWidget::resetMe(CHBModule *module)
     }
 }
 
-#if 0
-inline void CHBWidget::addVCO(CHBModule *module, const Vec& pos)
-{
-    const float inputRow = pos.y + 7;
-    const float label1 = inputRow - 18;
-    //-------------------- make the pitch control column
-    addInput(Port::create<PJ301MPort>(
-        Vec(17 + pos.x, inputRow), Port::INPUT, module, module->chb.CV_INPUT));
-    addLabel(Vec(15 + pos.x, label1), "CV");
-
-    addParam(ParamWidget::create<RoundBlackSnapKnob>(
-        Vec(15 + pos.x, pos.y + 51), module, module->chb.PARAM_OCTAVE,
-        -5.0f, 4.0f, 0.f));
-    addLabel(Vec(14 + pos.x, pos.y + 34), "Oct");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(20 + pos.x, pos.y + 98), module, module->chb.PARAM_TUNE,
-        -5.0f, 5.0f, 0));
-    addLabel(Vec(9 + pos.x, pos.y + 80), "Tune");
-
-    //--------------------------- make the mod column
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(60 + pos.x, inputRow), Port::INPUT, module, module->chb.PITCH_MOD_INPUT));
-    addLabel(Vec(53 + pos.x, label1), "Mod");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(60 + pos.x, inputRow + 45), module, module->chb.PARAM_PITCH_MOD_TRIM,
-        0, 1.0f, 1.0f));
-
-    addInput(Port::create<PJ301MPort>(
-        Vec(100 + pos.x, inputRow), Port::INPUT, module, module->chb.LINEAR_FM_INPUT));
-    addLabel(Vec(93 + pos.x, label1), "LFM");
-
-    addParam(ParamWidget::create<Trimpot>(
-        Vec(100 + pos.x, inputRow + 45), module, module->chb.PARAM_LINEAR_FM_TRIM,
-        0, 1.0f, 1));
-}
-#endif
 
 #if 0
 void CHBWidget::addMixer(CHBModule *module, const Vec& pos)
@@ -372,6 +410,11 @@ CHBWidget::CHBWidget(CHBModule *module) :
         addChild(panel);
     }
     addHarmonics(module);
+    addVCOKnobs(module);
+    // addOtherKnobs( module);
+   // void addMisc(module);
+   // void addBottomJacks( module);
+    
 #if 0
     const float row1 = 30;
     addVCO(module, Vec(10, row1));
