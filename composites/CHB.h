@@ -118,7 +118,7 @@ private:
     bool isExternalAudio = false;
 
     /**
-     * The waveshaper this is the heart of this module
+     * The waveshaper that is the heart of this module
      */
     Poly<double, 11> poly;
 
