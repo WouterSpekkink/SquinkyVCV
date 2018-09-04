@@ -132,7 +132,7 @@ inline void MinBLEPVCO::enableWaveform(Waveform wf, bool flag)
             doSaw = flag;
             break;
         default:
-            assert(false);
+            assert(flag == false);
     }
    
 }

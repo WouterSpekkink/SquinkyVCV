@@ -70,7 +70,7 @@ struct CHBWidget : ModuleWidget
     void resetMe(CHBModule *module);
 private:
     bool fake;
-    const float defaultGainParam = .620;
+    const float defaultGainParam = .63;
 
     const int numHarmonics;
     CHBModule* const module;

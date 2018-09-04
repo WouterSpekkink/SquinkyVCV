@@ -499,6 +499,16 @@ static void testCHB(bool econ)
         }, 1);
 }
 
+static void testCHBdef()
+{
+    CHB<TestComposite> chb;
+    std::string name = "chbdef ";
+    MeasureTime<float>::run(overheadOutOnly, name.c_str(), [&chb]() {
+        chb.step();
+        return chb.outputs[CHB<TestComposite>::MIX_OUTPUT].value;
+        }, 1);
+}
+
 static void testEV3()
 {
     EV3<TestComposite> ev3;
@@ -649,6 +659,7 @@ void perfTest()
     testEV3();
     testCHB(false);
     testCHB(true);
+    testCHBdef();
     testFunSaw(true);
 #if 0
     testFunSaw(false);

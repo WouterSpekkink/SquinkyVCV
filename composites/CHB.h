@@ -103,13 +103,13 @@ public:
      */
     void step() override;
 
-  //  void setEconomy(bool);
-  //  bool isEconomy() const;
+    void setEconomy(bool);
+   bool isEconomy() const;
 
     float _freq = 0;
 
 private:
-    const bool economyMode = true;        // let's default to economy mode
+    bool economyMode = true;        // let's default to economy mode
     int cycleCount = 1;
     int clipCount = 0;
     int signalCount = 0;
@@ -193,7 +193,7 @@ inline float  CHB<TBase>::getOctave(int i) const
     return _octave[i];
 }
 
-#if 0
+#if 1
 template <class TBase>
 inline  void CHB<TBase>::setEconomy(bool b)
 {
