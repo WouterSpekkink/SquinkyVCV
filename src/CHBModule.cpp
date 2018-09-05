@@ -53,13 +53,14 @@ struct CHBWidget : ModuleWidget
     /**
      * Helper to add a text label to this widget
      */
-    void addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
+    Label* addLabel(const Vec& v, const char* str, const NVGcolor& color = COLOR_BLACK)
     {
         Label* label = new Label();
         label->box.pos = v;
         label->text = str;
         label->color = color;
         addChild(label);
+        return label;
     }
 
     void addHarmonics(CHBModule *module);
@@ -99,7 +100,7 @@ const float row3 = 228;
 const float row4 = 287;
 const float row5 = 332;
 
-const float labelAboveKnob = 32;
+const float labelAboveKnob = 33;
 const float labelAboveJack = 30;
 
 inline void CHBWidget::addHarmonics(CHBModule *module)
@@ -135,7 +136,7 @@ inline void CHBWidget::addVCOKnobs(CHBModule *module)
         module,
         module->chb.PARAM_TUNE,
         -5.0f, 5.0f, 0));
-    addLabel(Vec(col3 - 21, row1 - labelAboveKnob), "Tune");
+    addLabel(Vec(col3 - 22, row1 - labelAboveKnob), "Tune");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col2, row2),
@@ -179,7 +180,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_EVEN,
         0, 1, 1));
-    addLabel(Vec(col2 - 21, row3 - labelAboveKnob), "Even");
+    addLabel(Vec(col2 - 21.5, row3 - labelAboveKnob), "Even");
 
     //odd
     addParam(createParamCentered<Blue30Knob>(
@@ -187,7 +188,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_ODD,
         0, 1, 1));
-    addLabel(Vec(col3 - 19, row3 - labelAboveKnob), "Odd");
+    addLabel(Vec(col3 - 20, row3 - labelAboveKnob), "Odd");
 }
 
 void CHBWidget::addMisc(CHBModule *module)
@@ -208,8 +209,10 @@ void CHBWidget::addMisc(CHBModule *module)
         module,
         module->chb.PARAM_FOLD,
         0.0f, 1.0f, 0.0f));
-    addLabel(Vec(col1 - 19, 219 - 30), "Fold");
-    addLabel(Vec(col1 - 18, 219 + 10), "Clip");
+    auto l = addLabel(Vec(col1 - 18, 219 - 30), "Fold");
+    l->fontSize = 11;
+    l = addLabel(Vec(col1 - 17, 219 + 10), "Clip");
+    l->fontSize = 11;
 
  //  Vec(col1, 165),
     addChild(createLightCentered<SmallLight<GreenRedLight>>(
@@ -229,14 +232,14 @@ static const char* labels[] = {
     "Out",
 };
 static const int offsets[] = {
-    -3,
-    0,
-    2,
-    -2,
-    -4,
     -1,
+    2,
+    3,
+    -1,
+    -1,
+    1,
     5,
-    1
+    2
 };
 
 static const int ids[] = {
@@ -276,9 +279,11 @@ void CHBWidget::addBottomJacks(CHBModule *module)
                     module,
                     id));
             }
-            addLabel(Vec(pos.x - 20 + offsets[index], pos.y - labelAboveJack),
+            auto l = addLabel(Vec(pos.x - 20 + offsets[index], pos.y - labelAboveJack),
                 labels[index],
                 color);
+            l->fontSize = 11;
+           // printf("def font size %f\n", l->fontSize);
         }
     }
 }
@@ -354,6 +359,7 @@ CHBWidget::CHBWidget(CHBModule *module) :
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/chb_panel.svg")));
         addChild(panel);
     }
+
     addHarmonics(module);
     addVCOKnobs(module);
     addOtherKnobs(module);
