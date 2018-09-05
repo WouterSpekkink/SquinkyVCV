@@ -85,7 +85,7 @@ private:
 const float colHarmonicsJacks = 21;
 const float rowFirstHarmonicJackY = 47;
 const float harmonicJackSpacing = 32;
-const float harmonicTrimDeltaY = 27;
+const float harmonicTrimDeltax = 27.5;
 
 // columns of knobs
 const float col1 = 95;
@@ -112,7 +112,7 @@ inline void CHBWidget::addHarmonics(CHBModule *module)
             module->chb.H0_INPUT + i));
 
         auto p = createParamCentered<Trimpot>(
-            Vec(colHarmonicsJacks + harmonicTrimDeltaY, row),
+            Vec(colHarmonicsJacks + harmonicTrimDeltax, row),
             module,
             module->chb.PARAM_H0 + i,
             0.0f, 1.0f, 1.0f);
@@ -171,7 +171,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_SLOPE,
         -5, 5, 5));
-    addLabel(Vec(185 - 22, 188 - labelAboveKnob), "Slope");
+    addLabel(Vec(185 - 23, 188 - labelAboveKnob), "Slope");
 
     //even
     addParam(createParamCentered<Blue30Knob>(
@@ -179,7 +179,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_EVEN,
         0, 1, 1));
-    addLabel(Vec(col2 - 22, row3 - labelAboveKnob), "Even");
+    addLabel(Vec(col2 - 21, row3 - labelAboveKnob), "Even");
 
     //odd
     addParam(createParamCentered<Blue30Knob>(
@@ -200,7 +200,7 @@ void CHBWidget::addMisc(CHBModule *module)
     });
 
     addChild(sw);
-    addLabel(Vec(col1 - 24, 104 - labelAboveKnob), "Preset");
+    addLabel(Vec(col1 - 25, 104 - labelAboveKnob), "Preset");
 
     const float switchY = 219;
     addParam(createParamCentered<CKSS>(
@@ -209,7 +209,7 @@ void CHBWidget::addMisc(CHBModule *module)
         module->chb.PARAM_FOLD,
         0.0f, 1.0f, 0.0f));
     addLabel(Vec(col1 - 19, 219 - 30), "Fold");
-    addLabel(Vec(col1 - 20, 219 + 10), "Clip");
+    addLabel(Vec(col1 - 18, 219 + 10), "Clip");
 
  //  Vec(col1, 165),
     addChild(createLightCentered<SmallLight<GreenRedLight>>(
@@ -229,13 +229,13 @@ static const char* labels[] = {
     "Out",
 };
 static const int offsets[] = {
-    -2,
-    -1,
-    2,
     -3,
-    -4,
+    0,
+    2,
     -2,
-    4,
+    -4,
+    -1,
+    5,
     1
 };
 
