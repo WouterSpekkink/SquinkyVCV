@@ -111,7 +111,7 @@ inline void CHBWidget::addHarmonics(CHBModule *module)
             module,
             module->chb.H0_INPUT + i));
 
-        auto p = createParamCentered<BlueTrimmer>(
+        auto p = createParamCentered<Trimpot>(
             Vec(colHarmonicsJacks + harmonicTrimDeltaY, row),
             module,
             module->chb.PARAM_H0 + i,
@@ -128,21 +128,21 @@ inline void CHBWidget::addVCOKnobs(CHBModule *module)
         module,
         module->chb.PARAM_OCTAVE,
         -5.0f, 4.0f, 0.f));
-    addLabel(Vec(col2 - 26, row1 - labelAboveKnob), "Octave");
+    addLabel(Vec(col2 - 27, row1 - labelAboveKnob), "Octave");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col3, row1),
         module,
         module->chb.PARAM_TUNE,
         -5.0f, 5.0f, 0));
-    addLabel(Vec(col3 - 26, row1 - labelAboveKnob), "Tune");
+    addLabel(Vec(col3 - 21, row1 - labelAboveKnob), "Tune");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col2, row2),
         module,
         module->chb.PARAM_PITCH_MOD_TRIM,
         0, 1.0f, 0.0f));
-    addLabel(Vec(col2 - 18, row2 - labelAboveKnob), "Mod");
+    addLabel(Vec(col2 - 21, row2 - labelAboveKnob), "Mod");
 
     addParam(createParamCentered<Blue30Knob>(
         Vec(col3, row2),
@@ -163,7 +163,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         -5.0f, 5.0f, defaultGainParam);
     addParam(gainParam);
 
-    addLabel(Vec(col1 - 20, 165 - labelAboveKnob), "Gain");
+    addLabel(Vec(col1 - 22, 165 - labelAboveKnob), "Gain");
 
     // slope
     addParam(createParamCentered<Blue30Knob>(
@@ -171,7 +171,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_SLOPE,
         -5, 5, 5));
-    addLabel(Vec(185 - 24, 188 - labelAboveKnob), "Slope");
+    addLabel(Vec(185 - 22, 188 - labelAboveKnob), "Slope");
 
     //even
     addParam(createParamCentered<Blue30Knob>(
@@ -179,7 +179,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_EVEN,
         0, 1, 1));
-    addLabel(Vec(col2 - 20, row3 - labelAboveKnob), "Even");
+    addLabel(Vec(col2 - 22, row3 - labelAboveKnob), "Even");
 
     //odd
     addParam(createParamCentered<Blue30Knob>(
@@ -187,7 +187,7 @@ inline void CHBWidget::addOtherKnobs(CHBModule *module)
         module,
         module->chb.PARAM_MAG_ODD,
         0, 1, 1));
-    addLabel(Vec(col3 - 20, row3 - labelAboveKnob), "Odd");
+    addLabel(Vec(col3 - 19, row3 - labelAboveKnob), "Odd");
 }
 
 void CHBWidget::addMisc(CHBModule *module)
@@ -208,7 +208,7 @@ void CHBWidget::addMisc(CHBModule *module)
         module,
         module->chb.PARAM_FOLD,
         0.0f, 1.0f, 0.0f));
-    addLabel(Vec(col1 - 20, 219 - 30), "Fold");
+    addLabel(Vec(col1 - 19, 219 - 30), "Fold");
     addLabel(Vec(col1 - 20, 219 + 10), "Clip");
 
  //  Vec(col1, 165),
@@ -229,14 +229,14 @@ static const char* labels[] = {
     "Out",
 };
 static const int offsets[] = {
+    -2,
     -1,
-    0,
-    3,
-    -4,
+    2,
+    -3,
     -4,
     -2,
     4,
-    2
+    1
 };
 
 static const int ids[] = {
