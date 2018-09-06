@@ -1,6 +1,7 @@
 #include "Squinky.hpp"
 #include "WidgetComposite.h"
 
+#ifdef _EV3
 
 #include "EV3.h"
 
@@ -115,4 +116,6 @@ Model *modelEV3Module = Model::create<EV3Module,
     EV3Widget>("Squinky Labs",
     "squinkylabs-ev3",
     "EV3", EFFECT_TAG, OSCILLATOR_TAG);
+
+#endif
 

@@ -376,6 +376,6 @@ CHBWidget::CHBWidget(CHBModule *module) :
 Model *modelCHBModule = Model::create<CHBModule,
     CHBWidget>("Squinky Labs",
     "squinkylabs-CHB",
-    "Chebyshev: Polynomial Wavetable VCO", EFFECT_TAG, OSCILLATOR_TAG, WAVESHAPER_TAG);
+    "Chebyshev: Waveshaper VCO", EFFECT_TAG, OSCILLATOR_TAG, WAVESHAPER_TAG);
 
 #endif
