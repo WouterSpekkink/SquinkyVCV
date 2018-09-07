@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rack.hpp"
+#include "rack.hpp"
 #include "WidgetComposite.h"
 
 #include <functional>

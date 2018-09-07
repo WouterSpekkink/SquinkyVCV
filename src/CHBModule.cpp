@@ -112,11 +112,12 @@ inline void CHBWidget::addHarmonics(CHBModule *module)
             module,
             module->chb.H0_INPUT + i));
 
+        const float defaultValue = (i == 0) ? 1 : 0;
         auto p = createParamCentered<Trimpot>(
             Vec(colHarmonicsJacks + harmonicTrimDeltax, row),
             module,
             module->chb.PARAM_H0 + i,
-            0.0f, 1.0f, 1.0f);
+            0.0f, 1.0f, defaultValue);
         addParam(p);
         harmonicParams.push_back(p);
     }
@@ -135,7 +136,7 @@ inline void CHBWidget::addVCOKnobs(CHBModule *module)
         Vec(col3, row1),
         module,
         module->chb.PARAM_TUNE,
-        -5.0f, 5.0f, 0));
+        -7.0f, 7.0f, 0));
     addLabel(Vec(col3 - 22, row1 - labelAboveKnob), "Tune");
 
     addParam(createParamCentered<Blue30Knob>(

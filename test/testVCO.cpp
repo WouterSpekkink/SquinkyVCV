@@ -14,8 +14,28 @@ using EVCO = EvenVCO <TestComposite>;
 //using FUN = VoltageControlledOscillator<16, 16>;
 using CH = CHB<TestComposite>;
 
+float desiredPitch(float octave, float tune, float cv1, float cv2, float mod)
+{
+    float pitch = 1.0f + roundf(octave) + tune / 12.0f;
+    pitch += cv1 + cv2;
+    pitch += mod / 4.0f;
+
+    float freq = 261.626f * powf(2.0f, pitch);
+    // printf("theirs: pitch = %f exp = %f\n", pitch, freq);
+    return freq;
+}
+
 float desiredPitchEv(const EVCO& vco)
 {
+#if 1
+    return desiredPitch(
+        vco.params[(int) EVCO::OCTAVE_PARAM].value,
+        vco.params[(int) EVCO::TUNE_PARAM].value,
+        vco.inputs[(int) EVCO::PITCH1_INPUT].value,
+        vco.inputs[(int) EVCO::PITCH2_INPUT].value,
+        vco.inputs[(int) EVCO::FM_INPUT].value
+    );
+#else
     // This is just the original code as reference
     float pitch = 1.0f + roundf(vco.params[(int) EVCO::OCTAVE_PARAM].value) + vco.params[(int) EVCO::TUNE_PARAM].value / 12.0f;
     pitch += vco.inputs[(int) EVCO::PITCH1_INPUT].value + vco.inputs[(int) EVCO::PITCH2_INPUT].value;
@@ -24,11 +44,20 @@ float desiredPitchEv(const EVCO& vco)
     float freq = 261.626f * powf(2.0f, pitch);
    // printf("theirs: pitch = %f exp = %f\n", pitch, freq);
     return freq;
+#endif
 }
 
 float desiredPitchCh(const CH& vco)
 {
+    return desiredPitch(
+        vco.params[(int) CH::PARAM_OCTAVE].value,
+        vco.params[(int) CH::PARAM_TUNE].value,
+        vco.inputs[(int) CH::CV_INPUT].value,
+        0,
+        vco.inputs[(int) CH::PITCH_MOD_INPUT].value
+    );
 
+#if 0
     float pitch = 1.0f + roundf(vco.params[(int) CH::PARAM_OCTAVE].value) + vco.params[(int) CH::PARAM_TUNE].value / 12.0f;
     pitch += vco.inputs[(int) CH::CV_INPUT].value;
     pitch += vco.inputs[(int) CH::PITCH_MOD_INPUT].value / 4.0f;
@@ -37,7 +66,16 @@ float desiredPitchCh(const CH& vco)
 
     float freq = 261.626f * powf(2.0f, pitch);
     // printf("theirs: pitch = %f exp = %f\n", pitch, freq);
+    printf("in desiredPitchCh oct=%f, tune=%f cv=%f, mode=%f\n",
+        vco.params[(int) CH::PARAM_OCTAVE].value,
+        vco.params[(int) CH::PARAM_TUNE].value,
+        vco.inputs[(int) CH::CV_INPUT].value,
+        vco.inputs[(int) CH::PITCH_MOD_INPUT].value);
+    printf("  freq = %f\n", freq);
+
+
     return freq;
+#endif
 }
 
 static void testxEv(float octave, float tune = 0, float pitch1 = 0, float pitch2 = 0, float fm = 0)
@@ -80,13 +118,6 @@ static void testxCh(float octave, float tune = 0, float pitch1 = 0, float pitch2
   //  vco.inputs[(int) CH::PITCH2_INPUT].value = pitch2;
     vco.inputs[(int) CH::PITCH_MOD_INPUT].value = fm;
 
-#if 0
-    vco.outputs[(int) CH::SAW_OUTPUT].active = true;
-    vco.outputs[(int) CH::EVEN_OUTPUT].active = false;
-    vco.outputs[(int) CH::TRI_OUTPUT].active = false;
-    vco.outputs[(int) CH::SQUARE_OUTPUT].active = false;
-    vco.outputs[(int) CH::SINE_OUTPUT].active = false;
-#endif
 
     vco.step();
     const float desired = desiredPitchCh(vco);
@@ -147,7 +178,6 @@ static void testMaxFreqCh()
 {
     testxCh(4, 7, 0, 0);
     testxCh(4, 7, 1, 0);
-   // testxCh(4, 7, 0, 1);
 }
 
 static void testMinFreqEv()
@@ -155,10 +185,24 @@ static void testMinFreqEv()
     testxEv(-5, -7, 0, 0);
     testxEv(-5, -7, -2, 0);
 }
+
 static void testMinFreqCh()
 {
     testxCh(-5, -7, 0, 0);
     testxCh(-5, -7, -2, 0);
+}
+
+static void testTuneEv()
+{
+    testxEv(0, -7, 0, 0);
+    testxEv(0, 7, 0, 0);
+}
+
+
+static void testTuneCh()
+{
+    testxCh(0, -7, 0, 0);
+    testxCh(0, 7, 0, 0);
 }
 
 
@@ -170,6 +214,7 @@ static void testClamp()
     assertEQ(std::clamp(12, 13, 15), 13);
 }
 
+#if 1
 void testVCO()
 {
     testInitEv();
@@ -181,4 +226,12 @@ void testVCO()
     testMinFreqEv();
     testMinFreqCh();
     testClamp();
+    testTuneEv();
+    testTuneCh();
 }
+#else
+void testVCO()
+{
+    testOctavesCh();
+}
+#endif
