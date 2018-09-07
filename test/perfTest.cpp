@@ -22,7 +22,7 @@
 #include "GMR.h"
 #include "CHB.h"
 #include "FunVCOComposite.h"
-#include "ev3.h"
+#include "EV3.h"
 
 
 using Shifter = FrequencyShifter<TestComposite>;
