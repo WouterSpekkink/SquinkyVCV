@@ -21,7 +21,7 @@ public:
   
     enum InputIds
     {
-        INPUT_CLOCK
+        INPUT_CLOCK,
         NUM_INPUTS
     };
 

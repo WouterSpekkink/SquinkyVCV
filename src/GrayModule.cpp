@@ -59,9 +59,40 @@ struct GrayWidget : ModuleWidget
 
 
 private:
+    void addBits(GrayModule *module);
 
     GrayModule* const module;
 };
+
+const float jackCol = 40;
+const float ledCol = jackCol + 20;
+const float vertSpace = 32;
+const float firstBitY = 80;
+
+inline void GrayWidget::addBits(GrayModule *module)
+{
+    for (int i=0; i<8; ++i) {
+        const Vec v(jackCol, firstBitY + i * vertSpace);
+        addOutput(createOutputCentered<PJ301MPort>(
+            v,
+            module,
+            Gray<WidgetComposite>::OUTPUT_0 + i));
+        #if 1
+        addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(
+            Vec(ledCol, firstBitY + i * vertSpace - 6),
+            module,
+            Gray<WidgetComposite>::LIGHT_0));
+        #else
+
+        const Vec vl(ledCol, firstBitY + i * vertSpace);
+        addChild(
+            createLightCentered<GreenLight>(
+                vl, 
+                module,
+                Gray<WidgetComposite>::LIGHT_0));
+        #endif
+    }
+}
 
 /**
  * Global coordinate contstants
@@ -82,6 +113,15 @@ GrayWidget::GrayWidget(GrayModule *module) :
         panel->setBackground(SVG::load(assetPlugin(plugin, "res/blank_panel.svg")));
         addChild(panel);
     }
+
+    addBits(module);
+
+    Vec v(100,20);
+    addInput(createInputCentered<PJ301MPort>(
+            v,
+            module,
+            Gray<WidgetComposite>::INPUT_CLOCK));
+   
 
  
     // screws
