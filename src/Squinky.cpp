@@ -42,4 +42,5 @@ void init(rack::Plugin *p)
 #ifdef _EV3
     p->addModel(modelEV3Module);
 #endif
+    p->addModel(modelGrayModule);
 }

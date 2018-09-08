@@ -28,6 +28,8 @@ extern Model *modelFunVModule;
 #ifdef _EV3
 extern Model *modelEV3Module;
 #endif
+extern Model *modelGrayModule;
+
 
 
 
