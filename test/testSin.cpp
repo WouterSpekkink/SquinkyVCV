@@ -1,9 +1,12 @@
-
+/**
+ * THD+Noise tests for various sin generators
+ */
 #include "Analyzer.h"
 #include "SinOscillator.h"
 
 #include <functional>
 
+#if 0
 const static int numSamples = 16 * 256 * 1024;
 //const static int numSamples = 256;
 const double sampleRate = 44100.0;
@@ -219,3 +222,4 @@ void testSin()
    // testOsc3();
    // testOsc2Amp();
 }
+#endif

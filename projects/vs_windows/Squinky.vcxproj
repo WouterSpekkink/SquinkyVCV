@@ -55,6 +55,7 @@
     <ClCompile Include="..\..\test\testHilbert.cpp" />
     <ClCompile Include="..\..\test\testLookupTable.cpp" />
     <ClCompile Include="..\..\test\testLowpassFilter.cpp" />
+    <ClCompile Include="..\..\test\testMinBLEPVCO.cpp" />
     <ClCompile Include="..\..\test\testObjectCache.cpp" />
     <ClCompile Include="..\..\test\testPoly.cpp" />
     <ClCompile Include="..\..\test\testRingBuffer.cpp" />
@@ -73,6 +74,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\composites\CHB.h" />
     <ClInclude Include="..\..\composites\ColoredNoise.h" />
+    <ClInclude Include="..\..\composites\EV3.h" />
     <ClInclude Include="..\..\composites\FrequencyShifter.h" />
     <ClInclude Include="..\..\composites\FunVCOComposite.h" />
     <ClInclude Include="..\..\composites\GMR.h" />
@@ -94,6 +96,7 @@
     <ClInclude Include="..\..\dsp\filters\HilbertFilterDesigner.h" />
     <ClInclude Include="..\..\dsp\filters\LowPassFilter.h" />
     <ClInclude Include="..\..\dsp\filters\StateVariableFilter.h" />
+    <ClInclude Include="..\..\dsp\generators\MinBLEPVCO.h" />
     <ClInclude Include="..\..\dsp\generators\MultiModOsc.h" />
     <ClInclude Include="..\..\dsp\generators\SawOscillator.h" />
     <ClInclude Include="..\..\dsp\generators\SinOscillator.h" />

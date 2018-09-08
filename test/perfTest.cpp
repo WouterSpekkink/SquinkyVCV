@@ -22,6 +22,7 @@
 #include "GMR.h"
 #include "CHB.h"
 #include "FunVCOComposite.h"
+#include "EV3.h"
 
 
 using Shifter = FrequencyShifter<TestComposite>;
@@ -483,19 +484,42 @@ static void testFunSq()
         }, 1);
 }
 
-static void testCHB()
+static void testCHB(bool econ)
 {
     CHB<TestComposite> chb;
 
-    chb.setSampleTime(1.0f / 44100.f);
-    chb.init();
+//    chb.init();
+    chb.setEconomy(econ);
 
-    MeasureTime<float>::run(overheadOutOnly, "chb", [&chb]() {
+    std::string name = "chb ";
+    name += econ ? "econ" : "full";
+    MeasureTime<float>::run(overheadOutOnly, name.c_str(), [&chb]() {
         chb.step();
-        return chb.outputs[LFN<TestComposite>::OUTPUT].value;
+        return chb.outputs[CHB<TestComposite>::MIX_OUTPUT].value;
         }, 1);
 }
 
+static void testCHBdef()
+{
+    CHB<TestComposite> chb;
+    std::string name = "chbdef ";
+    MeasureTime<float>::run(overheadOutOnly, name.c_str(), [&chb]() {
+        chb.step();
+        return chb.outputs[CHB<TestComposite>::MIX_OUTPUT].value;
+        }, 1);
+}
+
+static void testEV3()
+{
+    EV3<TestComposite> ev3;
+
+    //    chb.init();
+
+    MeasureTime<float>::run(overheadOutOnly, "ev3", [&ev3]() {
+        ev3.step();
+        return ev3.outputs[EV3<TestComposite>::MIX_OUTPUT].value;
+        }, 1);
+}
 static void testGMR()
 {
     GMR<TestComposite> gmr;
@@ -631,10 +655,14 @@ void perfTest()
     testNormal();
 #endif
 
-
+   
+    testEV3();
+    testCHB(false);
+    testCHB(true);
+    testCHBdef();
     testFunSaw(true);
+#if 0
     testFunSaw(false);
-#if 1
     testFunSin(true);
     testFunSin(false);
     testFunSq();
@@ -644,7 +672,7 @@ void perfTest()
 
 //    testEvenOrig();
     testEvenSaw();
-#if 1
+#if 0
     testEven();
     testEvenEven();
     testEvenSin();
@@ -662,10 +690,11 @@ void perfTest()
 
     testColors();
     testTremolo();
-    testCHB();
+   
     testLFN();
     testGMR();
 #endif
+   
 
    // test1();
 #if 0

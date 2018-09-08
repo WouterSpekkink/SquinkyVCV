@@ -39,8 +39,8 @@ std::shared_ptr<LookupTableParams<T>> ObjectCache<T>::getSinLookup()
     if (!ret) {
         ret = std::make_shared<LookupTableParams<T>>();
         std::function<double(double)> f = AudioMath::makeFunc_Sin();
-        // Used to use 4096, but 256 gives about 80db  snr, so let's save memory
-        LookupTable<T>::init(*ret, 256, 0, 1, f);
+        // Used to use 4096, but 512 gives about 92db  snr, so let's save memory
+        LookupTable<T>::init(*ret, 512, 0, 1, f);
         sinLookupTable = ret;
     }
     return ret;

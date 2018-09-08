@@ -249,6 +249,9 @@
     <ClCompile Include="..\..\test\testSin.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\testMinBLEPVCO.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dsp\third-party\falco\DspFilter.h">
@@ -430,6 +433,12 @@
     </ClInclude>
     <ClInclude Include="..\..\dsp\third-party\src\EvenVCO_orig.h">
       <Filter>Header Files\dsp\third-party\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dsp\generators\MinBLEPVCO.h">
+      <Filter>Header Files\dsp\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\composites\EV3.h">
+      <Filter>Header Files\composites</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

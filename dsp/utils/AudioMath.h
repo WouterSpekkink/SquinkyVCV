@@ -66,7 +66,8 @@ public:
 
     /**
      * ScaleFun is a function the combines CV, knob, and trim into a voltage.
-     * Typically a ScaleFun is like an "attenuverter"
+     * Typically a ScaleFun is like an "attenuverter", where the trim input
+     * is the attenuverter.
      */
     template <typename T>
     using ScaleFun = std::function<T(T cv, T knob, T trim)>;
@@ -79,6 +80,10 @@ public:
      *
      * This particular function is used when knobs are -5..5,
      * and CV range is -5..5.
+     *
+     *
+     * Can easily be used to add, clip and scale just a knob an a CV by 
+     * passing 1 for the trim param.
      */
     template <typename T>
     static ScaleFun<T> makeLinearScaler(T y0, T y1)
