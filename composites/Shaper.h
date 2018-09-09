@@ -2,6 +2,8 @@
 
 #include "IIRUpsampler.h"
 #include "IIRDecimator.h"
+#include "LookupTable.h"
+#include "ObjectCache.h"
 
 template <class TBase>
 class Shaper : public TBase
@@ -53,6 +55,7 @@ private:
     void init();
     IIRUpsampler<oversample> up;
     IIRDecimator<oversample> dec;
+    std::shared_ptr<LookupTableParams<float>> tanhLookup;
   
 };
 
@@ -64,6 +67,8 @@ void  Shaper<TBase>::init()
    float fc = .25 / float(oversample);
    up.setCutoff(fc);
    dec.setCutoff(fc);
+
+    tanhLookup = ObjectCache<float>::getTanh5();
 }
 
 template <class TBase>
@@ -86,6 +91,7 @@ void  Shaper<TBase>::step()
                 x = std::max(-1.f, x);
                 break;
             case 1:
+                x = LookupTable<float>::lookup(*tanhLookup.get(), x);
                 break;
             case 2:
                 x = std::abs(x);
@@ -94,6 +100,7 @@ void  Shaper<TBase>::step()
                 x = std::max(0.f, x);
                 break;
             case 4:
+                x = AudioMath::fold(x);
                 break;
 
         }
