@@ -71,6 +71,7 @@ const float firstBitY = 80;
 
 inline void GrayWidget::addBits(GrayModule *module)
 {
+    printf("add bits\n"); fflush(stdout);
     for (int i=0; i<8; ++i) {
         const Vec v(jackCol, firstBitY + i * vertSpace);
         addOutput(createOutputCentered<PJ301MPort>(
@@ -81,7 +82,7 @@ inline void GrayWidget::addBits(GrayModule *module)
         addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(
             Vec(ledCol, firstBitY + i * vertSpace - 6),
             module,
-            Gray<WidgetComposite>::LIGHT_0));
+            Gray<WidgetComposite>::LIGHT_0+i));
         #else
 
         const Vec vl(ledCol, firstBitY + i * vertSpace);
@@ -91,6 +92,7 @@ inline void GrayWidget::addBits(GrayModule *module)
                 module,
                 Gray<WidgetComposite>::LIGHT_0));
         #endif
+        printf("added bits\n"); fflush(stdout);
     }
 }
 
