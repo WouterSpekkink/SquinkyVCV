@@ -118,11 +118,17 @@ GrayWidget::GrayWidget(GrayModule *module) :
 
     addBits(module);
 
-    Vec v(100,20);
+   
     addInput(createInputCentered<PJ301MPort>(
-            v,
+            Vec(100,20),
             module,
             Gray<WidgetComposite>::INPUT_CLOCK));
+
+     addParam(createParamCentered<CKSS>(
+        Vec(100, 60),
+        module,
+        Gray<WidgetComposite>::PARAM_CODE,
+        0.0f, 1.0f, 0.0f));
    
 
  

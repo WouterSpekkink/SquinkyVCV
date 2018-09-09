@@ -1,7 +1,7 @@
 #pragma once
 
 
-static uint8_t gtable[256] =
+static const uint8_t gtable[256] =
 {
 0, 1, 3, 2, 6, 7, 5, 4, 12, 13, 15, 14, 10, 11, 9, 8,
 24, 25, 27, 26, 30, 31, 29, 28, 20, 21, 23, 22, 18, 19, 17, 16,
@@ -21,7 +21,7 @@ static uint8_t gtable[256] =
 136, 137, 139, 138, 142, 143, 141, 140, 132, 133, 135, 134, 130, 131, 129, 128
 };
 
-static uint8_t bgtable[256] = 
+static const uint8_t bgtable[256] = 
 {
 0x00, 0x01, 0x03, 0x02, 0x06, 0x0E, 0x0A, 0x0B, 0x09, 0x0D, 0x0F, 0x07, 0x05, 0x04, 0x0C, 0x08,
 0x18, 0x1C, 0x14, 0x15, 0x17, 0x1F, 0x3F, 0x37, 0x35, 0x34, 0x3C, 0x38, 0x28, 0x2C, 0x24, 0x25,
@@ -59,7 +59,7 @@ public:
 
     enum ParamIds
     {
-        PARAM_CLOCK_MUL,
+        PARAM_CODE,
         NUM_PARAMS
     };
   
@@ -123,7 +123,9 @@ void  Gray<TBase>::step()
         return;
     }
 
-    auto g = bgtable[counterValue];
+    const uint8_t* table = TBase::params[PARAM_CODE].value > .5 ? bgtable : gtable;
+
+    auto g = table[counterValue];
     for (int i=0; i<8; ++i) {
         bool b = g & 1;
         TBase::lights[i + LIGHT_0].value = b ? 10 : 0;
