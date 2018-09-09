@@ -58,6 +58,7 @@
     <ClCompile Include="..\..\test\testMinBLEPVCO.cpp" />
     <ClCompile Include="..\..\test\testObjectCache.cpp" />
     <ClCompile Include="..\..\test\testPoly.cpp" />
+    <ClCompile Include="..\..\test\testRateConversion.cpp" />
     <ClCompile Include="..\..\test\testRingBuffer.cpp" />
     <ClCompile Include="..\..\test\testSaw.cpp" />
     <ClCompile Include="..\..\test\testSin.cpp" />
@@ -109,6 +110,8 @@
     <ClInclude Include="..\..\dsp\utils\AsymRampShaper.h" />
     <ClInclude Include="..\..\dsp\utils\AudioMath.h" />
     <ClInclude Include="..\..\dsp\utils\Decimator.h" />
+    <ClInclude Include="..\..\dsp\utils\IIRDecimator.h" />
+    <ClInclude Include="..\..\dsp\utils\IIRUpsampler.h" />
     <ClInclude Include="..\..\dsp\utils\LookupTable.h" />
     <ClInclude Include="..\..\dsp\utils\LookupTableFactory.h" />
     <ClInclude Include="..\..\dsp\utils\ObjectCache.h" />

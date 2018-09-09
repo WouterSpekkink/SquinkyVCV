@@ -26,6 +26,7 @@
 #include "BiquadState.h"
 #include "ButterworthFilterDesigner.h"
 #include "ObjectCache.h"
+#include "IIRDecimator.h"
 
 extern float sawTable[2048];
 extern float triTable[2048];
@@ -34,31 +35,7 @@ extern float triTable[2048];
 // rather than  rack::Decimator<>
 #define _USEIIR
 
-template <int OVERSAMPLE>
-class IIRDecimator
-{
-public:
-    float process(const float * input)
-    {
-        float x = 0;
-        for (int i = 0; i < OVERSAMPLE; ++i) {
-            x = BiquadFilter<float>::run(input[i], state, params);
-        }
-        return x;
-    }
 
-    /**
-     * cutoff is normalized freq (.5 = nyquist)
-     */
-    void setCutoff(float cutoff)
-    {
-        assert(cutoff > 0 && cutoff < .5f);
-        ButterworthFilterDesigner<float>::designSixPoleLowpass(params, cutoff);
-    }
-private:
-    BiquadParams<float, 3> params;
-    BiquadState<float, 3> state;
-};
 
 template <int OVERSAMPLE, int QUALITY>
 struct VoltageControlledOscillator

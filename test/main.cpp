@@ -39,6 +39,7 @@ extern void testFilterDesign();
 extern void testVCOAlias();
 extern void testSin();
 extern void testMinBLEPVCO();
+extern void testRateConversion();
 
 int main(int argc, char ** argv)
 {
@@ -86,6 +87,7 @@ int main(int argc, char ** argv)
 
     testFFT();
     testAnalyzer();
+    testRateConversion();
 
    // printf("skipping lots of tests\n");
 #if 1
