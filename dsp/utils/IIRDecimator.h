@@ -1,5 +1,10 @@
 #pragma once
 
+#include "BiquadParams.h"
+#include "BiquadState.h"
+#include "ButterworthFilterDesigner.h"
+#include "BiquadFilter.h"
+
 /**
  * A traditional decimator, using IIR filters for interpolation
  *
@@ -20,8 +25,10 @@ public:
     }
 
     /**
-    * cutoff is normalized freq (.5 = nyquist)
-    */
+     * cutoff is normalized freq (.5 = nyquist).
+     * typically cutoff will be <  (.5 / OVERSAMPLE), 
+     * if not, the filters wouldn't work.
+     */
     void setCutoff(float cutoff)
     {
         assert(cutoff > 0 && cutoff < .5f);
