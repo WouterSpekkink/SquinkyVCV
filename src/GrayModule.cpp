@@ -125,10 +125,12 @@ GrayWidget::GrayWidget(GrayModule *module) :
             Gray<WidgetComposite>::INPUT_CLOCK));
 
      addParam(createParamCentered<CKSS>(
-        Vec(100, 60),
+        Vec(100, 100),
         module,
         Gray<WidgetComposite>::PARAM_CODE,
         0.0f, 1.0f, 0.0f));
+    addLabel(Vec(85, 70), "Balanced");
+    addLabel(Vec(85, 110), "Norm");
    
 
  

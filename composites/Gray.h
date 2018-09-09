@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GateTrigger.h"
+#include "ClockMult.h"
 
 static const uint8_t gtable[256] =
 {
@@ -48,13 +50,13 @@ template <class TBase>
 class Gray : public TBase
 {
 public:
-    Gray(struct Module * module) : TBase(module)
+    Gray(struct Module * module) : TBase(module), gateTrigger(true)
     {
-       // init();
+       init();
     }
-    Gray() : TBase()
+    Gray() : TBase(), gateTrigger(true)
     {
-       // init();
+       init();
     }
 
     enum ParamIds
@@ -103,25 +105,31 @@ public:
 
 private:
     uint8_t counterValue = 0;
+    //ClockMult clock;
+    GateTrigger gateTrigger;
     
     int c = 0;
+
+    void init();
   
 };
 
 
 template <class TBase>
+void  Gray<TBase>::init()
+{
+   // clock.setMultiplier(1); // no mult
+}
+
+
+template <class TBase>
 void  Gray<TBase>::step()
 {
-    // fake clock
-    if (++c < 4000) {
+    gateTrigger.go(TBase::inputs[INPUT_CLOCK].value);
+    if (!gateTrigger.trigger()) {
         return;
     }
-    c = 0;
-
-    ++ counterValue;
-    if (counterValue > 255) {
-        return;
-    }
+    ++counterValue;
 
     const uint8_t* table = TBase::params[PARAM_CODE].value > .5 ? bgtable : gtable;
 
