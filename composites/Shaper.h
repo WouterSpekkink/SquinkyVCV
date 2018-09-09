@@ -18,6 +18,9 @@ public:
 
     enum ParamIds
     {
+        PARAM_SHAPE,
+        PARAM_GAIN,
+        PARAM_OFFSET,
         NUM_PARAMS
     };
   
@@ -67,14 +70,33 @@ template <class TBase>
 void  Shaper<TBase>::step()
 {
     float buffer[oversample];
-    const float input = TBase::inputs[INPUT_AUDIO].value;
+    float input = TBase::inputs[INPUT_AUDIO].value;
+    input += TBase::params[PARAM_OFFSET].value;
+    input *= TBase::params[PARAM_GAIN].value;
+
+    const int shape = std::round(TBase::params[PARAM_SHAPE].value);
+
     up.process(buffer, input);
-
-
     for (int i=0; i<oversample; ++i) {
         float x = buffer[i];
-        x = std::min(1.f, x);
-        x = std::max(-1.f, x);
+        switch (shape)
+        {
+            case 0:   
+                x = std::min(1.f, x);
+                x = std::max(-1.f, x);
+                break;
+            case 1:
+                break;
+            case 2:
+                x = std::abs(x);
+                break;
+            case 3:
+                x = std::max(0.f, x);
+                break;
+            case 4:
+                break;
+
+        }
         buffer[i] = x;
     }
 

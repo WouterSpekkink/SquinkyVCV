@@ -89,18 +89,40 @@ ShaperWidget::ShaperWidget(ShaperModule *module) :
 
    
     addInput(createInputCentered<PJ301MPort>(
-            Vec(100,40),
+            Vec(40,340),
             module,
             Shaper<WidgetComposite>::INPUT_AUDIO));
 
     addOutput(createOutputCentered<PJ301MPort>(
-            Vec(100,120),
+            Vec(120,340),
             module,
             Shaper<WidgetComposite>::OUTPUT_AUDIO));
-  
-   
 
- 
+    
+    const float x = 80;
+    const float y = 100;
+    auto p = createParamCentered<Rogan1PSBlue>(
+        Vec(x, y),
+        module, Shaper<WidgetComposite>::PARAM_SHAPE, 0, 4, 0);
+    p->snap = true;
+	p->smooth = false;
+    addParam(p);
+    addLabel(Vec(x-45, y+15), "clip");
+    addLabel(Vec(x-60, y-10), "soft");
+    addLabel(Vec(x-16, y-40), "fw");
+    addLabel(Vec(x+20, y-10), "hw");
+    addLabel(Vec(x+10, y + 15), "fold");
+
+    addParam(createParamCentered<Rogan1PSBlue>(
+        Vec(40, 170),
+        module, Shaper<WidgetComposite>::PARAM_GAIN, 0, 10, 1));
+    addLabel(Vec(20, 195), "gain");
+
+    addParam(createParamCentered<Rogan1PSBlue>(
+        Vec(120, 170),
+        module, Shaper<WidgetComposite>::PARAM_OFFSET, -10, 10, 0));
+    addLabel(Vec(100, 195), "offset");
+    
     // screws
     addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
