@@ -29,7 +29,7 @@ extern Model *modelFunVModule;
 extern Model *modelEV3Module;
 #endif
 extern Model *modelGrayModule;
-
+extern Model *modelShaperModule;
 
 
 

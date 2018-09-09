@@ -51,7 +51,6 @@ static void test2()
     for (int i = 0; i < 100; ++i) {
         up.process(buffer, 10);
         x = dec.process(buffer);
-       
     }
     assertClose(x, 10, .001);
 }
