@@ -22,13 +22,17 @@ public:
     {
         PARAM_SHAPE,
         PARAM_GAIN,
+        PARAM_GAIN_TRIM,
         PARAM_OFFSET,
+        PARAM_OFFSET_TRIM,
         NUM_PARAMS
     };
   
     enum InputIds
     {
         INPUT_AUDIO,
+        INPUT_GAIN,
+        INPUT_OFFSET,
         NUM_INPUTS
     };
 
