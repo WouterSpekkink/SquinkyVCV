@@ -24,7 +24,9 @@ It can be a great help learning this module if you patch the output to a Scope m
 Also, note that we will repeat that when set up normally, each Chebyshev waveshaper is producing a different harmonic of the VCO output. Because of this, we will refer to these as "harmonic levels" and "waveshaper levels" interchangeably.
 
 And - each waveshaper is a perfect harmonic only when driven by a pure sine at exactly 1Vp-p.
+
 ## Signal Flow
+
 First there is a sine wave VCO. It has the controls you would expect, as well as a through-zero linear FM input, which allows a minimal  DX7-style FM.
 
 The VCO output then goes to a wave folder/clipper with gain controls. This allows for some distortion effects, and keeps the signal in a range that will keep the next stage happy.
@@ -33,7 +35,7 @@ The output of the folder/clipper then goes to ten parallel Chebyshev waveshapers
 
 When everything is set in a typical manner, each of the Chebyshev waveshapers will be  outputting a pure sine wave at an integer multiple of the fundamental frequency. Thus, each one will be a discrete harmonic.
 
-## Description of the controls.
+## Description of the controls
 
 ### VCO
 
@@ -85,7 +87,7 @@ The Slope control will apply a gradual roll-off of the upper harmonics. When it 
 
 Note that the level of the fundamental is not affected by either the Even or Odd control.
 
-The Odd, Even, and Slope controls may be thought of as "subtractive." When they are all the way up, they have no effect, and you get the mix you would expect from the individual harmonic levels. When you turn these controls down they will reduce the levels of the corresponding harmonics.
+The Odd, Even, and Slope controls may be thought of as subtractive. When they are all the way up, they have no effect, and you get the mix you would expect from the individual harmonic levels. When you turn these controls down they will reduce the levels of the corresponding harmonics.
 
 The Preset button toggles between two or three settings. It will always have a setting where the fundamental is full and all other harmonics off, and a setting where all harmonics are up full. In addition, if you started with your own setting of the harmonics, the preset button will eventually take you back there, but with the master gain set back to one.
 
