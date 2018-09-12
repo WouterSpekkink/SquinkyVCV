@@ -73,23 +73,23 @@ The output of the folder/clipper drives the Chebyshev waveshapers. The last grou
 
 There are a lot of controls that work together to determine how the waveshapers are mixed. When configured normally, that means these controls determine the ratios of all the harmonics of the VCO.
 
-The small knobs running up the left side individually control each waveshaper/harmonic.
-
-The Preset button toggles all ten harmonics between some good starting points, and also resets the Gain to be exactly 1.
+The *small knobs* running up the left side individually control each waveshaper/harmonic, with fundamental on top, and harmonic 10 on the bottom.
 
 The input jacks next to them allow the levels of each harmonic to be voltage controlled.
 
-The Even control increases/decreases the level of all the even harmonics together.
+The *Preset* button toggles all ten harmonics between some good starting points, and also resets the Gain to be exactly 1.
 
-The Odd control increases/decreases the level of all the odd harmonics together.
+The *Even* control increases/decreases the level of all the even harmonics together.
 
-The Slope control will apply a gradual roll-off of the upper harmonics. When it is all the way down the roll-off is 18 decibels per octave. When it is all the way up it’s flat.
+The *Odd* control increases/decreases the level of all the odd harmonics together.
+
+The *Slope* control will apply a gradual roll-off of the upper harmonics. When it is all the way down the roll-off is 18 decibels per octave. When it is all the way up it’s flat.
 
 Note that the level of the fundamental is not affected by either the Even or Odd control.
 
 The Odd, Even, and Slope controls may be thought of as subtractive. When they are all the way up, they have no effect, and you get the mix you would expect from the individual harmonic levels. When you turn these controls down they will reduce the levels of the corresponding harmonics.
 
-The Preset button toggles between two or three settings. It will always have a setting where the fundamental is full and all other harmonics off, and a setting where all harmonics are up full. In addition, if you started with your own setting of the harmonics, the preset button will eventually take you back there, but with the master gain set back to one.
+The *Preset* button toggles between two or three settings. It will always have a setting where the fundamental is full and all other harmonics off, and a setting where all harmonics are up full. In addition, if you started with your own setting of the harmonics, the preset button will eventually take you back there, but with the master gain set back to one.
 
 ## Several patching ideas
 
