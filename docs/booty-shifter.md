@@ -2,7 +2,6 @@
 
 [Chebyshev Waveshaper VCO](../docs/chebyshev.md) Click on link to go to Chbeyshev manual.
 
-
 [Functional VCO-1](#fun) Is an improved version of the Fundamental-VCO1.
 
 [LFN](#lfn) Is a random voltage generator made by running low frequency noise through a graphic equalizer.
@@ -22,6 +21,8 @@
 [Attenuverters](#atten)
 
 [CV ranges](#cv)
+
+The [release notes](release-notes.md) describe recent changes to our modules.
 
 # Functional VCO-1 <a name="fun"></a>
 
